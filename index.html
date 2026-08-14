@@ -10,6 +10,7 @@
 <meta name="theme-color" content="#2e7d32">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
     * { box-sizing: border-box; }
     body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background-color: #0d0d0d; color: #eaeaea; }
@@ -506,6 +507,17 @@ function filtrarPedidos() {
     renderizarPedidos(filtrado);
 }
 
+async function urlParaBase64(url) {
+    const resp = await fetch(url);
+    const blob = await resp.blob();
+    return await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.onerror = rej;
+        r.readAsDataURL(blob);
+    });
+}
+
 async function gerarPDF(id) {
     const p = pedidosCache.find(x => x.id === id);
     if (!p) return;
@@ -514,79 +526,151 @@ async function gerarPDF(id) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
         const pageWidth = doc.internal.pageSize.getWidth();
+        const verde = [139, 195, 0];
+        const pretoHeader = [13, 13, 13];
+        const cinzaTexto = [60, 60, 60];
 
+        // Cabecalho
+        doc.setFillColor(...pretoHeader);
+        doc.rect(0, 0, pageWidth, 30, 'F');
+        doc.setFillColor(...verde);
+        doc.rect(0, 30, pageWidth, 1.5, 'F');
+
+        try {
+            const logoBase64 = await urlParaBase64('./icon-512.png');
+            doc.addImage(logoBase64, 'PNG', 12, 4, 22, 22);
+        } catch (e) {
+            console.log("Logo nao carregada:", e);
+        }
+
+        doc.setTextColor(255, 255, 255);
+        doc.setFont(undefined, 'bold');
         doc.setFontSize(18);
-        doc.text("RP Bandeiras - Pedido de Producao", pageWidth / 2, 20, { align: 'center' });
-        doc.setLineWidth(0.5);
-        doc.line(15, 25, pageWidth - 15, 25);
+        doc.text("RP BANDEIRAS", 40, 15);
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(200, 230, 150);
+        doc.text("CONTROLE DE PRODUCAO - PEDIDO Nº " + p.id, 40, 22);
 
-        doc.setFontSize(12);
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(9);
+        doc.text("Data: " + (p.data_pedido || "-"), pageWidth - 15, 12, { align: 'right' });
+        doc.text("Destino: " + (p.destino || "-"), pageWidth - 15, 18, { align: 'right' });
 
-        const linhas = [
-            ["Candidato", p.candidato || "-"],
-            ["Cargo", p.cargo || "-"],
-            ["Numero", p.numero || "-"],
-            ["Estado", p.estado || "-"],
+        // Nome do candidato em destaque
+        doc.setTextColor(20, 20, 20);
+        doc.setFont(undefined, 'bold');
+        doc.setFontSize(16);
+        doc.text(p.candidato || "-", 15, 42);
+
+        // Badges (cargo, numero, estado)
+        let bx = 15;
+        const badges = [p.cargo, p.numero ? ("Nº " + p.numero) : null, p.estado].filter(Boolean);
+        doc.setFontSize(9);
+        badges.forEach(txt => {
+            const w = doc.getTextWidth(txt) + 8;
+            doc.setFillColor(...verde);
+            doc.roundedRect(bx, 46, w, 7, 2, 2, 'F');
+            doc.setTextColor(20, 20, 20);
+            doc.setFont(undefined, 'bold');
+            doc.text(txt, bx + 4, 51);
+            bx += w + 4;
+        });
+
+        // Foto do pedido (coluna direita)
+        const fotoX = 145, fotoY = 58, fotoW = 50, fotoH = 50;
+        doc.setDrawColor(200, 200, 200);
+        doc.setFillColor(245, 245, 245);
+        doc.roundedRect(fotoX, fotoY, fotoW, fotoH, 2, 2, 'FD');
+        if (p.foto_url) {
+            try {
+                const fotoBase64 = await urlParaBase64(p.foto_url);
+                let formato = 'JPEG';
+                if (fotoBase64.indexOf('image/png') !== -1) formato = 'PNG';
+                doc.addImage(fotoBase64, formato, fotoX + 2, fotoY + 2, fotoW - 4, fotoH - 4);
+            } catch (e) {
+                doc.setTextColor(150, 150, 150);
+                doc.setFontSize(8);
+                doc.text("Foto indisponivel", fotoX + fotoW / 2, fotoY + fotoH / 2, { align: 'center' });
+            }
+        } else {
+            doc.setTextColor(150, 150, 150);
+            doc.setFontSize(8);
+            doc.text("Sem foto anexada", fotoX + fotoW / 2, fotoY + fotoH / 2, { align: 'center' });
+        }
+        doc.setTextColor(...cinzaTexto);
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'normal');
+        doc.text("Foto do Pedido", fotoX, fotoY - 2);
+
+        // Secoes de dados (coluna esquerda) usando autoTable
+        const larguraTabela = 122;
+        let cursorY = 58;
+
+        function secao(titulo, linhas) {
+            doc.autoTable({
+                startY: cursorY,
+                margin: { left: 15 },
+                tableWidth: larguraTabela,
+                head: [[titulo, ""]],
+                body: linhas,
+                theme: 'grid',
+                styles: { fontSize: 9, cellPadding: 2, textColor: [40, 40, 40] },
+                headStyles: { fillColor: verde, textColor: [20, 20, 20], fontStyle: 'bold', fontSize: 9 },
+                columnStyles: { 0: { cellWidth: 45, fontStyle: 'bold' }, 1: { cellWidth: larguraTabela - 45 } },
+            });
+            cursorY = doc.lastAutoTable.finalY + 6;
+        }
+
+        secao("IDENTIFICACAO E MATERIAL", [
             ["CNPJ Fornecedor", p.cnpj_fornecedor || "-"],
             ["CNPJ Candidato", p.cnpj_candidato || "-"],
             ["Material", p.material || "-"],
             ["Acessorio", p.acessorio || "-"],
             ["Tiragem", String(p.tiragem || "-")],
             ["Quantidade", String(p.quantidade || "-")],
-            ["Data do Pedido", p.data_pedido || "-"],
-            ["Destino", p.destino || "-"],
-            ["", ""],
-            ["Status Interno", p.status_interno || "-"],
+        ]);
+
+        secao("PRODUCAO (STATUS INTERNO)", [
+            ["Status", p.status_interno || "-"],
             ["Data Exportacao", p.data_exportacao || "-"],
             ["Data Impressao", p.data_impressao || "-"],
             ["Data Calandragem", p.data_calandragem || "-"],
-            ["", ""],
-            ["Status Costura", p.status_costura || "-"],
-            ["Costureira", p.nome_costureira || "-"],
-            ["Celular Costureira", p.celular_costureira || "-"],
-            ["Inicio Costura", p.data_inicio_costura || "-"],
-            ["Termino Costura", p.data_termino_costura || "-"],
-            ["", ""],
-            ["Status Acabamento", p.status_acabamento || "-"],
-            ["Responsavel Acabamento", p.nome_acabamento || "-"],
-            ["Celular Acabamento", p.celular_acabamento || "-"],
-            ["Inicio Acabamento", p.data_inicio_acabamento || "-"],
-            ["Termino Acabamento", p.data_termino_acabamento || "-"],
-            ["", ""],
-            ["Status Entrega", p.status_entrega || "-"],
+        ]);
+
+        secao("COSTURA", [
+            ["Status", p.status_costura || "-"],
+            ["Responsavel", p.nome_costureira || "-"],
+            ["Celular", p.celular_costureira || "-"],
+            ["Inicio", p.data_inicio_costura || "-"],
+            ["Termino", p.data_termino_costura || "-"],
+        ]);
+
+        secao("ACABAMENTO", [
+            ["Status", p.status_acabamento || "-"],
+            ["Responsavel", p.nome_acabamento || "-"],
+            ["Celular", p.celular_acabamento || "-"],
+            ["Inicio", p.data_inicio_acabamento || "-"],
+            ["Termino", p.data_termino_acabamento || "-"],
+        ]);
+
+        secao("ENTREGA", [
+            ["Status", p.status_entrega || "-"],
             ["Entregador", p.nome_entregador || "-"],
-            ["Celular Entregador", p.celular_entregador || "-"],
-            ["Inicio Entrega", p.data_inicio_entrega || "-"],
-            ["Termino Entrega", p.data_termino_entrega || "-"],
-        ];
+            ["Celular", p.celular_entregador || "-"],
+            ["Inicio", p.data_inicio_entrega || "-"],
+            ["Termino", p.data_termino_entrega || "-"],
+        ]);
 
-        let y = 38;
-        linhas.forEach(([label, valor]) => {
-            if (label === "") { y += 5; return; }
-            doc.setFont(undefined, 'bold');
-            doc.text(label + ":", 15, y);
-            doc.setFont(undefined, 'normal');
-            doc.text(String(valor), 75, y);
-            y += 8;
-        });
-
-        if (p.foto_url) {
-            try {
-                const resp = await fetch(p.foto_url);
-                const blob = await resp.blob();
-                const base64 = await new Promise((res, rej) => {
-                    const r = new FileReader();
-                    r.onload = () => res(r.result);
-                    r.onerror = rej;
-                    r.readAsDataURL(blob);
-                });
-                let formato = 'JPEG';
-                if (base64.indexOf('image/png') !== -1) formato = 'PNG';
-                doc.addImage(base64, formato, 15, y + 5, 70, 70);
-            } catch (e) {
-                console.log("Nao foi possivel incluir a foto no PDF:", e);
-            }
-        }
+        // Rodape
+        const pageHeight = doc.internal.pageSize.getHeight();
+        doc.setDrawColor(220, 220, 220);
+        doc.line(15, pageHeight - 15, pageWidth - 15, pageHeight - 15);
+        doc.setTextColor(150, 150, 150);
+        doc.setFontSize(8);
+        doc.setFont(undefined, 'normal');
+        const agora = new Date().toLocaleString('pt-BR');
+        doc.text("RP Bandeiras - Documento gerado em " + agora, 15, pageHeight - 10);
 
         doc.save("pedido_" + p.candidato.replace(/\s+/g, "_") + ".pdf");
     } catch (e) {
