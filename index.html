@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RP Bandeiras - Controle de Producao</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="theme-color" content="#2e7d32">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background-color: #0d0d0d; color: #eaeaea; }
+    h1 { text-align: center; font-size: 22px; margin-bottom: 15px; color: #ffffff; }
+    .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
+    .card h2 { font-size: 16px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 8px; color: #ffffff; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+    label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 3px; color: #cccccc; }
+    input, select { width: 100%; padding: 8px; font-size: 14px; border: 1px solid #333; border-radius: 6px; background-color: #262626; color: #eaeaea; }
+    input::placeholder { color: #888; }
+    input[type="date"] { color-scheme: dark; }
+    input[type="file"] { color: #ccc; }
+    .field { display: none; }
+    .field.show { display: block; }
+    button { padding: 10px 16px; background-color: #2e7d32; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin-top: 10px; }
+    button:hover { background-color: #1b5e20; }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    button.secondary { background-color: #444; }
+    button.secondary:hover { background-color: #333; }
+    button.danger { background-color: #b71c1c; }
+    button.danger:hover { background-color: #8e0000; }
+    #searchBox { width: 100%; padding: 10px; font-size: 15px; border-radius: 6px; border: 1px solid #333; background-color: #262626; color: #eaeaea; margin-bottom: 10px; }
+    .pedido-item { border: 1px solid #2a2a2a; border-radius: 8px; padding: 12px; margin-bottom: 10px; background: #161616; }
+    .pedido-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .pedido-header strong { font-size: 15px; color: #fff; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; color: white; margin-left: 6px; }
+    .b-int { background: #1565c0; }
+    .b-cos { background: #6a1b9a; }
+    .b-ent { background: #ef6c00; }
+    .pedido-detalhes { font-size: 13px; margin-top: 6px; color: #bbbbbb; }
+    .pedido-acoes { margin-top: 8px; }
+    .pedido-acoes button { margin-right: 6px; padding: 6px 10px; font-size: 12px; margin-top: 0; }
+    #loadingMsg { text-align: center; color: #888; padding: 10px; }
+    .form-actions { display: flex; gap: 10px; }
+    .foto-preview { max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #333; display: block; }
+    .pedido-foto { max-width: 120px; max-height: 120px; border-radius: 6px; margin-top: 6px; display: block; }
+    #fotoPreviewBox { min-height: 100px; border: 1px dashed #444; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 13px; }
+    #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
+    #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<h1>RP Bandeiras - Controle de Producao</h1>
+
+<div id="errorBanner"></div>
+<div id="okBanner"></div>
+
+<div class="card">
+    <h2 id="formTitle">Novo Pedido</h2>
+    <div class="form-grid">
+        <div>
+            <label>Material</label>
+            <select id="material">
+                <option value="Wind Banner 73x210">Wind Banner 73x210</option>
+                <option value="Wind Banner 100x300">Wind Banner 100x300</option>
+                <option value="Bandeira 100x140">Bandeira 100x140</option>
+                <option value="Bandeira 70x100">Bandeira 70x100</option>
+                <option value="Bandeira 34x52">Bandeira 34x52</option>
+            </select>
+        </div>
+        <div>
+            <label>Candidato</label>
+            <input type="text" id="candidato" placeholder="Nome do candidato">
+        </div>
+        <div>
+            <label>Cargo</label>
+            <select id="cargo">
+                <option value="">-- selecionar --</option>
+                <option value="Presidente">Presidente</option>
+                <option value="Governador">Governador</option>
+                <option value="Senador">Senador</option>
+                <option value="Deputado Federal">Deputado Federal</option>
+                <option value="Deputado Estadual">Deputado Estadual</option>
+                <option value="Deputado Distrital">Deputado Distrital</option>
+            </select>
+        </div>
+        <div>
+            <label>Acessorio</label>
+            <select id="acessorio">
+                <option value="">-- selecionar --</option>
+                <option value="Com Cano">Com Cano</option>
+                <option value="Sem Cano">Sem Cano</option>
+                <option value="Vara Bambu Com Base">Vara Bambu Com Base</option>
+                <option value="Vara Bambu Sem Base">Vara Bambu Sem Base</option>
+                <option value="Vara Aluminio Com Base">Vara Aluminio Com Base</option>
+                <option value="Vara Aluminio Sem Base">Vara Aluminio Sem Base</option>
+            </select>
+        </div>
+        <div>
+            <label>Numero</label>
+            <input type="text" id="numero" placeholder="Numero do candidato">
+        </div>
+        <div>
+            <label>Estado</label>
+            <input type="text" id="estado" placeholder="UF">
+        </div>
+        <div>
+            <label>CNPJ Fornecedor</label>
+            <select id="cnpj_fornecedor">
+                <option value="">-- selecionar --</option>
+                <option value="LOJA 2: 38.756.034/0001-83">LOJA 2: 38.756.034/0001-83</option>
+                <option value="AR DISTRIBUIDORA: 55.048.684/0001-93">AR DISTRIBUIDORA: 55.048.684/0001-93</option>
+                <option value="PATROCINIO: 54.984.458/0001-51">PATROCINIO: 54.984.458/0001-51</option>
+            </select>
+        </div>
+        <div>
+            <label>CNPJ Candidato</label>
+            <input type="text" id="cnpj_candidato" placeholder="CNPJ do candidato">
+        </div>
+        <div>
+            <label>Tiragem</label>
+            <input type="number" id="tiragem" placeholder="Tiragem/Indice">
+        </div>
+        <div>
+            <label>Quantidade a Produzir</label>
+            <input type="number" id="quantidade" placeholder="Quantidade">
+        </div>
+        <div>
+            <label>Data do Pedido</label>
+            <input type="date" id="data_pedido">
+        </div>
+        <div>
+            <label>Destino</label>
+            <input type="text" id="destino" placeholder="Cidade/Local de entrega">
+        </div>
+    </div>
+
+    <div class="form-grid" style="margin-top:14px;">
+        <div>
+            <label>Status Interno (Producao)</label>
+            <select id="status_interno" onchange="toggleFields()">
+                <option value="">-- selecionar --</option>
+                <option value="Exportado">Exportado</option>
+                <option value="Impresso">Impresso</option>
+                <option value="Calandrado">Calandrado</option>
+            </select>
+        </div>
+        <div class="field" id="f_data_exportacao">
+            <label>Data de Exportacao</label>
+            <input type="date" id="data_exportacao">
+        </div>
+        <div class="field" id="f_data_impressao">
+            <label>Data de Impressao</label>
+            <input type="date" id="data_impressao">
+        </div>
+        <div class="field" id="f_data_calandragem">
+            <label>Data de Calandragem</label>
+            <input type="date" id="data_calandragem">
+        </div>
+    </div>
+
+    <div class="form-grid" style="margin-top:14px;">
+        <div>
+            <label>Status Costura</label>
+            <select id="status_costura" onchange="toggleFields()">
+                <option value="">-- selecionar (atualizar depois) --</option>
+                <option value="Costurando">Costurando</option>
+                <option value="Costurado">Costurado</option>
+            </select>
+        </div>
+        <div class="field" id="f_nome_costureira">
+            <label>Nome da Costureira</label>
+            <input type="text" id="nome_costureira">
+        </div>
+        <div class="field" id="f_celular_costureira">
+            <label>Celular da Costureira</label>
+            <input type="text" id="celular_costureira" placeholder="(00) 00000-0000">
+        </div>
+        <div class="field" id="f_data_inicio_costura">
+            <label>Data Inicio Costura</label>
+            <input type="date" id="data_inicio_costura">
+        </div>
+        <div class="field" id="f_data_termino_costura">
+            <label>Data Termino Costura</label>
+            <input type="date" id="data_termino_costura">
+        </div>
+    </div>
+
+    <div class="form-grid" style="margin-top:14px;">
+        <div>
+            <label>Status Acabamento</label>
+            <select id="status_acabamento" onchange="toggleFields()">
+                <option value="">-- selecionar (atualizar depois) --</option>
+                <option value="Em Andamento">Em Andamento</option>
+                <option value="Finalizado">Finalizado</option>
+            </select>
+        </div>
+        <div class="field" id="f_nome_acabamento">
+            <label>Responsavel pelo Acabamento</label>
+            <input type="text" id="nome_acabamento">
+        </div>
+        <div class="field" id="f_celular_acabamento">
+            <label>Celular do Responsavel</label>
+            <input type="text" id="celular_acabamento" placeholder="(00) 00000-0000">
+        </div>
+        <div class="field" id="f_data_inicio_acabamento">
+            <label>Data Inicio Acabamento</label>
+            <input type="date" id="data_inicio_acabamento">
+        </div>
+        <div class="field" id="f_data_termino_acabamento">
+            <label>Data Termino Acabamento</label>
+            <input type="date" id="data_termino_acabamento">
+        </div>
+    </div>
+
+    <div class="form-grid" style="margin-top:14px;">
+        <div>
+            <label>Status Entrega</label>
+            <select id="status_entrega" onchange="toggleFields()">
+                <option value="">-- selecionar (atualizar depois) --</option>
+                <option value="Entregando">Entregando</option>
+                <option value="Entregue">Entregue</option>
+            </select>
+        </div>
+        <div class="field" id="f_nome_entregador">
+            <label>Nome do Entregador</label>
+            <input type="text" id="nome_entregador">
+        </div>
+        <div class="field" id="f_celular_entregador">
+            <label>Celular do Entregador</label>
+            <input type="text" id="celular_entregador" placeholder="(00) 00000-0000">
+        </div>
+        <div class="field" id="f_data_inicio_entrega">
+            <label>Data Inicio Entrega</label>
+            <input type="date" id="data_inicio_entrega">
+        </div>
+        <div class="field" id="f_data_termino_entrega">
+            <label>Data Termino Entrega</label>
+            <input type="date" id="data_termino_entrega">
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button onclick="salvarPedido()" id="btnSalvar">Salvar Pedido</button>
+        <button class="secondary" onclick="limparFormulario()">Limpar</button>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Foto do Pedido</h2>
+    <input type="file" id="fotoInput" accept="image/*" onchange="previewFoto()">
+    <div id="fotoPreviewBox" style="margin-top:10px;">Nenhuma foto selecionada</div>
+</div>
+
+<div class="card">
+    <h2>Pedidos Cadastrados</h2>
+    <input type="text" id="searchBox" placeholder="Pesquisar por candidato..." onkeyup="filtrarPedidos()">
+    <div id="loadingMsg">Carregando pedidos...</div>
+    <div id="listaPedidos"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://wvhdqxnjlivcodgefayf.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2aGRxeG5qbGl2Y29kZ2VmYXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NjQxNTksImV4cCI6MjEwMjI0MDE1OX0.bef9jgpBJqvIeF8Zju6fNm5qVK3Vbjdgg2mwRiT3SK8";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let pedidosCache = [];
+let editandoId = null;
+let fotoSelecionada = null;
+let fotoUrlAtual = null;
+
+function mostrarErro(msg) {
+    const box = document.getElementById('errorBanner');
+    box.innerText = msg;
+    box.style.display = 'block';
+    document.getElementById('okBanner').style.display = 'none';
+    window.scrollTo(0, 0);
+}
+
+function mostrarOk(msg) {
+    const box = document.getElementById('okBanner');
+    box.innerText = msg;
+    box.style.display = 'block';
+    document.getElementById('errorBanner').style.display = 'none';
+    setTimeout(() => { box.style.display = 'none'; }, 3500);
+}
+
+function esconderErro() {
+    document.getElementById('errorBanner').style.display = 'none';
+}
+
+window.addEventListener('error', function(e) {
+    mostrarErro("Erro no aplicativo: " + e.message);
+});
+
+function previewFoto() {
+    const input = document.getElementById('fotoInput');
+    const box = document.getElementById('fotoPreviewBox');
+    fotoSelecionada = input.files[0] || null;
+    box.innerHTML = "";
+    if (fotoSelecionada) {
+        const img = document.createElement('img');
+        img.className = 'foto-preview';
+        img.src = URL.createObjectURL(fotoSelecionada);
+        box.appendChild(img);
+    } else if (fotoUrlAtual) {
+        const img = document.createElement('img');
+        img.className = 'foto-preview';
+        img.src = fotoUrlAtual;
+        box.appendChild(img);
+    } else {
+        box.innerText = "Nenhuma foto selecionada";
+    }
+}
+
+const camposInternos = { "Exportado": ["f_data_exportacao"], "Impresso": ["f_data_exportacao","f_data_impressao"], "Calandrado": ["f_data_exportacao","f_data_impressao","f_data_calandragem"] };
+const camposCostura = { "Costurando": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura"], "Costurado": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura","f_data_termino_costura"] };
+const camposAcabamento = { "Em Andamento": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento"], "Finalizado": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento","f_data_termino_acabamento"] };
+const camposEntrega = { "Entregando": ["f_nome_entregador","f_celular_entregador","f_data_inicio_entrega"], "Entregue": ["f_nome_entregador","f_celular_entregador","f_data_inicio_entrega","f_data_termino_entrega"] };
+
+function toggleFields() {
+    document.querySelectorAll('.field').forEach(f => f.classList.remove('show'));
+    const si = document.getElementById('status_interno').value;
+    const sc = document.getElementById('status_costura').value;
+    const sa = document.getElementById('status_acabamento').value;
+    const se = document.getElementById('status_entrega').value;
+    (camposInternos[si] || []).forEach(id => document.getElementById(id).classList.add('show'));
+    (camposCostura[sc] || []).forEach(id => document.getElementById(id).classList.add('show'));
+    (camposAcabamento[sa] || []).forEach(id => document.getElementById(id).classList.add('show'));
+    (camposEntrega[se] || []).forEach(id => document.getElementById(id).classList.add('show'));
+}
+
+function getFormData() {
+    const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_fornecedor","cnpj_candidato","tiragem","quantidade","data_pedido",
+        "status_interno","data_exportacao","data_impressao","data_calandragem",
+        "status_costura","nome_costureira","celular_costureira","data_inicio_costura","data_termino_costura",
+        "status_acabamento","nome_acabamento","celular_acabamento","data_inicio_acabamento","data_termino_acabamento",
+        "destino","status_entrega","nome_entregador","celular_entregador","data_inicio_entrega","data_termino_entrega"];
+    const data = {};
+    ids.forEach(id => {
+        let v = document.getElementById(id).value;
+        if (v === "") v = null;
+        if ((id === "tiragem" || id === "quantidade") && v !== null) v = parseInt(v);
+        data[id] = v;
+    });
+    return data;
+}
+
+function limparFormulario() {
+    document.querySelectorAll('input').forEach(i => i.value = "");
+    document.getElementById('material').selectedIndex = 0;
+    document.getElementById('cargo').value = "";
+    document.getElementById('acessorio').value = "";
+    document.getElementById('cnpj_fornecedor').value = "";
+    document.getElementById('status_interno').value = "";
+    document.getElementById('status_costura').value = "";
+    document.getElementById('status_acabamento').value = "";
+    document.getElementById('status_entrega').value = "";
+    toggleFields();
+    editandoId = null;
+    fotoSelecionada = null;
+    fotoUrlAtual = null;
+    document.getElementById('fotoPreviewBox').innerHTML = "Nenhuma foto selecionada";
+    document.getElementById('formTitle').innerText = "Novo Pedido";
+    document.getElementById('btnSalvar').innerText = "Salvar Pedido";
+    esconderErro();
+}
+
+async function salvarPedido() {
+    esconderErro();
+    const data = getFormData();
+    if (!data.candidato) { mostrarErro("Preencha o nome do candidato."); return; }
+
+    const btn = document.getElementById('btnSalvar');
+    btn.disabled = true;
+    btn.innerText = "Salvando...";
+
+    try {
+        if (fotoSelecionada) {
+            const nomeArquivo = Date.now() + "_" + fotoSelecionada.name.replace(/\s+/g, "_");
+            const { error: uploadError } = await sb.storage.from('fotos_pedidos').upload(nomeArquivo, fotoSelecionada);
+            if (uploadError) { mostrarErro("Erro ao enviar foto: " + uploadError.message); return; }
+            const { data: urlData } = sb.storage.from('fotos_pedidos').getPublicUrl(nomeArquivo);
+            data.foto_url = urlData.publicUrl;
+        } else if (fotoUrlAtual) {
+            data.foto_url = fotoUrlAtual;
+        }
+
+        let error;
+        if (editandoId) {
+            ({ error } = await sb.from('controle_campanha').update(data).eq('id', editandoId));
+        } else {
+            ({ error } = await sb.from('controle_campanha').insert([data]));
+        }
+
+        if (error) { mostrarErro("Erro ao salvar no banco: " + error.message); return; }
+        mostrarOk("Pedido salvo com sucesso.");
+        limparFormulario();
+        carregarPedidos();
+    } catch (e) {
+        mostrarErro("Falha inesperada ao salvar: " + (e && e.message ? e.message : String(e)));
+    } finally {
+        btn.disabled = false;
+        btn.innerText = editandoId ? "Salvar Alteracoes" : "Salvar Pedido";
+    }
+}
+
+async function carregarPedidos() {
+    document.getElementById('loadingMsg').style.display = 'block';
+    try {
+        const { data, error } = await sb.from('controle_campanha').select('*').order('id', { ascending: false });
+        if (error) { mostrarErro("Erro ao carregar dados: " + error.message); return; }
+        pedidosCache = data;
+        renderizarPedidos(pedidosCache);
+    } catch (e) {
+        mostrarErro("Falha inesperada ao carregar pedidos: " + (e && e.message ? e.message : String(e)));
+    } finally {
+        document.getElementById('loadingMsg').style.display = 'none';
+    }
+}
+
+function renderizarPedidos(lista) {
+    const container = document.getElementById('listaPedidos');
+    container.innerHTML = "";
+    if (lista.length === 0) {
+        container.innerHTML = "<p style='color:#888;'>Nenhum pedido encontrado.</p>";
+        return;
+    }
+    lista.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'pedido-item';
+        div.innerHTML = `
+            <div class="pedido-header">
+                <strong>${p.candidato}</strong>
+                <span>
+                    ${p.status_interno ? `<span class="badge b-int">${p.status_interno}</span>` : ""}
+                    ${p.status_costura ? `<span class="badge b-cos">${p.status_costura}</span>` : ""}
+                    ${p.status_acabamento ? `<span class="badge b-cos">${p.status_acabamento}</span>` : ""}
+                    ${p.status_entrega ? `<span class="badge b-ent">${p.status_entrega}</span>` : ""}
+                </span>
+            </div>
+            <div class="pedido-detalhes">
+                Material: ${p.material || "-"} | Acessorio: ${p.acessorio || "-"}<br>
+                Cargo: ${p.cargo || "-"} | Numero: ${p.numero || "-"} | Estado: ${p.estado || "-"}<br>
+                CNPJ Fornecedor: ${p.cnpj_fornecedor || "-"}<br>
+                CNPJ Candidato: ${p.cnpj_candidato || "-"}<br>
+                Tiragem: ${p.tiragem || "-"} | Quantidade: ${p.quantidade || "-"}<br>
+                Data do Pedido: ${p.data_pedido || "-"} | Destino: ${p.destino || "-"}
+                ${p.foto_url ? `<br><img class="pedido-foto" src="${p.foto_url}" onerror="this.style.display='none'">` : ""}
+            </div>
+            <div class="pedido-acoes">
+                <button onclick="editarPedido(${p.id})">Editar</button>
+                <button class="secondary" onclick="gerarPDF(${p.id})">Baixar PDF</button>
+                <button class="danger" onclick="excluirPedido(${p.id})">Excluir</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function editarPedido(id) {
+    const p = pedidosCache.find(x => x.id === id);
+    if (!p) return;
+    Object.keys(p).forEach(key => {
+        const el = document.getElementById(key);
+        if (el) el.value = p[key] || "";
+    });
+    toggleFields();
+    editandoId = id;
+    fotoSelecionada = null;
+    fotoUrlAtual = p.foto_url || null;
+    document.getElementById('fotoInput').value = "";
+    const box = document.getElementById('fotoPreviewBox');
+    box.innerHTML = "";
+    if (fotoUrlAtual) {
+        const img = document.createElement('img');
+        img.className = 'foto-preview';
+        img.src = fotoUrlAtual;
+        box.appendChild(img);
+    } else {
+        box.innerText = "Nenhuma foto selecionada";
+    }
+    document.getElementById('formTitle').innerText = "Editando Pedido #" + id;
+    document.getElementById('btnSalvar').innerText = "Salvar Alteracoes";
+    esconderErro();
+    window.scrollTo(0, 0);
+}
+
+async function excluirPedido(id) {
+    if (!confirm("Tem certeza que deseja excluir este pedido?")) return;
+    try {
+        const { error } = await sb.from('controle_campanha').delete().eq('id', id);
+        if (error) { mostrarErro("Erro ao excluir: " + error.message); return; }
+        carregarPedidos();
+    } catch (e) {
+        mostrarErro("Falha inesperada ao excluir: " + (e && e.message ? e.message : String(e)));
+    }
+}
+
+function filtrarPedidos() {
+    const termo = document.getElementById('searchBox').value.toLowerCase();
+    const filtrado = pedidosCache.filter(p => (p.candidato || "").toLowerCase().includes(termo));
+    renderizarPedidos(filtrado);
+}
+
+async function gerarPDF(id) {
+    const p = pedidosCache.find(x => x.id === id);
+    if (!p) return;
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        doc.setFontSize(18);
+        doc.text("RP Bandeiras - Pedido de Producao", pageWidth / 2, 20, { align: 'center' });
+        doc.setLineWidth(0.5);
+        doc.line(15, 25, pageWidth - 15, 25);
+
+        doc.setFontSize(12);
+
+        const linhas = [
+            ["Candidato", p.candidato || "-"],
+            ["Cargo", p.cargo || "-"],
+            ["Numero", p.numero || "-"],
+            ["Estado", p.estado || "-"],
+            ["CNPJ Fornecedor", p.cnpj_fornecedor || "-"],
+            ["CNPJ Candidato", p.cnpj_candidato || "-"],
+            ["Material", p.material || "-"],
+            ["Acessorio", p.acessorio || "-"],
+            ["Tiragem", String(p.tiragem || "-")],
+            ["Quantidade", String(p.quantidade || "-")],
+            ["Data do Pedido", p.data_pedido || "-"],
+            ["Destino", p.destino || "-"],
+            ["", ""],
+            ["Status Interno", p.status_interno || "-"],
+            ["Data Exportacao", p.data_exportacao || "-"],
+            ["Data Impressao", p.data_impressao || "-"],
+            ["Data Calandragem", p.data_calandragem || "-"],
+            ["", ""],
+            ["Status Costura", p.status_costura || "-"],
+            ["Costureira", p.nome_costureira || "-"],
+            ["Celular Costureira", p.celular_costureira || "-"],
+            ["Inicio Costura", p.data_inicio_costura || "-"],
+            ["Termino Costura", p.data_termino_costura || "-"],
+            ["", ""],
+            ["Status Acabamento", p.status_acabamento || "-"],
+            ["Responsavel Acabamento", p.nome_acabamento || "-"],
+            ["Celular Acabamento", p.celular_acabamento || "-"],
+            ["Inicio Acabamento", p.data_inicio_acabamento || "-"],
+            ["Termino Acabamento", p.data_termino_acabamento || "-"],
+            ["", ""],
+            ["Status Entrega", p.status_entrega || "-"],
+            ["Entregador", p.nome_entregador || "-"],
+            ["Celular Entregador", p.celular_entregador || "-"],
+            ["Inicio Entrega", p.data_inicio_entrega || "-"],
+            ["Termino Entrega", p.data_termino_entrega || "-"],
+        ];
+
+        let y = 38;
+        linhas.forEach(([label, valor]) => {
+            if (label === "") { y += 5; return; }
+            doc.setFont(undefined, 'bold');
+            doc.text(label + ":", 15, y);
+            doc.setFont(undefined, 'normal');
+            doc.text(String(valor), 75, y);
+            y += 8;
+        });
+
+        if (p.foto_url) {
+            try {
+                const resp = await fetch(p.foto_url);
+                const blob = await resp.blob();
+                const base64 = await new Promise((res, rej) => {
+                    const r = new FileReader();
+                    r.onload = () => res(r.result);
+                    r.onerror = rej;
+                    r.readAsDataURL(blob);
+                });
+                let formato = 'JPEG';
+                if (base64.indexOf('image/png') !== -1) formato = 'PNG';
+                doc.addImage(base64, formato, 15, y + 5, 70, 70);
+            } catch (e) {
+                console.log("Nao foi possivel incluir a foto no PDF:", e);
+            }
+        }
+
+        doc.save("pedido_" + p.candidato.replace(/\s+/g, "_") + ".pdf");
+    } catch (e) {
+        mostrarErro("Falha ao gerar PDF: " + (e && e.message ? e.message : String(e)));
+    }
+}
+
+toggleFields();
+carregarPedidos();
+</script>
+
+</body>
+</html>
