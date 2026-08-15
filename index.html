@@ -51,15 +51,21 @@
     #fotoModalOverlay.aberto { display: flex; }
     #fotoModalImg { max-width: 92vw; max-height: 88vh; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.6); }
     #fotoModalFechar { position: absolute; top: 18px; right: 18px; background: #b71c1c; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; line-height: 1; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; }
+    .modal-overlay.aberto { display: flex; }
+    .modal-caixa { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 20px; width: 260px; text-align: center; }
+    .modal-caixa h3 { margin-top: 0; color: #fff; font-size: 15px; }
+    .modal-caixa button { width: 100%; }
     #fotoPreviewBox { min-height: 100px; border: 1px dashed #444; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 13px; }
     #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
     .cabecalho { text-align: center; margin-bottom: 10px; }
     .cabecalho img { width: 64px; height: 64px; border-radius: 12px; }
-    #barraCarregamentoContainer { width: 160px; height: 4px; background: #262626; border-radius: 4px; margin: 10px auto 0; overflow: hidden; display: none; }
+    #barraCarregamentoContainer { width: 220px; margin: 10px auto 0; display: none; }
     #barraCarregamentoContainer.ativa { display: block; }
-    #barraCarregamento { width: 40%; height: 100%; background: #2e7d32; border-radius: 4px; animation: deslizar 1s ease-in-out infinite; }
-    @keyframes deslizar { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
+    #barraCarregamentoTrilha { width: 100%; height: 6px; background: #262626; border-radius: 4px; overflow: hidden; }
+    #barraCarregamento { width: 0%; height: 100%; background: #2e7d32; border-radius: 4px; transition: width 0.25s ease-out; }
+    #barraCarregamentoTexto { text-align: center; font-size: 11px; color: #888; margin-top: 4px; }
     input[readonly] { opacity: 0.85; cursor: default; }
 </style>
 </head>
@@ -68,7 +74,10 @@
 <div class="cabecalho">
     <img src="icon-192.png" alt="RP Bandeiras">
     <h1>RP Bandeiras - Controle de Producao</h1>
-    <div id="barraCarregamentoContainer"><div id="barraCarregamento"></div></div>
+    <div id="barraCarregamentoContainer">
+        <div id="barraCarregamentoTrilha"><div id="barraCarregamento"></div></div>
+        <div id="barraCarregamentoTexto">0%</div>
+    </div>
 </div>
 
 <div id="errorBanner"></div>
@@ -77,6 +86,15 @@
 <div id="fotoModalOverlay" onclick="fecharFotoAmpliada(event)">
     <button id="fotoModalFechar" onclick="fecharFotoAmpliada(event)">✕</button>
     <img id="fotoModalImg" src="" alt="Foto ampliada">
+</div>
+
+<div id="pdfEscolhaOverlay" class="modal-overlay">
+    <div class="modal-caixa">
+        <h3>Como deseja obter o PDF?</h3>
+        <button onclick="compartilharPDFEscolhido()">Compartilhar</button>
+        <button class="secondary" onclick="baixarPDFEscolhido()">Baixar</button>
+        <button class="secondary" onclick="fecharEscolhaPDF()">Cancelar</button>
+    </div>
 </div>
 
 <div class="card">
@@ -167,7 +185,7 @@
                 <option value="Exportado">Exportado</option>
                 <option value="Imprimindo...">Imprimindo...</option>
                 <option value="Impresso">Impresso</option>
-                <option value="Calandrando">Calandrando</option>
+                <option value="Calandrando...">Calandrando...</option>
                 <option value="Calandrado">Calandrado</option>
             </select>
         </div>
@@ -198,7 +216,7 @@
             <label>Status Costura</label>
             <select id="status_costura" onchange="toggleFields()">
                 <option value="">-- selecionar (atualizar depois) --</option>
-                <option value="Costurando">Costurando</option>
+                <option value="Costurando...">Costurando...</option>
                 <option value="Costurado">Costurado</option>
             </select>
         </div>
@@ -252,7 +270,7 @@
             <label>Status Entrega</label>
             <select id="status_entrega" onchange="toggleFields()">
                 <option value="">-- selecionar (atualizar depois) --</option>
-                <option value="Em Rota de Entrega">Em Rota de Entrega</option>
+                <option value="Em Rota de Entrega...">Em Rota de Entrega...</option>
                 <option value="Entregue">Entregue</option>
             </select>
         </div>
@@ -264,6 +282,10 @@
             <label>Celular do Entregador</label>
             <input type="text" id="celular_entregador" placeholder="(00) 00000-0000">
         </div>
+        <div class="field" id="f_data_inicio_entrega">
+            <label>Data/Hora - Em Rota de Entrega</label>
+            <input type="text" id="data_inicio_entrega" readonly>
+        </div>
         <div class="field" id="f_nome_destinatario">
             <label>Nome do Destinatario</label>
             <input type="text" id="nome_destinatario">
@@ -272,12 +294,12 @@
             <label>Celular do Destinatario</label>
             <input type="text" id="celular_destinatario" placeholder="(00) 00000-0000">
         </div>
-        <div class="field" id="f_data_inicio_entrega">
-            <label>Data Inicio Entrega</label>
-            <input type="text" id="data_inicio_entrega" readonly>
+        <div class="field" id="f_data_confirmacao_destinatario">
+            <label>Data/Hora - Destinatario</label>
+            <input type="text" id="data_confirmacao_destinatario" readonly>
         </div>
         <div class="field" id="f_data_termino_entrega">
-            <label>Data Termino Entrega</label>
+            <label>Data/Hora - Entregue</label>
             <input type="text" id="data_termino_entrega" readonly>
         </div>
     </div>
@@ -312,7 +334,7 @@ let fotoSelecionada = null;
 let fotoUrlAtual = null;
 let datasAutomaticas = {};
 let ultimaEdicaoLocal = { id: null, ts: 0 };
-const idsAutoData = ["data_pedido","data_exportacao","data_inicio_impressao","data_impressao","data_inicio_calandragem","data_calandragem","data_inicio_acabamento","data_termino_acabamento","data_inicio_entrega","data_termino_entrega"];
+const idsAutoData = ["data_pedido","data_exportacao","data_inicio_impressao","data_impressao","data_inicio_calandragem","data_calandragem","data_inicio_acabamento","data_termino_acabamento","data_inicio_entrega","data_confirmacao_destinatario","data_termino_entrega"];
 
 function formatarDataHora(iso) {
     if (!iso) return "";
@@ -397,15 +419,18 @@ const camposInternos = {
     "Exportado": ["f_data_exportacao"],
     "Imprimindo...": ["f_data_exportacao","f_data_inicio_impressao"],
     "Impresso": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao"],
-    "Calandrando": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem"],
+    "Calandrando...": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem"],
     "Calandrado": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem","f_data_calandragem"]
 };
-const autoInternos = { "Exportado": "data_exportacao", "Imprimindo...": "data_inicio_impressao", "Impresso": "data_impressao", "Calandrando": "data_inicio_calandragem", "Calandrado": "data_calandragem" };
-const camposCostura = { "Costurando": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura"], "Costurado": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura","f_data_termino_costura"] };
+const autoInternos = { "Exportado": ["data_exportacao"], "Imprimindo...": ["data_inicio_impressao"], "Impresso": ["data_impressao"], "Calandrando...": ["data_inicio_calandragem"], "Calandrado": ["data_calandragem"] };
+const camposCostura = { "Costurando...": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura"], "Costurado": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura","f_data_termino_costura"] };
 const camposAcabamento = { "Finalizando...": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento"], "Finalizado": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento","f_data_termino_acabamento"] };
-const autoAcabamento = { "Finalizando...": "data_inicio_acabamento", "Finalizado": "data_termino_acabamento" };
-const camposEntrega = { "Em Rota de Entrega": ["f_nome_entregador","f_celular_entregador","f_nome_destinatario","f_celular_destinatario","f_data_inicio_entrega"], "Entregue": ["f_nome_entregador","f_celular_entregador","f_nome_destinatario","f_celular_destinatario","f_data_inicio_entrega","f_data_termino_entrega"] };
-const autoEntrega = { "Em Rota de Entrega": "data_inicio_entrega", "Entregue": "data_termino_entrega" };
+const autoAcabamento = { "Finalizando...": ["data_inicio_acabamento"], "Finalizado": ["data_termino_acabamento"] };
+const camposEntrega = {
+    "Em Rota de Entrega...": ["f_nome_entregador","f_celular_entregador","f_data_inicio_entrega","f_nome_destinatario","f_celular_destinatario","f_data_confirmacao_destinatario"],
+    "Entregue": ["f_nome_entregador","f_celular_entregador","f_data_inicio_entrega","f_nome_destinatario","f_celular_destinatario","f_data_confirmacao_destinatario","f_data_termino_entrega"]
+};
+const autoEntrega = { "Em Rota de Entrega...": ["data_inicio_entrega","data_confirmacao_destinatario"], "Entregue": ["data_termino_entrega"] };
 
 function toggleFields() {
     document.querySelectorAll('.field').forEach(f => f.classList.remove('show'));
@@ -417,9 +442,9 @@ function toggleFields() {
     (camposCostura[sc] || []).forEach(id => document.getElementById(id).classList.add('show'));
     (camposAcabamento[sa] || []).forEach(id => document.getElementById(id).classList.add('show'));
     (camposEntrega[se] || []).forEach(id => document.getElementById(id).classList.add('show'));
-    if (autoInternos[si]) definirDataAutomatica(autoInternos[si]);
-    if (autoAcabamento[sa]) definirDataAutomatica(autoAcabamento[sa]);
-    if (autoEntrega[se]) definirDataAutomatica(autoEntrega[se]);
+    (autoInternos[si] || []).forEach(definirDataAutomatica);
+    (autoAcabamento[sa] || []).forEach(definirDataAutomatica);
+    (autoEntrega[se] || []).forEach(definirDataAutomatica);
 }
 
 function getFormData() {
@@ -502,9 +527,32 @@ async function salvarPedido() {
     }
 }
 
+function iniciarBarraProgresso() {
+    const container = document.getElementById('barraCarregamentoContainer');
+    const barra = document.getElementById('barraCarregamento');
+    const texto = document.getElementById('barraCarregamentoTexto');
+    container.classList.add('ativa');
+    let pct = 0;
+    barra.style.width = "0%";
+    texto.innerText = "0%";
+    const intervalo = setInterval(() => {
+        // sobe rapido no comeco e desacelera perto de 90%, esperando os dados chegarem
+        const passo = pct < 60 ? (Math.random() * 18 + 7) : (Math.random() * 5 + 1);
+        pct = Math.min(pct + passo, 90);
+        barra.style.width = pct.toFixed(0) + "%";
+        texto.innerText = pct.toFixed(0) + "%";
+    }, 180);
+    return function finalizar() {
+        clearInterval(intervalo);
+        barra.style.width = "100%";
+        texto.innerText = "100%";
+        setTimeout(() => { container.classList.remove('ativa'); }, 350);
+    };
+}
+
 async function carregarPedidos() {
     document.getElementById('loadingMsg').style.display = 'block';
-    document.getElementById('barraCarregamentoContainer').classList.add('ativa');
+    const finalizarBarra = iniciarBarraProgresso();
     try {
         const { data, error } = await sb.from('controle_campanha').select('*').order('id', { ascending: false });
         if (error) { mostrarErro("Erro ao carregar dados: " + error.message); return; }
@@ -514,7 +562,7 @@ async function carregarPedidos() {
         mostrarErro("Falha inesperada ao carregar pedidos: " + (e && e.message ? e.message : String(e)));
     } finally {
         document.getElementById('loadingMsg').style.display = 'none';
-        document.getElementById('barraCarregamentoContainer').classList.remove('ativa');
+        finalizarBarra();
     }
 }
 
@@ -792,10 +840,11 @@ async function gerarPDF(id) {
             ["Status", p.status_entrega || "-"],
             ["Entregador", p.nome_entregador || "-"],
             ["Celular", p.celular_entregador || "-"],
+            ["Em Rota", formatarDataHora(p.data_inicio_entrega) || "-"],
             ["Destinatário", p.nome_destinatario || "-"],
             ["Celular Dest.", p.celular_destinatario || "-"],
-            ["Início", formatarDataHora(p.data_inicio_entrega) || "-"],
-            ["Término", formatarDataHora(p.data_termino_entrega) || "-"],
+            ["Registro Dest.", formatarDataHora(p.data_confirmacao_destinatario) || "-"],
+            ["Entregue em", formatarDataHora(p.data_termino_entrega) || "-"],
         ], cursorY);
 
         cursorY = Math.max(yAcabamento, yEntrega) + 6;
@@ -817,19 +866,31 @@ async function gerarPDF(id) {
         doc.text("RP Bandeiras - Documento gerado em " + agora, margemEsq, rodapeY + 5);
 
         const nomeArquivo = "pedido_" + p.candidato.replace(/\s+/g, "_") + ".pdf";
-        await salvarOuCompartilharPDF(doc, nomeArquivo);
+        abrirEscolhaPDF(doc, nomeArquivo);
     } catch (e) {
         mostrarErro("Falha ao gerar PDF: " + (e && e.message ? e.message : String(e)));
     }
 }
 
-// Tenta varias formas de entregar o PDF ao usuario, pois no modo "app instalado" (PWA)
-// do Android o download direto (doc.save) as vezes falha silenciosamente.
-async function salvarOuCompartilharPDF(doc, nomeArquivo) {
-    const blob = doc.output('blob');
+// Mostra uma escolha explicita: Compartilhar (abre o menu nativo do celular) ou Baixar (download direto do arquivo)
+let pdfPendente = null;
 
-    // 1) Tenta o menu nativo de Compartilhar/Salvar do celular (funciona bem em PWA instalado)
+function abrirEscolhaPDF(doc, nomeArquivo) {
+    pdfPendente = { doc, nomeArquivo };
+    document.getElementById('pdfEscolhaOverlay').classList.add('aberto');
+}
+
+function fecharEscolhaPDF() {
+    document.getElementById('pdfEscolhaOverlay').classList.remove('aberto');
+    pdfPendente = null;
+}
+
+async function compartilharPDFEscolhido() {
+    if (!pdfPendente) return;
+    const { doc, nomeArquivo } = pdfPendente;
+    fecharEscolhaPDF();
     try {
+        const blob = doc.output('blob');
         if (navigator.canShare && navigator.share) {
             const arquivo = new File([blob], nomeArquivo, { type: 'application/pdf' });
             if (navigator.canShare({ files: [arquivo] })) {
@@ -837,26 +898,30 @@ async function salvarOuCompartilharPDF(doc, nomeArquivo) {
                 return;
             }
         }
+        mostrarErro("Compartilhamento nao disponivel neste navegador. Use a opcao Baixar.");
     } catch (e) {
-        // usuario pode ter cancelado o compartilhamento - nao trata como erro fatal
         if (e && e.name === 'AbortError') return;
-        console.log("Compartilhamento nativo falhou, tentando outra forma:", e);
+        mostrarErro("Falha ao compartilhar: " + (e && e.message ? e.message : String(e)));
     }
+}
 
-    // 2) Tenta abrir o PDF numa aba nova (o usuario consegue salvar por la)
+function baixarPDFEscolhido() {
+    if (!pdfPendente) return;
+    const { doc, nomeArquivo } = pdfPendente;
+    fecharEscolhaPDF();
     try {
+        const blob = doc.output('blob');
         const blobUrl = URL.createObjectURL(blob);
-        const novaAba = window.open(blobUrl, '_blank');
-        if (novaAba) {
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-            return;
-        }
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = nomeArquivo;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
     } catch (e) {
-        console.log("Abrir em nova aba falhou, tentando download direto:", e);
+        mostrarErro("Falha ao baixar: " + (e && e.message ? e.message : String(e)));
     }
-
-    // 3) Ultimo recurso: download tradicional
-    doc.save(nomeArquivo);
 }
 
 // Notificacoes entre aparelhos: avisa quando outro dispositivo atualiza um pedido
