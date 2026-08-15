@@ -525,24 +525,55 @@ async function gerarPDF(id) {
     try {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        doc.setProperties({ title: "Pedido " + p.id });
+        // Impede que qualquer tabela crie uma pagina nova - tudo fica sempre numa unica folha A4
+        if (doc.autoTable && doc.autoTable.previous !== undefined) { /* noop */ }
         const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
         const cinzaHeader = [211, 211, 211];
         const pretoTexto = [20, 20, 20];
         const margemEsq = 15;
         const margemDir = 15;
         const larguraUtil = pageWidth - margemEsq - margemDir;
 
+        // Desenha uma imagem respeitando a proporcao original (sem esticar), centralizada dentro da caixa
+        function desenharImagemContida(base64, x, y, w, h) {
+            let propriedades;
+            try {
+                propriedades = doc.getImageProperties(base64);
+            } catch (e) {
+                return false;
+            }
+            const razaoCaixa = w / h;
+            const razaoImg = propriedades.width / propriedades.height;
+            let drawW, drawH;
+            if (razaoImg > razaoCaixa) {
+                // imagem mais larga que a caixa -> encaixa pela largura
+                drawW = w;
+                drawH = w / razaoImg;
+            } else {
+                // imagem mais alta que a caixa -> encaixa pela altura
+                drawH = h;
+                drawW = h * razaoImg;
+            }
+            const drawX = x + (w - drawW) / 2;
+            const drawY = y + (h - drawH) / 2;
+            let formato = 'JPEG';
+            if (base64.indexOf('image/png') !== -1) formato = 'PNG';
+            doc.addImage(base64, formato, drawX, drawY, drawW, drawH);
+            return true;
+        }
+
         // Foto do pedido (bloco superior esquerdo)
-        const fotoX = margemEsq, fotoY = 15, fotoW = 62, fotoH = 78;
+        const fotoX = margemEsq, fotoY = 14, fotoW = 55, fotoH = 65;
         doc.setDrawColor(180, 180, 180);
         doc.setFillColor(250, 250, 250);
         doc.rect(fotoX, fotoY, fotoW, fotoH, 'FD');
         if (p.foto_url) {
             try {
                 const fotoBase64 = await urlParaBase64(p.foto_url);
-                let formato = 'JPEG';
-                if (fotoBase64.indexOf('image/png') !== -1) formato = 'PNG';
-                doc.addImage(fotoBase64, formato, fotoX + 1, fotoY + 1, fotoW - 2, fotoH - 2);
+                const ok = desenharImagemContida(fotoBase64, fotoX + 1, fotoY + 1, fotoW - 2, fotoH - 2);
+                if (!ok) throw new Error("nao foi possivel ler a imagem");
             } catch (e) {
                 doc.setTextColor(150, 150, 150);
                 doc.setFontSize(8);
@@ -555,10 +586,10 @@ async function gerarPDF(id) {
         }
 
         // Logo e titulo (topo direito)
-        const logoX = margemEsq + fotoW + 15, logoY = 15, logoSize = 22;
+        const logoX = margemEsq + fotoW + 12, logoY = 14, logoSize = 18;
         try {
             const logoBase64 = await urlParaBase64('./icon-512.png');
-            doc.addImage(logoBase64, 'PNG', logoX, logoY, logoSize, logoSize);
+            desenharImagemContida(logoBase64, logoX, logoY, logoSize, logoSize);
         } catch (e) {
             console.log("Logo nao carregada:", e);
         }
@@ -566,37 +597,37 @@ async function gerarPDF(id) {
         const tituloX = logoX + logoSize + 6;
         doc.setTextColor(...pretoTexto);
         doc.setFont(undefined, 'bold');
-        doc.setFontSize(20);
-        doc.text("CONTROLE DE PRODUÇÃO", tituloX, logoY + 9);
+        doc.setFontSize(16);
+        doc.text("CONTROLE DE PRODUÇÃO", tituloX, logoY + 7);
         doc.setFont(undefined, 'normal');
-        doc.setFontSize(10);
-        doc.text("PEDIDO Nº " + p.id + "  -  DATA " + (p.data_pedido || "-") + "  -  DESTINO " + (p.destino || "-"), tituloX, logoY + 16);
+        doc.setFontSize(9);
+        doc.text("PEDIDO Nº " + p.id + "  -  DATA " + (p.data_pedido || "-") + "  -  DESTINO " + (p.destino || "-"), tituloX, logoY + 13);
 
         // Nome do candidato
-        const nomeY = fotoY + fotoH + 12;
-        const nomeX = fotoX + fotoW + 15;
+        const nomeY = logoY + logoSize + 10;
+        const nomeX = fotoX + fotoW + 12;
         doc.setFont(undefined, 'bold');
-        doc.setFontSize(18);
-        doc.text(p.candidato || "-", nomeX, nomeY);
+        doc.setFontSize(15);
+        doc.text(p.candidato || "-", nomeX, nomeY, { maxWidth: pageWidth - margemDir - nomeX });
 
         // Badges (cargo, numero, estado)
         let bx = nomeX;
-        const by = nomeY + 7;
+        const by = nomeY + 6;
         const badges = [p.cargo, p.numero ? ("Nº " + p.numero) : null, p.estado].filter(Boolean);
-        doc.setFontSize(9);
+        doc.setFontSize(8.5);
         badges.forEach(txt => {
-            const w = doc.getTextWidth(txt) + 8;
+            const w = doc.getTextWidth(txt) + 7;
             doc.setDrawColor(120, 120, 120);
             doc.setFillColor(...cinzaHeader);
-            doc.rect(bx, by, w, 7, 'FD');
+            doc.rect(bx, by, w, 6.5, 'FD');
             doc.setTextColor(...pretoTexto);
             doc.setFont(undefined, 'bold');
-            doc.text(txt, bx + 4, by + 5);
-            bx += w + 4;
+            doc.text(txt, bx + 3.5, by + 4.5);
+            bx += w + 3;
         });
 
         // Tabela Identificacao e Material (largura total, abaixo da foto)
-        let cursorY = Math.max(fotoY + fotoH, by + 12) + 6;
+        let cursorY = Math.max(fotoY + fotoH, by + 10) + 5;
 
         function tabela(x, largura, titulo, linhas, startY) {
             doc.autoTable({
@@ -606,8 +637,10 @@ async function gerarPDF(id) {
                 head: [[titulo, ""]],
                 body: linhas,
                 theme: 'grid',
-                styles: { fontSize: 9, cellPadding: 2, textColor: [30, 30, 30], lineColor: [150, 150, 150] },
-                headStyles: { fillColor: cinzaHeader, textColor: [20, 20, 20], fontStyle: 'bold', fontSize: 9.5 },
+                pageBreak: 'avoid',
+                rowPageBreak: 'avoid',
+                styles: { fontSize: 8.5, cellPadding: 1.5, textColor: [30, 30, 30], lineColor: [150, 150, 150] },
+                headStyles: { fillColor: cinzaHeader, textColor: [20, 20, 20], fontStyle: 'bold', fontSize: 9 },
                 columnStyles: { 0: { cellWidth: largura * 0.4, fontStyle: 'bold' }, 1: { cellWidth: largura * 0.6 } },
             });
             return doc.lastAutoTable.finalY;
@@ -620,7 +653,7 @@ async function gerarPDF(id) {
             ["Acessorio", p.acessorio || "-"],
             ["Tiragem", String(p.tiragem || "-")],
             ["Quantidade", String(p.quantidade || "-")],
-        ], cursorY) + 6;
+        ], cursorY) + 4;
 
         // Grade 2x2: Status Interno / Costura na mesma linha, Acabamento / Entrega na linha seguinte
         const largColuna = (larguraUtil - 6) / 2;
@@ -641,7 +674,7 @@ async function gerarPDF(id) {
             ["Término", p.data_termino_costura || "-"],
         ], cursorY);
 
-        cursorY = Math.max(yInterno, yCostura) + 6;
+        cursorY = Math.max(yInterno, yCostura) + 4;
 
         const yAcabamento = tabela(margemEsq, largColuna, "PRODUÇÃO - ACABAMENTO", [
             ["Status", p.status_acabamento || "-"],
@@ -659,11 +692,16 @@ async function gerarPDF(id) {
             ["Término", p.data_termino_entrega || "-"],
         ], cursorY);
 
-        cursorY = Math.max(yAcabamento, yEntrega) + 10;
+        cursorY = Math.max(yAcabamento, yEntrega) + 6;
+
+        // Se o conteudo ultrapassar a altura da folha, remove qualquer pagina extra criada e mantem so a primeira
+        while (doc.internal.getNumberOfPages() > 1) {
+            doc.deletePage(doc.internal.getNumberOfPages());
+        }
 
         // Rodape
-        const pageHeight = doc.internal.pageSize.getHeight();
-        const rodapeY = Math.max(cursorY, pageHeight - 15);
+        const rodapeY = Math.min(cursorY, pageHeight - 12);
+        doc.setPage(1);
         doc.setDrawColor(200, 200, 200);
         doc.line(margemEsq, rodapeY, pageWidth - margemDir, rodapeY);
         doc.setTextColor(140, 140, 140);
