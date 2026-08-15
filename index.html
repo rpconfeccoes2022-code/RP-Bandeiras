@@ -148,12 +148,17 @@
         </div>
         <div>
             <label>CNPJ Fornecedor</label>
-            <select id="cnpj_fornecedor">
+            <select id="cnpj_fornecedor" onchange="toggleCnpjManual()">
                 <option value="">-- selecionar --</option>
                 <option value="LOJA 2: 38.756.034/0001-83">LOJA 2: 38.756.034/0001-83</option>
                 <option value="AR DISTRIBUIDORA: 55.048.684/0001-93">AR DISTRIBUIDORA: 55.048.684/0001-93</option>
                 <option value="PATROCINIO: 54.984.458/0001-51">PATROCINIO: 54.984.458/0001-51</option>
+                <option value="__manual__">Outro (digitar manualmente)</option>
             </select>
+        </div>
+        <div class="field" id="f_cnpj_fornecedor_manual">
+            <label>CNPJ Fornecedor (manual)</label>
+            <input type="text" id="cnpj_fornecedor_manual" placeholder="Nome do fornecedor: 00.000.000/0000-00">
         </div>
         <div>
             <label>CNPJ Candidato</label>
@@ -447,8 +452,13 @@ function toggleFields() {
     (autoEntrega[se] || []).forEach(definirDataAutomatica);
 }
 
+function toggleCnpjManual() {
+    const sel = document.getElementById('cnpj_fornecedor').value;
+    document.getElementById('f_cnpj_fornecedor_manual').classList.toggle('show', sel === '__manual__');
+}
+
 function getFormData() {
-    const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_fornecedor","cnpj_candidato","tiragem","quantidade",
+    const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_candidato","tiragem","quantidade",
         "status_interno",
         "status_costura","nome_costureira","celular_costureira","data_inicio_costura","data_termino_costura",
         "status_acabamento","nome_acabamento","celular_acabamento",
@@ -460,6 +470,13 @@ function getFormData() {
         if ((id === "tiragem" || id === "quantidade") && v !== null) v = parseInt(v);
         data[id] = v;
     });
+    const cnpjSelecionado = document.getElementById('cnpj_fornecedor').value;
+    if (cnpjSelecionado === '__manual__') {
+        const manual = document.getElementById('cnpj_fornecedor_manual').value.trim();
+        data.cnpj_fornecedor = manual || null;
+    } else {
+        data.cnpj_fornecedor = cnpjSelecionado || null;
+    }
     idsAutoData.forEach(id => { data[id] = datasAutomaticas[id] || null; });
     return data;
 }
@@ -470,6 +487,8 @@ function limparFormulario() {
     document.getElementById('cargo').value = "";
     document.getElementById('acessorio').value = "";
     document.getElementById('cnpj_fornecedor').value = "";
+    document.getElementById('cnpj_fornecedor_manual').value = "";
+    document.getElementById('f_cnpj_fornecedor_manual').classList.remove('show');
     document.getElementById('status_interno').value = "";
     document.getElementById('status_costura').value = "";
     document.getElementById('status_acabamento').value = "";
@@ -616,9 +635,19 @@ function editarPedido(id) {
     });
     Object.keys(p).forEach(key => {
         if (idsAutoData.includes(key)) return;
+        if (key === 'cnpj_fornecedor') return;
         const el = document.getElementById(key);
         if (el) el.value = p[key] || "";
     });
+    const opcoesCnpj = ["", "LOJA 2: 38.756.034/0001-83", "AR DISTRIBUIDORA: 55.048.684/0001-93", "PATROCINIO: 54.984.458/0001-51"];
+    if (p.cnpj_fornecedor && !opcoesCnpj.includes(p.cnpj_fornecedor)) {
+        document.getElementById('cnpj_fornecedor').value = '__manual__';
+        document.getElementById('cnpj_fornecedor_manual').value = p.cnpj_fornecedor;
+    } else {
+        document.getElementById('cnpj_fornecedor').value = p.cnpj_fornecedor || "";
+        document.getElementById('cnpj_fornecedor_manual').value = "";
+    }
+    toggleCnpjManual();
     toggleFields();
     editandoId = id;
     fotoSelecionada = null;
