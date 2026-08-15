@@ -643,6 +643,7 @@ function renderizarPedidos(lista) {
                 Tiragem: ${p.tiragem || "-"} | Quantidade: ${p.quantidade || "-"}<br>
                 Data do Pedido: ${formatarDataHora(p.data_pedido) || "-"} | Destino: ${p.destino || "-"}
                 ${p.nome_destinatario ? `<br>Destinatario: ${p.nome_destinatario} - ${p.celular_destinatario || "-"}` : ""}
+                <br><span style="color:#777; font-size:12px;">Criado em: ${formatarDataHora(p.criado_em) || "-"} | Atualizado em: ${formatarDataHora(p.atualizado_em) || "-"}</span>
                 ${p.foto_url ? `<br><img class="pedido-foto" src="${p.foto_url}" onerror="this.style.display='none'" onclick="ampliarFoto('${p.foto_url}')">` : ""}
             </div>
             <div class="pedido-acoes">
@@ -927,7 +928,10 @@ async function gerarPDF(id) {
         doc.setFontSize(8);
         doc.setFont(undefined, 'normal');
         const agora = new Date().toLocaleString('pt-BR');
+        const criadoTexto = formatarDataHora(p.criado_em) || "-";
+        const atualizadoTexto = formatarDataHora(p.atualizado_em) || "-";
         doc.text("RP Bandeiras - Documento gerado em " + agora, margemEsq, rodapeY + 5);
+        doc.text("Criado em: " + criadoTexto + "   |   Atualizado em: " + atualizadoTexto, margemEsq, rodapeY + 9.5);
 
         const nomeArquivo = "pedido_" + p.candidato.replace(/\s+/g, "_") + ".pdf";
         abrirEscolhaPDF(doc, nomeArquivo);
