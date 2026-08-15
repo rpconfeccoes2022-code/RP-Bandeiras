@@ -105,6 +105,7 @@
             <select id="material">
                 <option value="Wind Banner 73x210">Wind Banner 73x210</option>
                 <option value="Wind Banner 100x300">Wind Banner 100x300</option>
+                <option value="Bandeira 150x200">Bandeira 150x200</option>
                 <option value="Bandeira 100x140">Bandeira 100x140</option>
                 <option value="Bandeira 70x100">Bandeira 70x100</option>
                 <option value="Bandeira 34x52">Bandeira 34x52</option>
@@ -193,6 +194,10 @@
                 <option value="Calandrando...">Calandrando...</option>
                 <option value="Calandrado">Calandrado</option>
             </select>
+        </div>
+        <div class="field" id="f_nome_exportador">
+            <label>Nome de quem Exportou</label>
+            <input type="text" id="nome_exportador">
         </div>
         <div class="field" id="f_data_exportacao">
             <label>Data de Exportacao</label>
@@ -421,11 +426,11 @@ function previewFoto() {
 }
 
 const camposInternos = {
-    "Exportado": ["f_data_exportacao"],
-    "Imprimindo...": ["f_data_exportacao","f_data_inicio_impressao"],
-    "Impresso": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao"],
-    "Calandrando...": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem"],
-    "Calandrado": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem","f_data_calandragem"]
+    "Exportado": ["f_nome_exportador","f_data_exportacao"],
+    "Imprimindo...": ["f_nome_exportador","f_data_exportacao","f_data_inicio_impressao"],
+    "Impresso": ["f_nome_exportador","f_data_exportacao","f_data_inicio_impressao","f_data_impressao"],
+    "Calandrando...": ["f_nome_exportador","f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem"],
+    "Calandrado": ["f_nome_exportador","f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem","f_data_calandragem"]
 };
 const autoInternos = { "Exportado": ["data_exportacao"], "Imprimindo...": ["data_inicio_impressao"], "Impresso": ["data_impressao"], "Calandrando...": ["data_inicio_calandragem"], "Calandrado": ["data_calandragem"] };
 const camposCostura = { "Costurando...": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura"], "Costurado": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura","f_data_termino_costura"] };
@@ -459,7 +464,7 @@ function toggleCnpjManual() {
 
 function getFormData() {
     const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_candidato","tiragem","quantidade",
-        "status_interno",
+        "status_interno","nome_exportador",
         "status_costura","nome_costureira","celular_costureira","data_inicio_costura","data_termino_costura",
         "status_acabamento","nome_acabamento","celular_acabamento",
         "destino","status_entrega","nome_entregador","celular_entregador","nome_destinatario","celular_destinatario"];
@@ -573,7 +578,7 @@ async function carregarPedidos() {
     document.getElementById('loadingMsg').style.display = 'block';
     const finalizarBarra = iniciarBarraProgresso();
     try {
-        const { data, error } = await sb.from('controle_campanha').select('*').order('id', { ascending: false });
+        const { data, error } = await sb.from('controle_campanha').select('*').order('atualizado_em', { ascending: false, nullsFirst: false });
         if (error) { mostrarErro("Erro ao carregar dados: " + error.message); return; }
         pedidosCache = data;
         renderizarPedidos(pedidosCache);
@@ -682,7 +687,12 @@ async function excluirPedido(id) {
 
 function filtrarPedidos() {
     const termo = document.getElementById('searchBox').value.toLowerCase();
-    const filtrado = pedidosCache.filter(p => (p.candidato || "").toLowerCase().includes(termo));
+    const camposBusca = ["candidato","material","acessorio","cargo","numero","estado","cnpj_fornecedor","cnpj_candidato","tiragem","quantidade","destino"];
+    const filtrado = pedidosCache.filter(p => {
+        if (camposBusca.some(campo => String(p[campo] || "").toLowerCase().includes(termo))) return true;
+        const dataFormatada = formatarDataHora(p.data_pedido).toLowerCase();
+        return dataFormatada.includes(termo);
+    });
     renderizarPedidos(filtrado);
 }
 
@@ -981,6 +991,13 @@ definirDataAutomatica('data_pedido');
 toggleFields();
 carregarPedidos();
 configurarNotificacoesRealtime();
+
+// Registra o service worker - necessario para o navegador oferecer instalacao como app de verdade
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch((e) => console.log('Falha ao registrar service worker:', e));
+    });
+}
 </script>
 
 </body>
