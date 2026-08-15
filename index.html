@@ -7,6 +7,11 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RP Bandeiras">
 <meta name="theme-color" content="#2e7d32">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -194,10 +199,6 @@
                 <option value="Calandrando...">Calandrando...</option>
                 <option value="Calandrado">Calandrado</option>
             </select>
-        </div>
-        <div class="field" id="f_nome_exportador">
-            <label>Nome de quem Exportou</label>
-            <input type="text" id="nome_exportador">
         </div>
         <div class="field" id="f_data_exportacao">
             <label>Data de Exportacao</label>
@@ -426,11 +427,11 @@ function previewFoto() {
 }
 
 const camposInternos = {
-    "Exportado": ["f_nome_exportador","f_data_exportacao"],
-    "Imprimindo...": ["f_nome_exportador","f_data_exportacao","f_data_inicio_impressao"],
-    "Impresso": ["f_nome_exportador","f_data_exportacao","f_data_inicio_impressao","f_data_impressao"],
-    "Calandrando...": ["f_nome_exportador","f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem"],
-    "Calandrado": ["f_nome_exportador","f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem","f_data_calandragem"]
+    "Exportado": ["f_data_exportacao"],
+    "Imprimindo...": ["f_data_exportacao","f_data_inicio_impressao"],
+    "Impresso": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao"],
+    "Calandrando...": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem"],
+    "Calandrado": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem","f_data_calandragem"]
 };
 const autoInternos = { "Exportado": ["data_exportacao"], "Imprimindo...": ["data_inicio_impressao"], "Impresso": ["data_impressao"], "Calandrando...": ["data_inicio_calandragem"], "Calandrado": ["data_calandragem"] };
 const camposCostura = { "Costurando...": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura"], "Costurado": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura","f_data_termino_costura"] };
@@ -464,7 +465,7 @@ function toggleCnpjManual() {
 
 function getFormData() {
     const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_candidato","tiragem","quantidade",
-        "status_interno","nome_exportador",
+        "status_interno",
         "status_costura","nome_costureira","celular_costureira","data_inicio_costura","data_termino_costura",
         "status_acabamento","nome_acabamento","celular_acabamento",
         "destino","status_entrega","nome_entregador","celular_entregador","nome_destinatario","celular_destinatario"];
