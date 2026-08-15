@@ -102,6 +102,20 @@
     </div>
 </div>
 
+<div id="iosInstallOverlay" class="modal-overlay">
+    <div class="modal-caixa">
+        <h3>Instalar o RP Bandeiras no iPhone</h3>
+        <p style="text-align:left; font-size:13px; color:#ccc; line-height:1.5;">
+            O iPhone nao permite instalar direto pelo link. Siga os passos:<br><br>
+            1&#65039;&#8419; Toque no botao <b>Compartilhar</b> &#8593; na barra do Safari (embaixo ou em cima da tela)<br><br>
+            2&#65039;&#8419; Escolha a opcao <b>"Adicionar a Tela de Inicio"</b><br><br>
+            3&#65039;&#8419; Toque em <b>Adicionar</b>
+        </p>
+        <button onclick="fecharInstrucoesIOS(false)">Entendi</button>
+        <button class="secondary" onclick="fecharInstrucoesIOS(true)">Nao mostrar novamente</button>
+    </div>
+</div>
+
 <div class="card">
     <h2 id="formTitle">Novo Pedido</h2>
     <div class="form-grid">
@@ -240,12 +254,12 @@
             <input type="text" id="celular_costureira" placeholder="(00) 00000-0000">
         </div>
         <div class="field" id="f_data_inicio_costura">
-            <label>Data Inicio Costura</label>
-            <input type="date" id="data_inicio_costura">
+            <label>Data/Hora Inicio Costura</label>
+            <input type="text" id="data_inicio_costura" readonly>
         </div>
         <div class="field" id="f_data_termino_costura">
-            <label>Data Termino Costura</label>
-            <input type="date" id="data_termino_costura">
+            <label>Data/Hora Termino Costura</label>
+            <input type="text" id="data_termino_costura" readonly>
         </div>
     </div>
 
@@ -328,7 +342,10 @@
 </div>
 
 <div class="card">
-    <h2>Pedidos Cadastrados</h2>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0;">Pedidos Cadastrados</h2>
+        <button id="btnAtualizar" class="secondary" style="width:auto; padding:8px 14px;" onclick="atualizarPagina()">Atualizar</button>
+    </div>
     <input type="text" id="searchBox" placeholder="Pesquisar por candidato..." onkeyup="filtrarPedidos()">
     <div id="loadingMsg">Carregando pedidos...</div>
     <div id="listaPedidos"></div>
@@ -345,7 +362,7 @@ let fotoSelecionada = null;
 let fotoUrlAtual = null;
 let datasAutomaticas = {};
 let ultimaEdicaoLocal = { id: null, ts: 0 };
-const idsAutoData = ["data_pedido","data_exportacao","data_inicio_impressao","data_impressao","data_inicio_calandragem","data_calandragem","data_inicio_acabamento","data_termino_acabamento","data_inicio_entrega","data_confirmacao_destinatario","data_termino_entrega"];
+const idsAutoData = ["data_pedido","data_exportacao","data_inicio_impressao","data_impressao","data_inicio_calandragem","data_calandragem","data_inicio_costura","data_termino_costura","data_inicio_acabamento","data_termino_acabamento","data_inicio_entrega","data_confirmacao_destinatario","data_termino_entrega"];
 
 function formatarDataHora(iso) {
     if (!iso) return "";
@@ -389,6 +406,11 @@ function mostrarOk(msg) {
 
 function esconderErro() {
     document.getElementById('errorBanner').style.display = 'none';
+}
+
+function atualizarPagina() {
+    // Recarrega a pagina inteira (busca a versao mais nova do app e os pedidos atualizados)
+    window.location.reload();
 }
 
 function ampliarFoto(url) {
@@ -435,6 +457,7 @@ const camposInternos = {
 };
 const autoInternos = { "Exportado": ["data_exportacao"], "Imprimindo...": ["data_inicio_impressao"], "Impresso": ["data_impressao"], "Calandrando...": ["data_inicio_calandragem"], "Calandrado": ["data_calandragem"] };
 const camposCostura = { "Costurando...": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura"], "Costurado": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura","f_data_termino_costura"] };
+const autoCostura = { "Costurando...": ["data_inicio_costura"], "Costurado": ["data_termino_costura"] };
 const camposAcabamento = { "Finalizando...": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento"], "Finalizado": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento","f_data_termino_acabamento"] };
 const autoAcabamento = { "Finalizando...": ["data_inicio_acabamento"], "Finalizado": ["data_termino_acabamento"] };
 const camposEntrega = {
@@ -454,6 +477,7 @@ function toggleFields() {
     (camposAcabamento[sa] || []).forEach(id => document.getElementById(id).classList.add('show'));
     (camposEntrega[se] || []).forEach(id => document.getElementById(id).classList.add('show'));
     (autoInternos[si] || []).forEach(definirDataAutomatica);
+    (autoCostura[sc] || []).forEach(definirDataAutomatica);
     (autoAcabamento[sa] || []).forEach(definirDataAutomatica);
     (autoEntrega[se] || []).forEach(definirDataAutomatica);
 }
@@ -466,7 +490,7 @@ function toggleCnpjManual() {
 function getFormData() {
     const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_candidato","tiragem","quantidade",
         "status_interno",
-        "status_costura","nome_costureira","celular_costureira","data_inicio_costura","data_termino_costura",
+        "status_costura","nome_costureira","celular_costureira",
         "status_acabamento","nome_acabamento","celular_acabamento",
         "destino","status_entrega","nome_entregador","celular_entregador","nome_destinatario","celular_destinatario"];
     const data = {};
@@ -999,7 +1023,28 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./sw.js').catch((e) => console.log('Falha ao registrar service worker:', e));
     });
 }
+
+// No iPhone nao existe menu automatico de instalacao (limitacao do proprio iOS/Safari),
+// entao mostramos instrucoes na tela assim que o link e aberto.
+function fecharInstrucoesIOS(naoMostrarNovamente) {
+    document.getElementById('iosInstallOverlay').classList.remove('aberto');
+    if (naoMostrarNovamente) {
+        try { localStorage.setItem('rpbandeiras_ocultar_instrucoes_ios', '1'); } catch (e) {}
+    }
+}
+
+function verificarInstalacaoIOS() {
+    const ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    const jaInstalado = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+    let ocultarPreferencia = false;
+    try { ocultarPreferencia = localStorage.getItem('rpbandeiras_ocultar_instrucoes_ios') === '1'; } catch (e) {}
+    if (ehIOS && !jaInstalado && !ocultarPreferencia) {
+        document.getElementById('iosInstallOverlay').classList.add('aberto');
+    }
+}
+verificarInstalacaoIOS();
 </script>
+
 
 </body>
 </html>
