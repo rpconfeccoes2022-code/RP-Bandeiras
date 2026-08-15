@@ -54,11 +54,22 @@
     #fotoPreviewBox { min-height: 100px; border: 1px dashed #444; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 13px; }
     #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+    .cabecalho { text-align: center; margin-bottom: 10px; }
+    .cabecalho img { width: 64px; height: 64px; border-radius: 12px; }
+    #barraCarregamentoContainer { width: 160px; height: 4px; background: #262626; border-radius: 4px; margin: 10px auto 0; overflow: hidden; display: none; }
+    #barraCarregamentoContainer.ativa { display: block; }
+    #barraCarregamento { width: 40%; height: 100%; background: #2e7d32; border-radius: 4px; animation: deslizar 1s ease-in-out infinite; }
+    @keyframes deslizar { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
+    input[readonly] { opacity: 0.85; cursor: default; }
 </style>
 </head>
 <body>
 
-<h1>RP Bandeiras - Controle de Producao</h1>
+<div class="cabecalho">
+    <img src="icon-192.png" alt="RP Bandeiras">
+    <h1>RP Bandeiras - Controle de Producao</h1>
+    <div id="barraCarregamentoContainer"><div id="barraCarregamento"></div></div>
+</div>
 
 <div id="errorBanner"></div>
 <div id="okBanner"></div>
@@ -140,7 +151,7 @@
         </div>
         <div>
             <label>Data do Pedido</label>
-            <input type="date" id="data_pedido">
+            <input type="text" id="data_pedido" readonly placeholder="Preenchido automaticamente">
         </div>
         <div>
             <label>Destino</label>
@@ -154,21 +165,31 @@
             <select id="status_interno" onchange="toggleFields()">
                 <option value="">-- selecionar --</option>
                 <option value="Exportado">Exportado</option>
+                <option value="Imprimindo...">Imprimindo...</option>
                 <option value="Impresso">Impresso</option>
+                <option value="Calandrando">Calandrando</option>
                 <option value="Calandrado">Calandrado</option>
             </select>
         </div>
         <div class="field" id="f_data_exportacao">
             <label>Data de Exportacao</label>
-            <input type="date" id="data_exportacao">
+            <input type="text" id="data_exportacao" readonly>
+        </div>
+        <div class="field" id="f_data_inicio_impressao">
+            <label>Inicio da Impressao</label>
+            <input type="text" id="data_inicio_impressao" readonly>
         </div>
         <div class="field" id="f_data_impressao">
             <label>Data de Impressao</label>
-            <input type="date" id="data_impressao">
+            <input type="text" id="data_impressao" readonly>
+        </div>
+        <div class="field" id="f_data_inicio_calandragem">
+            <label>Inicio da Calandragem</label>
+            <input type="text" id="data_inicio_calandragem" readonly>
         </div>
         <div class="field" id="f_data_calandragem">
             <label>Data de Calandragem</label>
-            <input type="date" id="data_calandragem">
+            <input type="text" id="data_calandragem" readonly>
         </div>
     </div>
 
@@ -204,7 +225,7 @@
             <label>Status Acabamento</label>
             <select id="status_acabamento" onchange="toggleFields()">
                 <option value="">-- selecionar (atualizar depois) --</option>
-                <option value="Em Andamento">Em Andamento</option>
+                <option value="Finalizando...">Finalizando...</option>
                 <option value="Finalizado">Finalizado</option>
             </select>
         </div>
@@ -218,11 +239,11 @@
         </div>
         <div class="field" id="f_data_inicio_acabamento">
             <label>Data Inicio Acabamento</label>
-            <input type="date" id="data_inicio_acabamento">
+            <input type="text" id="data_inicio_acabamento" readonly>
         </div>
         <div class="field" id="f_data_termino_acabamento">
             <label>Data Termino Acabamento</label>
-            <input type="date" id="data_termino_acabamento">
+            <input type="text" id="data_termino_acabamento" readonly>
         </div>
     </div>
 
@@ -231,7 +252,7 @@
             <label>Status Entrega</label>
             <select id="status_entrega" onchange="toggleFields()">
                 <option value="">-- selecionar (atualizar depois) --</option>
-                <option value="Entregando">Entregando</option>
+                <option value="Em Rota de Entrega">Em Rota de Entrega</option>
                 <option value="Entregue">Entregue</option>
             </select>
         </div>
@@ -243,13 +264,21 @@
             <label>Celular do Entregador</label>
             <input type="text" id="celular_entregador" placeholder="(00) 00000-0000">
         </div>
+        <div class="field" id="f_nome_destinatario">
+            <label>Nome do Destinatario</label>
+            <input type="text" id="nome_destinatario">
+        </div>
+        <div class="field" id="f_celular_destinatario">
+            <label>Celular do Destinatario</label>
+            <input type="text" id="celular_destinatario" placeholder="(00) 00000-0000">
+        </div>
         <div class="field" id="f_data_inicio_entrega">
             <label>Data Inicio Entrega</label>
-            <input type="date" id="data_inicio_entrega">
+            <input type="text" id="data_inicio_entrega" readonly>
         </div>
         <div class="field" id="f_data_termino_entrega">
             <label>Data Termino Entrega</label>
-            <input type="date" id="data_termino_entrega">
+            <input type="text" id="data_termino_entrega" readonly>
         </div>
     </div>
 
@@ -281,6 +310,33 @@ let pedidosCache = [];
 let editandoId = null;
 let fotoSelecionada = null;
 let fotoUrlAtual = null;
+let datasAutomaticas = {};
+let ultimaEdicaoLocal = { id: null, ts: 0 };
+const idsAutoData = ["data_pedido","data_exportacao","data_inicio_impressao","data_impressao","data_inicio_calandragem","data_calandragem","data_inicio_acabamento","data_termino_acabamento","data_inicio_entrega","data_termino_entrega"];
+
+function formatarDataHora(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return String(iso);
+    const dia = String(d.getDate()).padStart(2, "0");
+    const mes = String(d.getMonth() + 1).padStart(2, "0");
+    const ano = d.getFullYear();
+    const hora = String(d.getHours()).padStart(2, "0");
+    const min = String(d.getMinutes()).padStart(2, "0");
+    return `${dia}/${mes}/${ano} ${hora}:${min}`;
+}
+
+function atualizarDisplayData(campo) {
+    const el = document.getElementById(campo);
+    if (el) el.value = datasAutomaticas[campo] ? formatarDataHora(datasAutomaticas[campo]) : "";
+}
+
+function definirDataAutomatica(campo) {
+    if (!datasAutomaticas[campo]) {
+        datasAutomaticas[campo] = new Date().toISOString();
+        atualizarDisplayData(campo);
+    }
+}
 
 function mostrarErro(msg) {
     const box = document.getElementById('errorBanner');
@@ -337,10 +393,19 @@ function previewFoto() {
     }
 }
 
-const camposInternos = { "Exportado": ["f_data_exportacao"], "Impresso": ["f_data_exportacao","f_data_impressao"], "Calandrado": ["f_data_exportacao","f_data_impressao","f_data_calandragem"] };
+const camposInternos = {
+    "Exportado": ["f_data_exportacao"],
+    "Imprimindo...": ["f_data_exportacao","f_data_inicio_impressao"],
+    "Impresso": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao"],
+    "Calandrando": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem"],
+    "Calandrado": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem","f_data_calandragem"]
+};
+const autoInternos = { "Exportado": "data_exportacao", "Imprimindo...": "data_inicio_impressao", "Impresso": "data_impressao", "Calandrando": "data_inicio_calandragem", "Calandrado": "data_calandragem" };
 const camposCostura = { "Costurando": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura"], "Costurado": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura","f_data_termino_costura"] };
-const camposAcabamento = { "Em Andamento": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento"], "Finalizado": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento","f_data_termino_acabamento"] };
-const camposEntrega = { "Entregando": ["f_nome_entregador","f_celular_entregador","f_data_inicio_entrega"], "Entregue": ["f_nome_entregador","f_celular_entregador","f_data_inicio_entrega","f_data_termino_entrega"] };
+const camposAcabamento = { "Finalizando...": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento"], "Finalizado": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento","f_data_termino_acabamento"] };
+const autoAcabamento = { "Finalizando...": "data_inicio_acabamento", "Finalizado": "data_termino_acabamento" };
+const camposEntrega = { "Em Rota de Entrega": ["f_nome_entregador","f_celular_entregador","f_nome_destinatario","f_celular_destinatario","f_data_inicio_entrega"], "Entregue": ["f_nome_entregador","f_celular_entregador","f_nome_destinatario","f_celular_destinatario","f_data_inicio_entrega","f_data_termino_entrega"] };
+const autoEntrega = { "Em Rota de Entrega": "data_inicio_entrega", "Entregue": "data_termino_entrega" };
 
 function toggleFields() {
     document.querySelectorAll('.field').forEach(f => f.classList.remove('show'));
@@ -352,14 +417,17 @@ function toggleFields() {
     (camposCostura[sc] || []).forEach(id => document.getElementById(id).classList.add('show'));
     (camposAcabamento[sa] || []).forEach(id => document.getElementById(id).classList.add('show'));
     (camposEntrega[se] || []).forEach(id => document.getElementById(id).classList.add('show'));
+    if (autoInternos[si]) definirDataAutomatica(autoInternos[si]);
+    if (autoAcabamento[sa]) definirDataAutomatica(autoAcabamento[sa]);
+    if (autoEntrega[se]) definirDataAutomatica(autoEntrega[se]);
 }
 
 function getFormData() {
-    const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_fornecedor","cnpj_candidato","tiragem","quantidade","data_pedido",
-        "status_interno","data_exportacao","data_impressao","data_calandragem",
+    const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_fornecedor","cnpj_candidato","tiragem","quantidade",
+        "status_interno",
         "status_costura","nome_costureira","celular_costureira","data_inicio_costura","data_termino_costura",
-        "status_acabamento","nome_acabamento","celular_acabamento","data_inicio_acabamento","data_termino_acabamento",
-        "destino","status_entrega","nome_entregador","celular_entregador","data_inicio_entrega","data_termino_entrega"];
+        "status_acabamento","nome_acabamento","celular_acabamento",
+        "destino","status_entrega","nome_entregador","celular_entregador","nome_destinatario","celular_destinatario"];
     const data = {};
     ids.forEach(id => {
         let v = document.getElementById(id).value;
@@ -367,6 +435,7 @@ function getFormData() {
         if ((id === "tiragem" || id === "quantidade") && v !== null) v = parseInt(v);
         data[id] = v;
     });
+    idsAutoData.forEach(id => { data[id] = datasAutomaticas[id] || null; });
     return data;
 }
 
@@ -380,6 +449,9 @@ function limparFormulario() {
     document.getElementById('status_costura').value = "";
     document.getElementById('status_acabamento').value = "";
     document.getElementById('status_entrega').value = "";
+    datasAutomaticas = {};
+    idsAutoData.forEach(atualizarDisplayData);
+    definirDataAutomatica('data_pedido');
     toggleFields();
     editandoId = null;
     fotoSelecionada = null;
@@ -412,6 +484,7 @@ async function salvarPedido() {
 
         let error;
         if (editandoId) {
+            ultimaEdicaoLocal = { id: editandoId, ts: Date.now() };
             ({ error } = await sb.from('controle_campanha').update(data).eq('id', editandoId));
         } else {
             ({ error } = await sb.from('controle_campanha').insert([data]));
@@ -431,6 +504,7 @@ async function salvarPedido() {
 
 async function carregarPedidos() {
     document.getElementById('loadingMsg').style.display = 'block';
+    document.getElementById('barraCarregamentoContainer').classList.add('ativa');
     try {
         const { data, error } = await sb.from('controle_campanha').select('*').order('id', { ascending: false });
         if (error) { mostrarErro("Erro ao carregar dados: " + error.message); return; }
@@ -440,6 +514,7 @@ async function carregarPedidos() {
         mostrarErro("Falha inesperada ao carregar pedidos: " + (e && e.message ? e.message : String(e)));
     } finally {
         document.getElementById('loadingMsg').style.display = 'none';
+        document.getElementById('barraCarregamentoContainer').classList.remove('ativa');
     }
 }
 
@@ -469,7 +544,8 @@ function renderizarPedidos(lista) {
                 CNPJ Fornecedor: ${p.cnpj_fornecedor || "-"}<br>
                 CNPJ Candidato: ${p.cnpj_candidato || "-"}<br>
                 Tiragem: ${p.tiragem || "-"} | Quantidade: ${p.quantidade || "-"}<br>
-                Data do Pedido: ${p.data_pedido || "-"} | Destino: ${p.destino || "-"}
+                Data do Pedido: ${formatarDataHora(p.data_pedido) || "-"} | Destino: ${p.destino || "-"}
+                ${p.nome_destinatario ? `<br>Destinatario: ${p.nome_destinatario} - ${p.celular_destinatario || "-"}` : ""}
                 ${p.foto_url ? `<br><img class="pedido-foto" src="${p.foto_url}" onerror="this.style.display='none'" onclick="ampliarFoto('${p.foto_url}')">` : ""}
             </div>
             <div class="pedido-acoes">
@@ -485,7 +561,13 @@ function renderizarPedidos(lista) {
 function editarPedido(id) {
     const p = pedidosCache.find(x => x.id === id);
     if (!p) return;
+    datasAutomaticas = {};
+    idsAutoData.forEach(campo => {
+        datasAutomaticas[campo] = p[campo] || null;
+        atualizarDisplayData(campo);
+    });
     Object.keys(p).forEach(key => {
+        if (idsAutoData.includes(key)) return;
         const el = document.getElementById(key);
         if (el) el.value = p[key] || "";
     });
@@ -621,7 +703,7 @@ async function gerarPDF(id) {
         doc.text("CONTROLE DE PRODUÇÃO", tituloX, logoY + 7);
         doc.setFont(undefined, 'normal');
         doc.setFontSize(9);
-        doc.text("PEDIDO Nº " + p.id + "  -  DATA " + (p.data_pedido || "-") + "  -  DESTINO " + (p.destino || "-"), tituloX, logoY + 13);
+        doc.text("PEDIDO Nº " + p.id + "  -  DATA " + (formatarDataHora(p.data_pedido) || "-") + "  -  DESTINO " + (p.destino || "-"), tituloX, logoY + 13);
 
         // Nome do candidato
         const nomeY = logoY + logoSize + 10;
@@ -659,8 +741,8 @@ async function gerarPDF(id) {
                 theme: 'grid',
                 pageBreak: 'avoid',
                 rowPageBreak: 'avoid',
-                styles: { fontSize: 8.5, cellPadding: 1.5, textColor: [30, 30, 30], lineColor: [150, 150, 150] },
-                headStyles: { fillColor: cinzaHeader, textColor: [20, 20, 20], fontStyle: 'bold', fontSize: 9 },
+                styles: { fontSize: 8, cellPadding: 1.3, textColor: [30, 30, 30], lineColor: [150, 150, 150] },
+                headStyles: { fillColor: cinzaHeader, textColor: [20, 20, 20], fontStyle: 'bold', fontSize: 8.5 },
                 columnStyles: { 0: { cellWidth: largura * 0.4, fontStyle: 'bold' }, 1: { cellWidth: largura * 0.6 } },
             });
             return doc.lastAutoTable.finalY;
@@ -681,17 +763,19 @@ async function gerarPDF(id) {
 
         const yInterno = tabela(margemEsq, largColuna, "PRODUÇÃO - STATUS INTERNO", [
             ["Status", p.status_interno || "-"],
-            ["Data Exportação", p.data_exportacao || "-"],
-            ["Data Impressão", p.data_impressao || "-"],
-            ["Data Calandragem", p.data_calandragem || "-"],
+            ["Data Exportação", formatarDataHora(p.data_exportacao) || "-"],
+            ["Início Impressão", formatarDataHora(p.data_inicio_impressao) || "-"],
+            ["Data Impressão", formatarDataHora(p.data_impressao) || "-"],
+            ["Início Calandragem", formatarDataHora(p.data_inicio_calandragem) || "-"],
+            ["Data Calandragem", formatarDataHora(p.data_calandragem) || "-"],
         ], cursorY);
 
         const yCostura = tabela(colDireitaX, largColuna, "PRODUÇÃO - COSTURA", [
             ["Status", p.status_costura || "-"],
             ["Responsável", p.nome_costureira || "-"],
             ["Celular", p.celular_costureira || "-"],
-            ["Início", p.data_inicio_costura || "-"],
-            ["Término", p.data_termino_costura || "-"],
+            ["Início", formatarDataHora(p.data_inicio_costura) || "-"],
+            ["Término", formatarDataHora(p.data_termino_costura) || "-"],
         ], cursorY);
 
         cursorY = Math.max(yInterno, yCostura) + 4;
@@ -700,16 +784,18 @@ async function gerarPDF(id) {
             ["Status", p.status_acabamento || "-"],
             ["Responsável", p.nome_acabamento || "-"],
             ["Celular", p.celular_acabamento || "-"],
-            ["Início", p.data_inicio_acabamento || "-"],
-            ["Término", p.data_termino_acabamento || "-"],
+            ["Início", formatarDataHora(p.data_inicio_acabamento) || "-"],
+            ["Término", formatarDataHora(p.data_termino_acabamento) || "-"],
         ], cursorY);
 
         const yEntrega = tabela(colDireitaX, largColuna, "PRODUÇÃO - ENTREGA", [
             ["Status", p.status_entrega || "-"],
             ["Entregador", p.nome_entregador || "-"],
             ["Celular", p.celular_entregador || "-"],
-            ["Início", p.data_inicio_entrega || "-"],
-            ["Término", p.data_termino_entrega || "-"],
+            ["Destinatário", p.nome_destinatario || "-"],
+            ["Celular Dest.", p.celular_destinatario || "-"],
+            ["Início", formatarDataHora(p.data_inicio_entrega) || "-"],
+            ["Término", formatarDataHora(p.data_termino_entrega) || "-"],
         ], cursorY);
 
         cursorY = Math.max(yAcabamento, yEntrega) + 6;
@@ -773,8 +859,34 @@ async function salvarOuCompartilharPDF(doc, nomeArquivo) {
     doc.save(nomeArquivo);
 }
 
+// Notificacoes entre aparelhos: avisa quando outro dispositivo atualiza um pedido
+function notificarAtualizacao(p) {
+    const texto = "Pedido de " + (p.candidato || "um candidato") + " foi atualizado.";
+    if (window.Notification && Notification.permission === 'granted') {
+        try { new Notification("RP Bandeiras", { body: texto, icon: 'icon-192.png' }); } catch (e) { /* ignora */ }
+    }
+    mostrarOk(texto);
+}
+
+function configurarNotificacoesRealtime() {
+    if (window.Notification && Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+    sb.channel('mudancas-controle-campanha')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'controle_campanha' }, (payload) => {
+            const registro = payload.new;
+            const fuiEuQueEditei = ultimaEdicaoLocal.id === registro.id && (Date.now() - ultimaEdicaoLocal.ts) < 5000;
+            carregarPedidos();
+            if (fuiEuQueEditei) return;
+            notificarAtualizacao(registro);
+        })
+        .subscribe();
+}
+
+definirDataAutomatica('data_pedido');
 toggleFields();
 carregarPedidos();
+configurarNotificacoesRealtime();
 </script>
 
 </body>
