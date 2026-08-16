@@ -1,4 +1,4 @@
-const CACHE_NAME = "rp-bandeiras-v5";
+const CACHE_NAME = "rp-bandeiras-v6";
 const ARQUIVOS_ESSENCIAIS = [
     "./index.html",
     "./manifest.json",
@@ -33,5 +33,33 @@ self.addEventListener("fetch", (event) => {
                 return resposta;
             })
             .catch(() => caches.match(event.request))
+    );
+});
+
+// Recebe a notificacao push (funciona mesmo com o app fechado) e exibe na tela do celular
+self.addEventListener("push", (event) => {
+    let dados = { title: "RP Bandeiras", body: "Um pedido foi atualizado." };
+    try {
+        if (event.data) dados = event.data.json();
+    } catch (e) { /* usa o padrao */ }
+    event.waitUntil(
+        self.registration.showNotification(dados.title || "RP Bandeiras", {
+            body: dados.body || "",
+            icon: "icon-192.png",
+            badge: "icon-192.png",
+        })
+    );
+});
+
+// Ao tocar na notificacao, abre (ou foca) o app
+self.addEventListener("notificationclick", (event) => {
+    event.notification.close();
+    event.waitUntil(
+        clients.matchAll({ type: "window", includeUncontrolled: true }).then((lista) => {
+            for (const cliente of lista) {
+                if ("focus" in cliente) return cliente.focus();
+            }
+            if (clients.openWindow) return clients.openWindow("./index.html");
+        })
     );
 });

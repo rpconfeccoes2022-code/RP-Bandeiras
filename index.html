@@ -208,15 +208,14 @@
 
     <div class="form-grid" style="margin-top:14px;">
         <div>
-            <label>Status Interno (Producao)</label>
-            <select id="status_interno" onchange="toggleFields()">
-                <option value="">-- selecionar --</option>
-                <option value="Exportado">Exportado</option>
-                <option value="Imprimindo...">Imprimindo...</option>
-                <option value="Impresso">Impresso</option>
-                <option value="Calandrando...">Calandrando...</option>
-                <option value="Calandrado">Calandrado</option>
-            </select>
+            <label>Status Interno (Producao) - pode marcar mais de um</label>
+            <div id="status_interno_checkboxes" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:6px;">
+                <label style="display:flex; align-items:center; gap:4px; font-weight:normal;"><input type="checkbox" value="Exportado" onchange="toggleFields()"> Exportado</label>
+                <label style="display:flex; align-items:center; gap:4px; font-weight:normal;"><input type="checkbox" value="Imprimindo..." onchange="toggleFields()"> Imprimindo...</label>
+                <label style="display:flex; align-items:center; gap:4px; font-weight:normal;"><input type="checkbox" value="Impresso" onchange="toggleFields()"> Impresso</label>
+                <label style="display:flex; align-items:center; gap:4px; font-weight:normal;"><input type="checkbox" value="Calandrando..." onchange="toggleFields()"> Calandrando...</label>
+                <label style="display:flex; align-items:center; gap:4px; font-weight:normal;"><input type="checkbox" value="Calandrado" onchange="toggleFields()"> Calandrado</label>
+            </div>
         </div>
         <div class="field" id="f_data_exportacao">
             <label>Data de Exportacao</label>
@@ -302,6 +301,10 @@
                 <option value="Em Rota de Entrega...">Em Rota de Entrega...</option>
                 <option value="Entregue">Entregue</option>
             </select>
+        </div>
+        <div class="field" id="f_quantidade_entrega">
+            <label>Quantidade nesta Entrega</label>
+            <input type="number" id="quantidade_entrega" placeholder="Ex: 700 (de um total de 1000)">
         </div>
         <div class="field" id="f_nome_entregador">
             <label>Nome do Entregador</label>
@@ -477,22 +480,26 @@ const autoCostura = { "Costurando...": ["data_inicio_costura"], "Costurado": ["d
 const camposAcabamento = { "Finalizando...": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento"], "Finalizado": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento","f_data_termino_acabamento"] };
 const autoAcabamento = { "Finalizando...": ["data_inicio_acabamento"], "Finalizado": ["data_termino_acabamento"] };
 const camposEntrega = {
-    "Em Rota de Entrega...": ["f_nome_entregador","f_celular_entregador","f_data_inicio_entrega","f_nome_destinatario","f_celular_destinatario","f_data_confirmacao_destinatario"],
-    "Entregue": ["f_nome_entregador","f_celular_entregador","f_data_inicio_entrega","f_nome_destinatario","f_celular_destinatario","f_data_confirmacao_destinatario","f_data_termino_entrega"]
+    "Em Rota de Entrega...": ["f_quantidade_entrega","f_nome_entregador","f_celular_entregador","f_data_inicio_entrega","f_nome_destinatario","f_celular_destinatario","f_data_confirmacao_destinatario"],
+    "Entregue": ["f_quantidade_entrega","f_nome_entregador","f_celular_entregador","f_data_inicio_entrega","f_nome_destinatario","f_celular_destinatario","f_data_confirmacao_destinatario","f_data_termino_entrega"]
 };
 const autoEntrega = { "Em Rota de Entrega...": ["data_inicio_entrega","data_confirmacao_destinatario"], "Entregue": ["data_termino_entrega"] };
 
+function getStatusInternoMarcados() {
+    return Array.from(document.querySelectorAll('#status_interno_checkboxes input[type="checkbox"]:checked')).map(el => el.value);
+}
+
 function toggleFields() {
     document.querySelectorAll('.field').forEach(f => f.classList.remove('show'));
-    const si = document.getElementById('status_interno').value;
+    const siLista = getStatusInternoMarcados();
     const sc = document.getElementById('status_costura').value;
     const sa = document.getElementById('status_acabamento').value;
     const se = document.getElementById('status_entrega').value;
-    (camposInternos[si] || []).forEach(id => document.getElementById(id).classList.add('show'));
+    siLista.forEach(si => (camposInternos[si] || []).forEach(id => document.getElementById(id).classList.add('show')));
     (camposCostura[sc] || []).forEach(id => document.getElementById(id).classList.add('show'));
     (camposAcabamento[sa] || []).forEach(id => document.getElementById(id).classList.add('show'));
     (camposEntrega[se] || []).forEach(id => document.getElementById(id).classList.add('show'));
-    (autoInternos[si] || []).forEach(definirDataAutomatica);
+    siLista.forEach(si => (autoInternos[si] || []).forEach(definirDataAutomatica));
     (autoCostura[sc] || []).forEach(definirDataAutomatica);
     (autoAcabamento[sa] || []).forEach(definirDataAutomatica);
     (autoEntrega[se] || []).forEach(definirDataAutomatica);
@@ -505,17 +512,18 @@ function toggleCnpjManual() {
 
 function getFormData() {
     const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_candidato","tiragem","quantidade",
-        "status_interno",
         "status_costura","nome_costureira","celular_costureira",
         "status_acabamento","nome_acabamento","celular_acabamento",
-        "destino","status_entrega","nome_entregador","celular_entregador","nome_destinatario","celular_destinatario"];
+        "destino","status_entrega","nome_entregador","celular_entregador","nome_destinatario","celular_destinatario","quantidade_entrega"];
     const data = {};
     ids.forEach(id => {
         let v = document.getElementById(id).value;
         if (v === "") v = null;
-        if ((id === "tiragem" || id === "quantidade") && v !== null) v = parseInt(v);
+        if ((id === "tiragem" || id === "quantidade" || id === "quantidade_entrega") && v !== null) v = parseInt(v);
         data[id] = v;
     });
+    data.status_interno = getStatusInternoMarcados();
+    if (data.status_interno.length === 0) data.status_interno = null;
     const cnpjSelecionado = document.getElementById('cnpj_fornecedor').value;
     if (cnpjSelecionado === '__manual__') {
         const manual = document.getElementById('cnpj_fornecedor_manual').value.trim();
@@ -529,13 +537,13 @@ function getFormData() {
 
 function limparFormulario() {
     document.querySelectorAll('input').forEach(i => i.value = "");
+    document.querySelectorAll('#status_interno_checkboxes input[type="checkbox"]').forEach(c => c.checked = false);
     document.getElementById('material').selectedIndex = 0;
     document.getElementById('cargo').value = "";
     document.getElementById('acessorio').value = "";
     document.getElementById('cnpj_fornecedor').value = "";
     document.getElementById('cnpj_fornecedor_manual').value = "";
     document.getElementById('f_cnpj_fornecedor_manual').classList.remove('show');
-    document.getElementById('status_interno').value = "";
     document.getElementById('status_costura').value = "";
     document.getElementById('status_acabamento').value = "";
     document.getElementById('status_entrega').value = "";
@@ -664,10 +672,10 @@ function renderizarPedidos(lista) {
             <div class="pedido-header">
                 <strong>${p.candidato}</strong>
                 <span>
-                    ${p.status_interno ? `<span class="badge b-int">${p.status_interno}</span>` : ""}
+                    ${(Array.isArray(p.status_interno) ? p.status_interno : (p.status_interno ? [p.status_interno] : [])).map(s => `<span class="badge b-int">${s}</span>`).join("")}
                     ${p.status_costura ? `<span class="badge b-cos">${p.status_costura}</span>` : ""}
                     ${p.status_acabamento ? `<span class="badge b-cos">${p.status_acabamento}</span>` : ""}
-                    ${p.status_entrega ? `<span class="badge b-ent">${p.status_entrega}</span>` : ""}
+                    ${p.status_entrega ? `<span class="badge b-ent">${p.status_entrega}${p.quantidade_entrega ? ` (${p.quantidade_entrega}/${p.quantidade || "?"})` : ""}</span>` : ""}
                 </span>
             </div>
             <div class="pedido-detalhes">
@@ -701,9 +709,13 @@ function editarPedido(id) {
     });
     Object.keys(p).forEach(key => {
         if (idsAutoData.includes(key)) return;
-        if (key === 'cnpj_fornecedor') return;
+        if (key === 'cnpj_fornecedor' || key === 'status_interno') return;
         const el = document.getElementById(key);
         if (el) el.value = p[key] || "";
+    });
+    const statusInternoAtual = Array.isArray(p.status_interno) ? p.status_interno : (p.status_interno ? [p.status_interno] : []);
+    document.querySelectorAll('#status_interno_checkboxes input[type="checkbox"]').forEach(c => {
+        c.checked = statusInternoAtual.includes(c.value);
     });
     const opcoesCnpj = ["", "LOJA 2: 38.756.034/0001-83", "AR DISTRIBUIDORA: 55.048.684/0001-93", "PATROCINIO: 54.984.458/0001-51"];
     if (p.cnpj_fornecedor && !opcoesCnpj.includes(p.cnpj_fornecedor)) {
@@ -889,7 +901,7 @@ async function gerarPDF(id) {
                 theme: 'grid',
                 pageBreak: 'avoid',
                 rowPageBreak: 'avoid',
-                styles: { fontSize: 8, cellPadding: 1.3, textColor: [30, 30, 30], lineColor: [150, 150, 150] },
+                styles: { fontSize: 7.5, cellPadding: 1.1, textColor: [30, 30, 30], lineColor: [150, 150, 150] },
                 headStyles: { fillColor: cinzaHeader, textColor: [20, 20, 20], fontStyle: 'bold', fontSize: 8.5 },
                 columnStyles: { 0: { cellWidth: largura * 0.4, fontStyle: 'bold' }, 1: { cellWidth: largura * 0.6 } },
             });
@@ -910,7 +922,7 @@ async function gerarPDF(id) {
         const colDireitaX = margemEsq + largColuna + 6;
 
         const yInterno = tabela(margemEsq, largColuna, "PRODUÇÃO - STATUS INTERNO", [
-            ["Status", p.status_interno || "-"],
+            ["Status", (Array.isArray(p.status_interno) ? p.status_interno.join(" + ") : p.status_interno) || "-"],
             ["Data Exportação", formatarDataHora(p.data_exportacao) || "-"],
             ["Início Impressão", formatarDataHora(p.data_inicio_impressao) || "-"],
             ["Data Impressão", formatarDataHora(p.data_impressao) || "-"],
@@ -938,6 +950,7 @@ async function gerarPDF(id) {
 
         const yEntrega = tabela(colDireitaX, largColuna, "PRODUÇÃO - ENTREGA", [
             ["Status", p.status_entrega || "-"],
+            ["Quantidade", p.quantidade_entrega ? (p.quantidade_entrega + "/" + (p.quantidade || "?")) : "-"],
             ["Entregador", p.nome_entregador || "-"],
             ["Celular", p.celular_entregador || "-"],
             ["Em Rota", formatarDataHora(p.data_inicio_entrega) || "-"],
@@ -1037,18 +1050,58 @@ function notificarAtualizacao(p) {
 }
 
 function configurarNotificacoesRealtime() {
-    if (window.Notification && Notification.permission === 'default') {
-        Notification.requestPermission();
-    }
     sb.channel('mudancas-controle-campanha')
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'controle_campanha' }, (payload) => {
             const registro = payload.new;
             const fuiEuQueEditei = ultimaEdicaoLocal.id === registro.id && (Date.now() - ultimaEdicaoLocal.ts) < 5000;
             carregarPedidos();
+            atualizarTotaisMaterial(pedidosCache);
             if (fuiEuQueEditei) return;
             notificarAtualizacao(registro);
         })
         .subscribe();
+}
+
+// Notificacao push de verdade - chega mesmo com o app fechado (Android e iPhone com PWA instalado, iOS 16.4+)
+const VAPID_PUBLIC_KEY = "BOPg1xqMbGhQPPfGmGVsP-GFoWeJy4lux5hsbcnFCFdj9p93TQRs9BUfaIHDl9B-eolsml9ZvM85hFHOc5P8KAo";
+
+function converterChaveVapid(base64) {
+    const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+    const base64Padrao = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
+    const bruto = atob(base64Padrao);
+    const saida = new Uint8Array(bruto.length);
+    for (let i = 0; i < bruto.length; i++) saida[i] = bruto.charCodeAt(i);
+    return saida;
+}
+
+async function configurarNotificacaoPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        console.log('Este navegador nao suporta notificacao push.');
+        return;
+    }
+    try {
+        if (Notification.permission === 'default') {
+            await Notification.requestPermission();
+        }
+        if (Notification.permission !== 'granted') return;
+
+        const registration = await navigator.serviceWorker.ready;
+        let subscription = await registration.pushManager.getSubscription();
+        if (!subscription) {
+            subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: converterChaveVapid(VAPID_PUBLIC_KEY),
+            });
+        }
+        const dadosSub = subscription.toJSON();
+        await sb.from('push_subscriptions').upsert({
+            endpoint: dadosSub.endpoint,
+            p256dh: dadosSub.keys.p256dh,
+            auth: dadosSub.keys.auth,
+        }, { onConflict: 'endpoint' });
+    } catch (e) {
+        console.log('Falha ao configurar notificacao push:', e);
+    }
 }
 
 definirDataAutomatica('data_pedido');
@@ -1059,7 +1112,9 @@ configurarNotificacoesRealtime();
 // Registra o service worker - necessario para o navegador oferecer instalacao como app de verdade
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch((e) => console.log('Falha ao registrar service worker:', e));
+        navigator.serviceWorker.register('./sw.js')
+            .then(() => configurarNotificacaoPush())
+            .catch((e) => console.log('Falha ao registrar service worker:', e));
     });
 }
 
