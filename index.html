@@ -486,7 +486,9 @@ const camposEntrega = {
 const autoEntrega = { "Em Rota de Entrega...": ["data_inicio_entrega","data_confirmacao_destinatario"], "Entregue": ["data_termino_entrega"] };
 
 function getStatusInternoMarcados() {
-    return Array.from(document.querySelectorAll('#status_interno_checkboxes input[type="checkbox"]:checked')).map(el => el.value);
+    return Array.from(document.querySelectorAll('#status_interno_checkboxes input[type="checkbox"]:checked'))
+        .map(el => el.value.trim())
+        .filter(v => v !== "");
 }
 
 function toggleFields() {
