@@ -588,7 +588,14 @@ async function salvarPedido() {
             ({ error } = await sb.from('controle_campanha').insert([data]));
         }
 
-        if (error) { mostrarErro("Erro ao salvar no banco: " + error.message); return; }
+        if (error) {
+            let detalhe = "Erro ao salvar no banco: " + error.message;
+            if (error.message && error.message.includes("status_interno")) {
+                detalhe += "\nValor enviado (status_interno): " + JSON.stringify(data.status_interno);
+            }
+            mostrarErro(detalhe);
+            return;
+        }
         mostrarOk("Pedido salvo com sucesso.");
         limparFormulario();
         carregarPedidos();
