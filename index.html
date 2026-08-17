@@ -81,7 +81,7 @@
     .linha-etapa .campo-data-etapa input { font-size: 11px; padding: 6px 8px; }
     #fotoPreviewBox { min-height: 100px; border: 1px dashed #444; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 13px; }
     #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
-    #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
+    #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     .cabecalho { text-align: center; margin-bottom: 10px; }
     .cabecalho img { width: 64px; height: 64px; border-radius: 12px; }
     #barraCarregamentoContainer { width: 220px; margin: 10px auto 0; display: none; }
@@ -375,14 +375,14 @@ function previewFoto() {
 }
 
 const ETAPAS = [
-    { chave: "exportado", label: "Exportado", grupo: "interno", cor: "#43a047" },
-    { chave: "imprimindo", label: "Imprimindo...", grupo: "interno", cor: "#7cb342" },
-    { chave: "impresso", label: "Impresso", grupo: "interno", cor: "#00897b" },
-    { chave: "calandrando", label: "Calandrando...", grupo: "interno", cor: "#fb8c00" },
-    { chave: "calandrado", label: "Calandrado", grupo: "interno", cor: "#6d4c41" },
+    { chave: "exportado", label: "Exportado", grupo: "interno", cor: "#43a047", responsaveis: ["Billy","Léo","Thalles","Hamilton"] },
+    { chave: "imprimindo", label: "Imprimindo...", grupo: "interno", cor: "#7cb342", responsaveis: ["Thalles","Yhuri","Billy","Paulo Henrique","Magrão"] },
+    { chave: "impresso", label: "Impresso", grupo: "interno", cor: "#00897b", responsaveis: ["Thalles","Yhuri","Billy","Paulo Henrique","Magrão"] },
+    { chave: "calandrando", label: "Calandrando...", grupo: "interno", cor: "#fb8c00", responsaveis: ["Eduardo","Paulo Henrique","Bah","Carlos","Magrão","Rodrigo"] },
+    { chave: "calandrado", label: "Calandrado", grupo: "interno", cor: "#6d4c41", responsaveis: ["Eduardo","Paulo Henrique","Bah","Carlos","Magrão","Rodrigo"] },
     { chave: "costurando", label: "Costurando...", grupo: "costura", cor: "#f4511e" },
     { chave: "costurado", label: "Costurado", grupo: "costura", cor: "#e53935" },
-    { chave: "finalizando", label: "Finalizando...", grupo: "acabamento", cor: "#d81b60" },
+    { chave: "finalizando", label: "Finalizando...", grupo: "acabamento", cor: "#d81b60", responsaveis: ["Micaeli","Luciana","Neiane","Paulo Henrique","Magrão"] },
     { chave: "finalizado", label: "Finalizado", grupo: "acabamento", cor: "#8e24aa" },
     { chave: "em_rota_entrega", label: "Em Rota de Entrega...", grupo: "entrega", cor: "#3949ab", semTermino: true },
     { chave: "entregue", label: "Entregue", grupo: "entrega", cor: "#1e88e5", semInicio: true },
@@ -413,8 +413,17 @@ function montarBlocosEtapas() {
         ETAPAS.filter(e => e.grupo === grupoChave).forEach(etapa => {
             html += `<div class="linha-etapa">
                     <input type="checkbox" id="chk_${etapa.chave}" onchange="onToggleEtapa('${etapa.chave}')">
-                    <span class="tag-etapa" style="background:${etapa.cor}; color:#fff;">${etapa.label}</span>
-                    <input type="text" class="campo-responsavel" id="${etapa.chave}_responsavel" placeholder="Nome do responsavel">`;
+                    <span class="tag-etapa" style="background:${etapa.cor}; color:#fff;">${etapa.label}</span>`;
+            if (etapa.responsaveis) {
+                html += `<select class="campo-responsavel" id="${etapa.chave}_responsavel" onchange="toggleResponsavelManual('${etapa.chave}')">
+                        <option value="">-- responsavel --</option>
+                        ${etapa.responsaveis.map(n => `<option value="${n}">${n}</option>`).join("")}
+                        <option value="__manual__">Outro (digitar)</option>
+                    </select>
+                    <input type="text" class="campo-responsavel" id="${etapa.chave}_responsavel_manual" placeholder="Digite o nome" style="display:none;">`;
+            } else {
+                html += `<input type="text" class="campo-responsavel" id="${etapa.chave}_responsavel" placeholder="Nome do responsavel">`;
+            }
             if (!etapa.semInicio) {
                 html += `<div class="campo-data-etapa">Inicio<br><input type="text" id="${etapa.chave}_inicio" readonly></div>`;
             }
@@ -442,6 +451,27 @@ function alternarBloco(grupoChave) {
 function onManualDateChange(campo) {
     const valor = document.getElementById(campo).value;
     datasAutomaticas[campo] = valor ? (valor + ":00") : null;
+}
+
+function toggleResponsavelManual(chave) {
+    const sel = document.getElementById(chave + '_responsavel');
+    const manual = document.getElementById(chave + '_responsavel_manual');
+    if (manual) {
+        manual.style.display = sel.value === '__manual__' ? 'block' : 'none';
+        if (sel.value !== '__manual__') manual.value = "";
+    }
+}
+
+function lerResponsavel(chave) {
+    const el = document.getElementById(chave + '_responsavel');
+    if (el.tagName === 'SELECT') {
+        if (el.value === '__manual__') {
+            const manual = document.getElementById(chave + '_responsavel_manual');
+            return (manual && manual.value.trim()) || null;
+        }
+        return el.value || null;
+    }
+    return el.value.trim() || null;
 }
 
 const MANUAL_FIELDS = new Set();
@@ -487,8 +517,7 @@ function getFormData() {
     });
     ETAPA_CHAVES.forEach(chave => {
         data[chave] = document.getElementById('chk_' + chave).checked;
-        const resp = document.getElementById(chave + '_responsavel').value.trim();
-        data[chave + '_responsavel'] = resp || null;
+        data[chave + '_responsavel'] = lerResponsavel(chave);
     });
     const cnpjSelecionado = document.getElementById('cnpj_fornecedor').value;
     if (cnpjSelecionado === '__manual__') {
@@ -502,8 +531,10 @@ function getFormData() {
 }
 
 function limparFormulario() {
-    document.querySelectorAll('input[type="text"], input[type="number"]').forEach(i => i.value = "");
+    document.querySelectorAll('input[type="text"], input[type="number"], input[type="datetime-local"]').forEach(i => i.value = "");
     document.querySelectorAll('#blocosEtapas input[type="checkbox"]').forEach(c => c.checked = false);
+    document.querySelectorAll('#blocosEtapas select').forEach(s => { s.value = ""; });
+    document.querySelectorAll('[id$="_responsavel_manual"]').forEach(m => m.style.display = 'none');
     document.getElementById('material').selectedIndex = 0;
     document.getElementById('cargo').value = "";
     document.getElementById('acessorio').value = "";
@@ -677,7 +708,21 @@ function editarPedido(id) {
     });
     ETAPA_CHAVES.forEach(chave => {
         document.getElementById('chk_' + chave).checked = !!p[chave];
-        document.getElementById(chave + '_responsavel').value = p[chave + '_responsavel'] || "";
+        const respEl = document.getElementById(chave + '_responsavel');
+        const valorResp = p[chave + '_responsavel'] || "";
+        if (respEl.tagName === 'SELECT') {
+            const opcoes = Array.from(respEl.options).map(o => o.value);
+            const manualEl = document.getElementById(chave + '_responsavel_manual');
+            if (valorResp && !opcoes.includes(valorResp)) {
+                respEl.value = '__manual__';
+                if (manualEl) { manualEl.value = valorResp; manualEl.style.display = 'block'; }
+            } else {
+                respEl.value = valorResp;
+                if (manualEl) manualEl.style.display = 'none';
+            }
+        } else {
+            respEl.value = valorResp;
+        }
     });
     const opcoesCnpj = ["", "LOJA 2: 38.756.034/0001-83", "AR DISTRIBUIDORA: 55.048.684/0001-93", "PATROCINIO: 54.984.458/0001-51"];
     if (p.cnpj_fornecedor && !opcoesCnpj.includes(p.cnpj_fornecedor)) {
@@ -988,8 +1033,28 @@ function baixarPDFEscolhido() {
 }
 
 // Notificacoes entre aparelhos: avisa quando outro dispositivo atualiza um pedido
+function etapaMaisRecente(p) {
+    let melhorEtapa = null;
+    let melhorData = null;
+    ETAPAS.forEach(etapa => {
+        [etapa.chave + '_inicio', etapa.chave + '_termino'].forEach(campo => {
+            const valor = p[campo];
+            if (!valor) return;
+            const d = new Date(valor);
+            if (isNaN(d.getTime())) return;
+            if (!melhorData || d > melhorData) { melhorData = d; melhorEtapa = etapa; }
+        });
+    });
+    return melhorEtapa;
+}
+
 function notificarAtualizacao(p) {
-    const texto = "Pedido de " + (p.candidato || "um candidato") + " foi atualizado.";
+    let texto = "Pedido de " + (p.candidato || "um candidato") + " foi atualizado.";
+    const etapa = etapaMaisRecente(p);
+    if (etapa) {
+        const resp = p[etapa.chave + '_responsavel'];
+        texto += "\n\"" + etapa.label + "\"" + (resp ? " - \"" + resp + "\"" : "");
+    }
     if (window.Notification && Notification.permission === 'granted') {
         try { new Notification("RP Bandeiras", { body: texto, icon: 'icon-192.png' }); } catch (e) { /* ignora */ }
     }
