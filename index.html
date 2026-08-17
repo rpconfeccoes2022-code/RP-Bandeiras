@@ -225,7 +225,7 @@
     <div class="form-grid" style="margin-top:14px;">
         <div class="field" id="f_quantidade_entrega">
             <label>Quantidade nesta Entrega</label>
-            <input type="number" id="quantidade_entrega" placeholder="Ex: 700 (de um total de 1000)">
+            <input type="text" id="quantidade_entrega" placeholder="Ex: 700 ou 700/1000">
         </div>
         <div>
             <label>Nome do Destinatario</label>
@@ -288,6 +288,14 @@ function formatarDataHora(iso) {
     const hora = String(d.getHours()).padStart(2, "0");
     const min = String(d.getMinutes()).padStart(2, "0");
     return `${dia}/${mes}/${ano} ${hora}:${min}`;
+}
+
+function formatarQuantidadeEntrega(p) {
+    const v = (p.quantidade_entrega || "").toString().trim();
+    if (!v) return "";
+    // Se a pessoa ja digitou o formato completo (com "/"), usa exatamente como esta
+    if (v.includes("/")) return v;
+    return v + "/" + (p.quantidade || "?");
 }
 
 function atualizarDisplayData(campo) {
@@ -382,8 +390,8 @@ const ETAPAS = [
     { chave: "calandrado", label: "Calandrado", grupo: "interno", cor: "#6d4c41", responsaveis: ["Eduardo","Paulo Henrique","Bah","Carlos","Magrão","Rodrigo"] },
     { chave: "costurando", label: "Costurando...", grupo: "costura", cor: "#f4511e" },
     { chave: "costurado", label: "Costurado", grupo: "costura", cor: "#e53935" },
-    { chave: "finalizando", label: "Finalizando...", grupo: "acabamento", cor: "#d81b60", responsaveis: ["Micaeli","Luciana","Neiane","Paulo Henrique","Magrão"] },
-    { chave: "finalizado", label: "Finalizado", grupo: "acabamento", cor: "#8e24aa" },
+    { chave: "finalizando", label: "Finalizando...", grupo: "acabamento", cor: "#d81b60", responsaveis: ["Micaeli","Luciana","Neiane","Paulo Henrique","Magrão","Kaik"] },
+    { chave: "finalizado", label: "Finalizado", grupo: "acabamento", cor: "#8e24aa", responsaveis: ["Micaeli","Luciana","Neiane","Paulo Henrique","Magrão","Kaik"] },
     { chave: "em_rota_entrega", label: "Em Rota de Entrega...", grupo: "entrega", cor: "#3949ab", semTermino: true },
     { chave: "entregue", label: "Entregue", grupo: "entrega", cor: "#1e88e5", semInicio: true },
 ];
@@ -512,7 +520,7 @@ function getFormData() {
     ids.forEach(id => {
         let v = document.getElementById(id).value;
         if (v === "") v = null;
-        if ((id === "tiragem" || id === "quantidade" || id === "quantidade_entrega") && v !== null) v = parseInt(v);
+        if ((id === "tiragem" || id === "quantidade") && v !== null) v = parseInt(v);
         data[id] = v;
     });
     ETAPA_CHAVES.forEach(chave => {
@@ -666,7 +674,7 @@ function renderizarPedidos(lista) {
             <div class="pedido-header">
                 <strong>${p.candidato}</strong>
                 <span>
-                    ${ETAPAS.filter(e => p[e.chave]).map(e => `<span class="tag-etapa" style="background:${e.cor}; color:#fff;">${e.label}${(e.chave === 'em_rota_entrega' || e.chave === 'entregue') && p.quantidade_entrega ? ` (${p.quantidade_entrega}/${p.quantidade || "?"})` : ""}</span>`).join(" ")}
+                    ${ETAPAS.filter(e => p[e.chave]).map(e => `<span class="tag-etapa" style="background:${e.cor}; color:#fff;">${e.label}${(e.chave === 'em_rota_entrega' || e.chave === 'entregue') && p.quantidade_entrega ? ` (${formatarQuantidadeEntrega(p)})` : ""}</span>`).join(" ")}
                 </span>
             </div>
             <div class="pedido-detalhes">
@@ -948,7 +956,7 @@ async function gerarPDF(id) {
         const yAcabamento = tabela(margemEsq, largColuna, "PRODUÇÃO - ACABAMENTO", linhasEtapasPdf("acabamento"), cursorY);
 
         const linhasEntrega = linhasEtapasPdf("entrega");
-        linhasEntrega.unshift(["Quantidade", p.quantidade_entrega ? (p.quantidade_entrega + "/" + (p.quantidade || "?")) : "-"]);
+        linhasEntrega.unshift(["Quantidade", formatarQuantidadeEntrega(p) || "-"]);
         linhasEntrega.unshift(["Destinatário", (p.nome_destinatario || "-") + (p.celular_destinatario ? " - " + p.celular_destinatario : "")]);
         const yEntrega = tabela(colDireitaX, largColuna, "PRODUÇÃO - ENTREGA", linhasEntrega, cursorY);
 
