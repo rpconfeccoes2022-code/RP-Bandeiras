@@ -65,6 +65,15 @@
     .totais-item { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px; text-align: center; }
     .totais-item .totais-numero { font-size: 24px; font-weight: bold; color: #4caf50; }
     .totais-item .totais-label { font-size: 12px; color: #aaa; margin-top: 4px; }
+    .bloco-etapa { border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; border-left: 6px solid #555; background: #161616; }
+    .bloco-etapa h3 { margin: 0 0 8px 0; font-size: 14px; }
+    .linha-etapa { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #2a2a2a; flex-wrap: wrap; }
+    .linha-etapa:last-child { border-bottom: none; }
+    .linha-etapa input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; accent-color: #4caf50; }
+    .tag-etapa { padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+    .linha-etapa .campo-responsavel { flex: 1; min-width: 130px; }
+    .linha-etapa .campo-data-etapa { font-size: 11px; color: #999; min-width: 150px; }
+    .linha-etapa .campo-data-etapa input { font-size: 11px; padding: 6px 8px; }
     #fotoPreviewBox { min-height: 100px; border: 1px dashed #444; border-radius: 8px; padding: 10px; display: flex; align-items: center; justify-content: center; color: #666; font-size: 13px; }
     #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; }
@@ -206,133 +215,20 @@
         </div>
     </div>
 
-    <div class="form-grid" style="margin-top:14px;">
-        <div>
-            <label>Status Interno (Producao) - pode marcar mais de um</label>
-            <div id="status_interno_checkboxes" style="display:flex; flex-wrap:wrap; gap:10px; margin-top:6px;">
-                <label style="display:flex; align-items:center; gap:4px; font-weight:normal;"><input type="checkbox" value="Exportado" onchange="toggleFields()"> Exportado</label>
-                <label style="display:flex; align-items:center; gap:4px; font-weight:normal;"><input type="checkbox" value="Imprimindo..." onchange="toggleFields()"> Imprimindo...</label>
-                <label style="display:flex; align-items:center; gap:4px; font-weight:normal;"><input type="checkbox" value="Impresso" onchange="toggleFields()"> Impresso</label>
-                <label style="display:flex; align-items:center; gap:4px; font-weight:normal;"><input type="checkbox" value="Calandrando..." onchange="toggleFields()"> Calandrando...</label>
-                <label style="display:flex; align-items:center; gap:4px; font-weight:normal;"><input type="checkbox" value="Calandrado" onchange="toggleFields()"> Calandrado</label>
-            </div>
-        </div>
-        <div class="field" id="f_data_exportacao">
-            <label>Data de Exportacao</label>
-            <input type="text" id="data_exportacao" readonly>
-        </div>
-        <div class="field" id="f_data_inicio_impressao">
-            <label>Inicio da Impressao</label>
-            <input type="text" id="data_inicio_impressao" readonly>
-        </div>
-        <div class="field" id="f_data_impressao">
-            <label>Data de Impressao</label>
-            <input type="text" id="data_impressao" readonly>
-        </div>
-        <div class="field" id="f_data_inicio_calandragem">
-            <label>Inicio da Calandragem</label>
-            <input type="text" id="data_inicio_calandragem" readonly>
-        </div>
-        <div class="field" id="f_data_calandragem">
-            <label>Data de Calandragem</label>
-            <input type="text" id="data_calandragem" readonly>
-        </div>
-    </div>
+    <div id="blocosEtapas" style="margin-top:14px;"></div>
 
     <div class="form-grid" style="margin-top:14px;">
-        <div>
-            <label>Status Costura</label>
-            <select id="status_costura" onchange="toggleFields()">
-                <option value="">-- selecionar (atualizar depois) --</option>
-                <option value="Costurando...">Costurando...</option>
-                <option value="Costurado">Costurado</option>
-            </select>
-        </div>
-        <div class="field" id="f_nome_costureira">
-            <label>Nome da Costureira</label>
-            <input type="text" id="nome_costureira">
-        </div>
-        <div class="field" id="f_celular_costureira">
-            <label>Celular da Costureira</label>
-            <input type="text" id="celular_costureira" placeholder="(00) 00000-0000">
-        </div>
-        <div class="field" id="f_data_inicio_costura">
-            <label>Data/Hora Inicio Costura</label>
-            <input type="text" id="data_inicio_costura" readonly>
-        </div>
-        <div class="field" id="f_data_termino_costura">
-            <label>Data/Hora Termino Costura</label>
-            <input type="text" id="data_termino_costura" readonly>
-        </div>
-    </div>
-
-    <div class="form-grid" style="margin-top:14px;">
-        <div>
-            <label>Status Acabamento</label>
-            <select id="status_acabamento" onchange="toggleFields()">
-                <option value="">-- selecionar (atualizar depois) --</option>
-                <option value="Finalizando...">Finalizando...</option>
-                <option value="Finalizado">Finalizado</option>
-            </select>
-        </div>
-        <div class="field" id="f_nome_acabamento">
-            <label>Responsavel pelo Acabamento</label>
-            <input type="text" id="nome_acabamento">
-        </div>
-        <div class="field" id="f_celular_acabamento">
-            <label>Celular do Responsavel</label>
-            <input type="text" id="celular_acabamento" placeholder="(00) 00000-0000">
-        </div>
-        <div class="field" id="f_data_inicio_acabamento">
-            <label>Data Inicio Acabamento</label>
-            <input type="text" id="data_inicio_acabamento" readonly>
-        </div>
-        <div class="field" id="f_data_termino_acabamento">
-            <label>Data Termino Acabamento</label>
-            <input type="text" id="data_termino_acabamento" readonly>
-        </div>
-    </div>
-
-    <div class="form-grid" style="margin-top:14px;">
-        <div>
-            <label>Status Entrega</label>
-            <select id="status_entrega" onchange="toggleFields()">
-                <option value="">-- selecionar (atualizar depois) --</option>
-                <option value="Em Rota de Entrega...">Em Rota de Entrega...</option>
-                <option value="Entregue">Entregue</option>
-            </select>
-        </div>
         <div class="field" id="f_quantidade_entrega">
             <label>Quantidade nesta Entrega</label>
             <input type="number" id="quantidade_entrega" placeholder="Ex: 700 (de um total de 1000)">
         </div>
-        <div class="field" id="f_nome_entregador">
-            <label>Nome do Entregador</label>
-            <input type="text" id="nome_entregador">
-        </div>
-        <div class="field" id="f_celular_entregador">
-            <label>Celular do Entregador</label>
-            <input type="text" id="celular_entregador" placeholder="(00) 00000-0000">
-        </div>
-        <div class="field" id="f_data_inicio_entrega">
-            <label>Data/Hora - Em Rota de Entrega</label>
-            <input type="text" id="data_inicio_entrega" readonly>
-        </div>
-        <div class="field" id="f_nome_destinatario">
+        <div>
             <label>Nome do Destinatario</label>
             <input type="text" id="nome_destinatario">
         </div>
-        <div class="field" id="f_celular_destinatario">
+        <div>
             <label>Celular do Destinatario</label>
             <input type="text" id="celular_destinatario" placeholder="(00) 00000-0000">
-        </div>
-        <div class="field" id="f_data_confirmacao_destinatario">
-            <label>Data/Hora - Destinatario</label>
-            <input type="text" id="data_confirmacao_destinatario" readonly>
-        </div>
-        <div class="field" id="f_data_termino_entrega">
-            <label>Data/Hora - Entregue</label>
-            <input type="text" id="data_termino_entrega" readonly>
         </div>
     </div>
 
@@ -374,7 +270,8 @@ let fotoSelecionada = null;
 let fotoUrlAtual = null;
 let datasAutomaticas = {};
 let ultimaEdicaoLocal = { id: null, ts: 0 };
-const idsAutoData = ["data_pedido","data_exportacao","data_inicio_impressao","data_impressao","data_inicio_calandragem","data_calandragem","data_inicio_costura","data_termino_costura","data_inicio_acabamento","data_termino_acabamento","data_inicio_entrega","data_confirmacao_destinatario","data_termino_entrega"];
+const ETAPA_CHAVES = ["exportado","imprimindo","impresso","calandrando","calandrado","costurando","costurado","finalizando","finalizado","em_rota_entrega","entregue"];
+const idsAutoData = ["data_pedido", ...ETAPA_CHAVES.flatMap(c => [c + "_inicio", c + "_termino"])];
 
 function formatarDataHora(iso) {
     if (!iso) return "";
@@ -467,44 +364,66 @@ function previewFoto() {
     }
 }
 
-const camposInternos = {
-    "Exportado": ["f_data_exportacao"],
-    "Imprimindo...": ["f_data_exportacao","f_data_inicio_impressao"],
-    "Impresso": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao"],
-    "Calandrando...": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem"],
-    "Calandrado": ["f_data_exportacao","f_data_inicio_impressao","f_data_impressao","f_data_inicio_calandragem","f_data_calandragem"]
+const ETAPAS = [
+    { chave: "exportado", label: "Exportado", grupo: "interno", cor: "#43a047" },
+    { chave: "imprimindo", label: "Imprimindo...", grupo: "interno", cor: "#7cb342" },
+    { chave: "impresso", label: "Impresso", grupo: "interno", cor: "#00897b" },
+    { chave: "calandrando", label: "Calandrando...", grupo: "interno", cor: "#fb8c00" },
+    { chave: "calandrado", label: "Calandrado", grupo: "interno", cor: "#6d4c41" },
+    { chave: "costurando", label: "Costurando...", grupo: "costura", cor: "#f4511e" },
+    { chave: "costurado", label: "Costurado", grupo: "costura", cor: "#e53935" },
+    { chave: "finalizando", label: "Finalizando...", grupo: "acabamento", cor: "#d81b60" },
+    { chave: "finalizado", label: "Finalizado", grupo: "acabamento", cor: "#8e24aa" },
+    { chave: "em_rota_entrega", label: "Em Rota de Entrega...", grupo: "entrega", cor: "#3949ab" },
+    { chave: "entregue", label: "Entregue", grupo: "entrega", cor: "#1e88e5" },
+];
+const GRUPOS = {
+    interno: { titulo: "Status Interno (Producao)", cor: "#2e7d32" },
+    costura: { titulo: "Status Costura", cor: "#ef6c00" },
+    acabamento: { titulo: "Status Acabamento", cor: "#1565c0" },
+    entrega: { titulo: "Status Entrega", cor: "#6a1b9a" },
 };
-const autoInternos = { "Exportado": ["data_exportacao"], "Imprimindo...": ["data_inicio_impressao"], "Impresso": ["data_impressao"], "Calandrando...": ["data_inicio_calandragem"], "Calandrado": ["data_calandragem"] };
-const camposCostura = { "Costurando...": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura"], "Costurado": ["f_nome_costureira","f_celular_costureira","f_data_inicio_costura","f_data_termino_costura"] };
-const autoCostura = { "Costurando...": ["data_inicio_costura"], "Costurado": ["data_termino_costura"] };
-const camposAcabamento = { "Finalizando...": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento"], "Finalizado": ["f_nome_acabamento","f_celular_acabamento","f_data_inicio_acabamento","f_data_termino_acabamento"] };
-const autoAcabamento = { "Finalizando...": ["data_inicio_acabamento"], "Finalizado": ["data_termino_acabamento"] };
-const camposEntrega = {
-    "Em Rota de Entrega...": ["f_quantidade_entrega","f_nome_entregador","f_celular_entregador","f_data_inicio_entrega","f_nome_destinatario","f_celular_destinatario","f_data_confirmacao_destinatario"],
-    "Entregue": ["f_quantidade_entrega","f_nome_entregador","f_celular_entregador","f_data_inicio_entrega","f_nome_destinatario","f_celular_destinatario","f_data_confirmacao_destinatario","f_data_termino_entrega"]
-};
-const autoEntrega = { "Em Rota de Entrega...": ["data_inicio_entrega","data_confirmacao_destinatario"], "Entregue": ["data_termino_entrega"] };
 
-function getStatusInternoMarcados() {
-    return Array.from(document.querySelectorAll('#status_interno_checkboxes input[type="checkbox"]:checked'))
-        .map(el => el.value.trim())
-        .filter(v => v !== "");
+function montarBlocosEtapas() {
+    const container = document.getElementById('blocosEtapas');
+    let html = "";
+    Object.keys(GRUPOS).forEach(grupoChave => {
+        const grupo = GRUPOS[grupoChave];
+        html += `<div class="bloco-etapa" style="border-left-color:${grupo.cor}; background:${grupo.cor}15;">`;
+        html += `<h3 style="color:${grupo.cor};">${grupo.titulo}</h3>`;
+        ETAPAS.filter(e => e.grupo === grupoChave).forEach(etapa => {
+            html += `
+                <div class="linha-etapa">
+                    <input type="checkbox" id="chk_${etapa.chave}" onchange="onToggleEtapa('${etapa.chave}')">
+                    <span class="tag-etapa" style="background:${etapa.cor}; color:#fff;">${etapa.label}</span>
+                    <input type="text" class="campo-responsavel" id="${etapa.chave}_responsavel" placeholder="Nome do responsavel">
+                    <div class="campo-data-etapa">
+                        Inicio<br><input type="text" id="${etapa.chave}_inicio" readonly>
+                    </div>
+                    <div class="campo-data-etapa">
+                        Termino<br><input type="text" id="${etapa.chave}_termino" readonly>
+                    </div>
+                </div>`;
+        });
+        html += `</div>`;
+    });
+    container.innerHTML = html;
+}
+
+function onToggleEtapa(chave) {
+    const chk = document.getElementById('chk_' + chave);
+    if (chk.checked) {
+        definirDataAutomatica(chave + '_inicio');
+    } else {
+        definirDataAutomatica(chave + '_termino');
+    }
+    toggleFields();
 }
 
 function toggleFields() {
     document.querySelectorAll('.field').forEach(f => f.classList.remove('show'));
-    const siLista = getStatusInternoMarcados();
-    const sc = document.getElementById('status_costura').value;
-    const sa = document.getElementById('status_acabamento').value;
-    const se = document.getElementById('status_entrega').value;
-    siLista.forEach(si => (camposInternos[si] || []).forEach(id => document.getElementById(id).classList.add('show')));
-    (camposCostura[sc] || []).forEach(id => document.getElementById(id).classList.add('show'));
-    (camposAcabamento[sa] || []).forEach(id => document.getElementById(id).classList.add('show'));
-    (camposEntrega[se] || []).forEach(id => document.getElementById(id).classList.add('show'));
-    siLista.forEach(si => (autoInternos[si] || []).forEach(definirDataAutomatica));
-    (autoCostura[sc] || []).forEach(definirDataAutomatica);
-    (autoAcabamento[sa] || []).forEach(definirDataAutomatica);
-    (autoEntrega[se] || []).forEach(definirDataAutomatica);
+    const seMarcado = ETAPAS.filter(e => e.grupo === 'entrega').some(e => document.getElementById('chk_' + e.chave).checked);
+    if (seMarcado) document.getElementById('f_quantidade_entrega').classList.add('show');
 }
 
 function toggleCnpjManual() {
@@ -514,9 +433,7 @@ function toggleCnpjManual() {
 
 function getFormData() {
     const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_candidato","tiragem","quantidade",
-        "status_costura","nome_costureira","celular_costureira",
-        "status_acabamento","nome_acabamento","celular_acabamento",
-        "destino","status_entrega","nome_entregador","celular_entregador","nome_destinatario","celular_destinatario","quantidade_entrega"];
+        "destino","nome_destinatario","celular_destinatario","quantidade_entrega"];
     const data = {};
     ids.forEach(id => {
         let v = document.getElementById(id).value;
@@ -524,8 +441,11 @@ function getFormData() {
         if ((id === "tiragem" || id === "quantidade" || id === "quantidade_entrega") && v !== null) v = parseInt(v);
         data[id] = v;
     });
-    data.status_interno = getStatusInternoMarcados();
-    if (data.status_interno.length === 0) data.status_interno = null;
+    ETAPA_CHAVES.forEach(chave => {
+        data[chave] = document.getElementById('chk_' + chave).checked;
+        const resp = document.getElementById(chave + '_responsavel').value.trim();
+        data[chave + '_responsavel'] = resp || null;
+    });
     const cnpjSelecionado = document.getElementById('cnpj_fornecedor').value;
     if (cnpjSelecionado === '__manual__') {
         const manual = document.getElementById('cnpj_fornecedor_manual').value.trim();
@@ -538,17 +458,14 @@ function getFormData() {
 }
 
 function limparFormulario() {
-    document.querySelectorAll('input').forEach(i => i.value = "");
-    document.querySelectorAll('#status_interno_checkboxes input[type="checkbox"]').forEach(c => c.checked = false);
+    document.querySelectorAll('input[type="text"], input[type="number"]').forEach(i => i.value = "");
+    document.querySelectorAll('#blocosEtapas input[type="checkbox"]').forEach(c => c.checked = false);
     document.getElementById('material').selectedIndex = 0;
     document.getElementById('cargo').value = "";
     document.getElementById('acessorio').value = "";
     document.getElementById('cnpj_fornecedor').value = "";
     document.getElementById('cnpj_fornecedor_manual').value = "";
     document.getElementById('f_cnpj_fornecedor_manual').classList.remove('show');
-    document.getElementById('status_costura').value = "";
-    document.getElementById('status_acabamento').value = "";
-    document.getElementById('status_entrega').value = "";
     datasAutomaticas = {};
     idsAutoData.forEach(atualizarDisplayData);
     definirDataAutomatica('data_pedido');
@@ -590,14 +507,7 @@ async function salvarPedido() {
             ({ error } = await sb.from('controle_campanha').insert([data]));
         }
 
-        if (error) {
-            let detalhe = "Erro ao salvar no banco: " + error.message;
-            if (error.message && error.message.includes("status_interno")) {
-                detalhe += "\nValor enviado (status_interno): " + JSON.stringify(data.status_interno);
-            }
-            mostrarErro(detalhe);
-            return;
-        }
+        if (error) { mostrarErro("Erro ao salvar no banco: " + error.message); return; }
         mostrarOk("Pedido salvo com sucesso.");
         limparFormulario();
         carregarPedidos();
@@ -681,10 +591,7 @@ function renderizarPedidos(lista) {
             <div class="pedido-header">
                 <strong>${p.candidato}</strong>
                 <span>
-                    ${(Array.isArray(p.status_interno) ? p.status_interno : (p.status_interno ? [p.status_interno] : [])).map(s => `<span class="badge b-int">${s}</span>`).join("")}
-                    ${p.status_costura ? `<span class="badge b-cos">${p.status_costura}</span>` : ""}
-                    ${p.status_acabamento ? `<span class="badge b-cos">${p.status_acabamento}</span>` : ""}
-                    ${p.status_entrega ? `<span class="badge b-ent">${p.status_entrega}${p.quantidade_entrega ? ` (${p.quantidade_entrega}/${p.quantidade || "?"})` : ""}</span>` : ""}
+                    ${ETAPAS.filter(e => p[e.chave]).map(e => `<span class="tag-etapa" style="background:${e.cor}; color:#fff;">${e.label}${(e.chave === 'em_rota_entrega' || e.chave === 'entregue') && p.quantidade_entrega ? ` (${p.quantidade_entrega}/${p.quantidade || "?"})` : ""}</span>`).join(" ")}
                 </span>
             </div>
             <div class="pedido-detalhes">
@@ -718,13 +625,15 @@ function editarPedido(id) {
     });
     Object.keys(p).forEach(key => {
         if (idsAutoData.includes(key)) return;
-        if (key === 'cnpj_fornecedor' || key === 'status_interno') return;
+        if (key === 'cnpj_fornecedor') return;
+        if (ETAPA_CHAVES.includes(key)) return;
+        if (key.endsWith('_responsavel') && ETAPA_CHAVES.includes(key.replace('_responsavel',''))) return;
         const el = document.getElementById(key);
         if (el) el.value = p[key] || "";
     });
-    const statusInternoAtual = Array.isArray(p.status_interno) ? p.status_interno : (p.status_interno ? [p.status_interno] : []);
-    document.querySelectorAll('#status_interno_checkboxes input[type="checkbox"]').forEach(c => {
-        c.checked = statusInternoAtual.includes(c.value);
+    ETAPA_CHAVES.forEach(chave => {
+        document.getElementById('chk_' + chave).checked = !!p[chave];
+        document.getElementById(chave + '_responsavel').value = p[chave + '_responsavel'] || "";
     });
     const opcoesCnpj = ["", "LOJA 2: 38.756.034/0001-83", "AR DISTRIBUIDORA: 55.048.684/0001-93", "PATROCINIO: 54.984.458/0001-51"];
     if (p.cnpj_fornecedor && !opcoesCnpj.includes(p.cnpj_fornecedor)) {
@@ -930,44 +839,29 @@ async function gerarPDF(id) {
         const largColuna = (larguraUtil - 6) / 2;
         const colDireitaX = margemEsq + largColuna + 6;
 
-        const yInterno = tabela(margemEsq, largColuna, "PRODUÇÃO - STATUS INTERNO", [
-            ["Status", (Array.isArray(p.status_interno) ? p.status_interno.join(" + ") : p.status_interno) || "-"],
-            ["Data Exportação", formatarDataHora(p.data_exportacao) || "-"],
-            ["Início Impressão", formatarDataHora(p.data_inicio_impressao) || "-"],
-            ["Data Impressão", formatarDataHora(p.data_impressao) || "-"],
-            ["Início Calandragem", formatarDataHora(p.data_inicio_calandragem) || "-"],
-            ["Data Calandragem", formatarDataHora(p.data_calandragem) || "-"],
-        ], cursorY);
+        function linhasEtapasPdf(grupoChave) {
+            const linhas = [];
+            ETAPAS.filter(e => e.grupo === grupoChave).forEach(e => {
+                if (!p[e.chave]) return;
+                linhas.push([e.label, (p[e.chave + "_responsavel"] || "-") ]);
+                linhas.push(["  Inicio", formatarDataHora(p[e.chave + "_inicio"]) || "-"]);
+                linhas.push(["  Termino", formatarDataHora(p[e.chave + "_termino"]) || "-"]);
+            });
+            if (linhas.length === 0) linhas.push(["Status", "Nenhuma etapa marcada"]);
+            return linhas;
+        }
 
-        const yCostura = tabela(colDireitaX, largColuna, "PRODUÇÃO - COSTURA", [
-            ["Status", p.status_costura || "-"],
-            ["Responsável", p.nome_costureira || "-"],
-            ["Celular", p.celular_costureira || "-"],
-            ["Início", formatarDataHora(p.data_inicio_costura) || "-"],
-            ["Término", formatarDataHora(p.data_termino_costura) || "-"],
-        ], cursorY);
+        const yInterno = tabela(margemEsq, largColuna, "PRODUÇÃO - STATUS INTERNO", linhasEtapasPdf("interno"), cursorY);
+        const yCostura = tabela(colDireitaX, largColuna, "PRODUÇÃO - COSTURA", linhasEtapasPdf("costura"), cursorY);
 
         cursorY = Math.max(yInterno, yCostura) + 4;
 
-        const yAcabamento = tabela(margemEsq, largColuna, "PRODUÇÃO - ACABAMENTO", [
-            ["Status", p.status_acabamento || "-"],
-            ["Responsável", p.nome_acabamento || "-"],
-            ["Celular", p.celular_acabamento || "-"],
-            ["Início", formatarDataHora(p.data_inicio_acabamento) || "-"],
-            ["Término", formatarDataHora(p.data_termino_acabamento) || "-"],
-        ], cursorY);
+        const yAcabamento = tabela(margemEsq, largColuna, "PRODUÇÃO - ACABAMENTO", linhasEtapasPdf("acabamento"), cursorY);
 
-        const yEntrega = tabela(colDireitaX, largColuna, "PRODUÇÃO - ENTREGA", [
-            ["Status", p.status_entrega || "-"],
-            ["Quantidade", p.quantidade_entrega ? (p.quantidade_entrega + "/" + (p.quantidade || "?")) : "-"],
-            ["Entregador", p.nome_entregador || "-"],
-            ["Celular", p.celular_entregador || "-"],
-            ["Em Rota", formatarDataHora(p.data_inicio_entrega) || "-"],
-            ["Destinatário", p.nome_destinatario || "-"],
-            ["Celular Dest.", p.celular_destinatario || "-"],
-            ["Registro Dest.", formatarDataHora(p.data_confirmacao_destinatario) || "-"],
-            ["Entregue em", formatarDataHora(p.data_termino_entrega) || "-"],
-        ], cursorY);
+        const linhasEntrega = linhasEtapasPdf("entrega");
+        linhasEntrega.unshift(["Quantidade", p.quantidade_entrega ? (p.quantidade_entrega + "/" + (p.quantidade || "?")) : "-"]);
+        linhasEntrega.unshift(["Destinatário", (p.nome_destinatario || "-") + (p.celular_destinatario ? " - " + p.celular_destinatario : "")]);
+        const yEntrega = tabela(colDireitaX, largColuna, "PRODUÇÃO - ENTREGA", linhasEntrega, cursorY);
 
         cursorY = Math.max(yAcabamento, yEntrega) + 6;
 
@@ -1113,6 +1007,7 @@ async function configurarNotificacaoPush() {
     }
 }
 
+montarBlocosEtapas();
 definirDataAutomatica('data_pedido');
 toggleFields();
 carregarPedidos();
