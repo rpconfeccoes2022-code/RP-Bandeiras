@@ -379,23 +379,23 @@ function previewFoto() {
 }
 
 const ETAPAS = [
-    { chave: "exportado", label: "Exportado", grupo: "interno", cor: "#43a047", responsaveis: ["Billy","Léo","Thalles","Hamilton"] },
-    { chave: "imprimindo", label: "Imprimindo...", grupo: "interno", cor: "#7cb342", responsaveis: ["Thalles","Yhuri","Billy","Paulo Henrique","Magrão"] },
-    { chave: "impresso", label: "Impresso", grupo: "interno", cor: "#00897b", responsaveis: ["Thalles","Yhuri","Billy","Paulo Henrique","Magrão"] },
-    { chave: "calandrando", label: "Calandrando...", grupo: "interno", cor: "#fb8c00", responsaveis: ["Eduardo","Paulo Henrique","Bah","Carlos","Magrão","Rodrigo"] },
-    { chave: "calandrado", label: "Calandrado", grupo: "interno", cor: "#6d4c41", responsaveis: ["Eduardo","Paulo Henrique","Bah","Carlos","Magrão","Rodrigo"] },
-    { chave: "costurando", label: "Costurando...", grupo: "costura", cor: "#f4511e" },
-    { chave: "costurado", label: "Costurado", grupo: "costura", cor: "#e53935" },
-    { chave: "finalizando", label: "Finalizando...", grupo: "acabamento", cor: "#d81b60", responsaveis: ["Micaeli","Luciana","Neiane","Paulo Henrique","Magrão","Kaik"] },
-    { chave: "finalizado", label: "Finalizado", grupo: "acabamento", cor: "#8e24aa", responsaveis: ["Micaeli","Luciana","Neiane","Paulo Henrique","Magrão","Kaik"] },
+    { chave: "exportado", label: "Exportado", grupo: "interno", cor: "#43a047", responsaveis: ["Billy","Léo","Thalles","Hamilton"], semTermino: true },
+    { chave: "imprimindo", label: "Imprimindo...", grupo: "interno", cor: "#7cb342", responsaveis: ["Thalles","Yhuri","Billy","Paulo Henrique","Magrão"], semTermino: true },
+    { chave: "impresso", label: "Impresso", grupo: "interno", cor: "#00897b", responsaveis: ["Thalles","Yhuri","Billy","Paulo Henrique","Magrão"], semInicio: true },
+    { chave: "calandrando", label: "Calandrando...", grupo: "interno", cor: "#fb8c00", responsaveis: ["Eduardo","Paulo Henrique","Bah","Carlos","Magrão","Rodrigo"], semTermino: true },
+    { chave: "calandrado", label: "Calandrado", grupo: "interno", cor: "#6d4c41", responsaveis: ["Eduardo","Paulo Henrique","Bah","Carlos","Magrão","Rodrigo"], semInicio: true },
+    { chave: "costurando", label: "Costurando...", grupo: "costura", cor: "#f4511e", semTermino: true },
+    { chave: "costurado", label: "Costurado", grupo: "costura", cor: "#e53935", semInicio: true },
+    { chave: "finalizando", label: "Finalizando...", grupo: "acabamento", cor: "#d81b60", responsaveis: ["Micaeli","Luciana","Neiane","Paulo Henrique","Magrão","Kaik"], semTermino: true },
+    { chave: "finalizado", label: "Finalizado", grupo: "acabamento", cor: "#8e24aa", responsaveis: ["Micaeli","Luciana","Neiane","Paulo Henrique","Magrão","Kaik"], semInicio: true },
     { chave: "em_rota_entrega", label: "Em Rota de Entrega...", grupo: "entrega", cor: "#3949ab", semTermino: true },
     { chave: "entregue", label: "Entregue", grupo: "entrega", cor: "#1e88e5", semInicio: true },
 ];
 const GRUPOS = {
-    interno: { titulo: "Status Interno (Producao)", cor: "#2e7d32", terminoComCheckbox: true },
-    costura: { titulo: "Status Costura", cor: "#ef6c00", terminoComCheckbox: true },
-    acabamento: { titulo: "Status Acabamento", cor: "#1565c0", terminoComCheckbox: true },
-    entrega: { titulo: "Status Entrega", cor: "#6a1b9a", terminoComCheckbox: false },
+    interno: { titulo: "Status Interno (Producao)", cor: "#2e7d32" },
+    costura: { titulo: "Status Costura", cor: "#ef6c00" },
+    acabamento: { titulo: "Status Acabamento", cor: "#1565c0" },
+    entrega: { titulo: "Status Entrega", cor: "#6a1b9a" },
 };
 
 function montarBlocosEtapas() {
@@ -427,16 +427,7 @@ function montarBlocosEtapas() {
                 html += `<div class="campo-data-etapa">Inicio<br><input type="text" id="${etapa.chave}_inicio" readonly></div>`;
             }
             if (!etapa.semTermino) {
-                if (grupo.terminoComCheckbox) {
-                    html += `<div class="campo-data-etapa">Termino
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <input type="checkbox" id="chk_termino_${etapa.chave}" onchange="onToggleTermino('${etapa.chave}')">
-                            <input type="text" id="${etapa.chave}_termino" readonly style="flex:1;">
-                        </div>
-                    </div>`;
-                } else {
-                    html += `<div class="campo-data-etapa">Termino<br><input type="text" id="${etapa.chave}_termino" readonly></div>`;
-                }
+                html += `<div class="campo-data-etapa">Termino<br><input type="text" id="${etapa.chave}_termino" readonly></div>`;
             }
             html += `</div>`;
         });
@@ -450,16 +441,6 @@ function alternarBloco(grupoChave) {
     const seta = document.getElementById('seta_' + grupoChave);
     const oculto = conteudo.classList.toggle('recolhido');
     seta.innerHTML = oculto ? "&#9654;" : "&#9660;";
-}
-
-function onToggleTermino(chave) {
-    const chkT = document.getElementById('chk_termino_' + chave);
-    if (chkT.checked) {
-        definirDataAutomatica(chave + '_termino');
-    } else {
-        datasAutomaticas[chave + '_termino'] = null;
-        atualizarDisplayData(chave + '_termino');
-    }
 }
 
 function toggleResponsavelManual(chave) {
@@ -486,18 +467,13 @@ function lerResponsavel(chave) {
 function onToggleEtapa(chave) {
     const chk = document.getElementById('chk_' + chave);
     const etapa = ETAPAS.find(e => e.chave === chave);
+    // Cada etapa tem um unico campo de data (inicio OU termino); marcar preenche, desmarcar limpa
+    const campo = etapa.semTermino ? (chave + '_inicio') : (chave + '_termino');
     if (chk.checked) {
-        if (!etapa.semInicio) {
-            definirDataAutomatica(chave + '_inicio');
-        } else if (!etapa.semTermino) {
-            definirDataAutomatica(chave + '_termino');
-        }
+        definirDataAutomatica(campo);
     } else {
-        // Caso especial "Entregue" (sem campo de inicio): ao desmarcar, limpa o termino que foi setado ao marcar
-        if (etapa.semInicio && !etapa.semTermino) {
-            datasAutomaticas[chave + '_termino'] = null;
-            atualizarDisplayData(chave + '_termino');
-        }
+        datasAutomaticas[campo] = null;
+        atualizarDisplayData(campo);
     }
     toggleFields();
 }
@@ -716,8 +692,6 @@ function editarPedido(id) {
     });
     ETAPA_CHAVES.forEach(chave => {
         document.getElementById('chk_' + chave).checked = !!p[chave];
-        const chkTermino = document.getElementById('chk_termino_' + chave);
-        if (chkTermino) chkTermino.checked = !!p[chave + '_termino'];
         const respEl = document.getElementById(chave + '_responsavel');
         const valorResp = p[chave + '_responsavel'] || "";
         if (respEl.tagName === 'SELECT') {
