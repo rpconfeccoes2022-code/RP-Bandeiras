@@ -301,11 +301,7 @@ function formatarQuantidadeEntrega(p) {
 function atualizarDisplayData(campo) {
     const el = document.getElementById(campo);
     if (!el) return;
-    if (typeof MANUAL_FIELDS !== "undefined" && MANUAL_FIELDS.has(campo)) {
-        el.value = datasAutomaticas[campo] ? paraDatetimeLocal(datasAutomaticas[campo]) : "";
-    } else {
-        el.value = datasAutomaticas[campo] ? formatarDataHora(datasAutomaticas[campo]) : "";
-    }
+    el.value = datasAutomaticas[campo] ? formatarDataHora(datasAutomaticas[campo]) : "";
 }
 
 function agoraLocalISO() {
@@ -396,16 +392,11 @@ const ETAPAS = [
     { chave: "entregue", label: "Entregue", grupo: "entrega", cor: "#1e88e5", semInicio: true },
 ];
 const GRUPOS = {
-    interno: { titulo: "Status Interno (Producao)", cor: "#2e7d32", terminoManual: true },
-    costura: { titulo: "Status Costura", cor: "#ef6c00", terminoManual: true },
-    acabamento: { titulo: "Status Acabamento", cor: "#1565c0", terminoManual: true },
-    entrega: { titulo: "Status Entrega", cor: "#6a1b9a", terminoManual: false },
+    interno: { titulo: "Status Interno (Producao)", cor: "#2e7d32", terminoComCheckbox: true },
+    costura: { titulo: "Status Costura", cor: "#ef6c00", terminoComCheckbox: true },
+    acabamento: { titulo: "Status Acabamento", cor: "#1565c0", terminoComCheckbox: true },
+    entrega: { titulo: "Status Entrega", cor: "#6a1b9a", terminoComCheckbox: false },
 };
-
-function paraDatetimeLocal(iso) {
-    if (!iso) return "";
-    return String(iso).slice(0, 16);
-}
 
 function montarBlocosEtapas() {
     const container = document.getElementById('blocosEtapas');
@@ -436,8 +427,13 @@ function montarBlocosEtapas() {
                 html += `<div class="campo-data-etapa">Inicio<br><input type="text" id="${etapa.chave}_inicio" readonly></div>`;
             }
             if (!etapa.semTermino) {
-                if (grupo.terminoManual) {
-                    html += `<div class="campo-data-etapa">Termino (ajuste manual)<br><input type="datetime-local" id="${etapa.chave}_termino" onchange="onManualDateChange('${etapa.chave}_termino')"></div>`;
+                if (grupo.terminoComCheckbox) {
+                    html += `<div class="campo-data-etapa">Termino
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <input type="checkbox" id="chk_termino_${etapa.chave}" onchange="onToggleTermino('${etapa.chave}')">
+                            <input type="text" id="${etapa.chave}_termino" readonly style="flex:1;">
+                        </div>
+                    </div>`;
                 } else {
                     html += `<div class="campo-data-etapa">Termino<br><input type="text" id="${etapa.chave}_termino" readonly></div>`;
                 }
@@ -456,9 +452,14 @@ function alternarBloco(grupoChave) {
     seta.innerHTML = oculto ? "&#9654;" : "&#9660;";
 }
 
-function onManualDateChange(campo) {
-    const valor = document.getElementById(campo).value;
-    datasAutomaticas[campo] = valor ? (valor + ":00") : null;
+function onToggleTermino(chave) {
+    const chkT = document.getElementById('chk_termino_' + chave);
+    if (chkT.checked) {
+        definirDataAutomatica(chave + '_termino');
+    } else {
+        datasAutomaticas[chave + '_termino'] = null;
+        atualizarDisplayData(chave + '_termino');
+    }
 }
 
 function toggleResponsavelManual(chave) {
@@ -482,9 +483,6 @@ function lerResponsavel(chave) {
     return el.value.trim() || null;
 }
 
-const MANUAL_FIELDS = new Set();
-Object.keys(GRUPOS).forEach(g => { if (GRUPOS[g].terminoManual) ETAPAS.filter(e => e.grupo === g && !e.semTermino).forEach(e => MANUAL_FIELDS.add(e.chave + "_termino")); });
-
 function onToggleEtapa(chave) {
     const chk = document.getElementById('chk_' + chave);
     const etapa = ETAPAS.find(e => e.chave === chave);
@@ -495,8 +493,10 @@ function onToggleEtapa(chave) {
             definirDataAutomatica(chave + '_termino');
         }
     } else {
-        if (!etapa.semTermino && !MANUAL_FIELDS.has(chave + '_termino')) {
-            definirDataAutomatica(chave + '_termino');
+        // Caso especial "Entregue" (sem campo de inicio): ao desmarcar, limpa o termino que foi setado ao marcar
+        if (etapa.semInicio && !etapa.semTermino) {
+            datasAutomaticas[chave + '_termino'] = null;
+            atualizarDisplayData(chave + '_termino');
         }
     }
     toggleFields();
@@ -716,6 +716,8 @@ function editarPedido(id) {
     });
     ETAPA_CHAVES.forEach(chave => {
         document.getElementById('chk_' + chave).checked = !!p[chave];
+        const chkTermino = document.getElementById('chk_termino_' + chave);
+        if (chkTermino) chkTermino.checked = !!p[chave + '_termino'];
         const respEl = document.getElementById(chave + '_responsavel');
         const valorResp = p[chave + '_responsavel'] || "";
         if (respEl.tagName === 'SELECT') {
@@ -1061,7 +1063,7 @@ function notificarAtualizacao(p) {
     const etapa = etapaMaisRecente(p);
     if (etapa) {
         const resp = p[etapa.chave + '_responsavel'];
-        texto += "\n\"" + etapa.label + "\"" + (resp ? " - \"" + resp + "\"" : "");
+        texto += "\n" + etapa.label + (resp ? " - " + resp : "");
     }
     if (window.Notification && Notification.permission === 'granted') {
         try { new Notification("RP Bandeiras", { body: texto, icon: 'icon-192.png' }); } catch (e) { /* ignora */ }
@@ -1094,6 +1096,17 @@ function converterChaveVapid(base64) {
     return saida;
 }
 
+function identificarDispositivo() {
+    const ua = navigator.userAgent;
+    let tipo = "Desconhecido";
+    if (/iPhone|iPad|iPod/i.test(ua)) tipo = "iPhone/iPad";
+    else if (/Android/i.test(ua)) tipo = "Android";
+    else if (/Windows/i.test(ua)) tipo = "Windows (PC)";
+    else if (/Macintosh/i.test(ua)) tipo = "Mac (PC)";
+    const modoApp = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    return tipo + (modoApp ? " - App instalado" : " - Navegador (aba aberta)");
+}
+
 async function configurarNotificacaoPush() {
     if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
         console.log('Este navegador nao suporta notificacao push.');
@@ -1118,6 +1131,7 @@ async function configurarNotificacaoPush() {
             endpoint: dadosSub.endpoint,
             p256dh: dadosSub.keys.p256dh,
             auth: dadosSub.keys.auth,
+            dispositivo: identificarDispositivo(),
         }, { onConflict: 'endpoint' });
     } catch (e) {
         console.log('Falha ao configurar notificacao push:', e);
