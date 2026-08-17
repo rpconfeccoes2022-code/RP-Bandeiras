@@ -66,7 +66,12 @@
     .totais-item .totais-numero { font-size: 24px; font-weight: bold; color: #4caf50; }
     .totais-item .totais-label { font-size: 12px; color: #aaa; margin-top: 4px; }
     .bloco-etapa { border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; border-left: 6px solid #555; background: #161616; }
-    .bloco-etapa h3 { margin: 0 0 8px 0; font-size: 14px; }
+    .cabecalho-bloco { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
+    .seta-bloco { font-size: 13px; color: #999; transition: transform 0.15s ease; padding: 4px 8px; }
+    .conteudo-bloco { overflow: hidden; }
+    .conteudo-bloco.recolhido { display: none; }
+    .bloco-etapa h3 { margin: 0; font-size: 14px; }
+    .conteudo-bloco { margin-top: 8px; }
     .linha-etapa { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #2a2a2a; flex-wrap: wrap; }
     .linha-etapa:last-child { border-bottom: none; }
     .linha-etapa input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; accent-color: #4caf50; }
@@ -287,7 +292,12 @@ function formatarDataHora(iso) {
 
 function atualizarDisplayData(campo) {
     const el = document.getElementById(campo);
-    if (el) el.value = datasAutomaticas[campo] ? formatarDataHora(datasAutomaticas[campo]) : "";
+    if (!el) return;
+    if (typeof MANUAL_FIELDS !== "undefined" && MANUAL_FIELDS.has(campo)) {
+        el.value = datasAutomaticas[campo] ? paraDatetimeLocal(datasAutomaticas[campo]) : "";
+    } else {
+        el.value = datasAutomaticas[campo] ? formatarDataHora(datasAutomaticas[campo]) : "";
+    }
 }
 
 function agoraLocalISO() {
@@ -374,15 +384,20 @@ const ETAPAS = [
     { chave: "costurado", label: "Costurado", grupo: "costura", cor: "#e53935" },
     { chave: "finalizando", label: "Finalizando...", grupo: "acabamento", cor: "#d81b60" },
     { chave: "finalizado", label: "Finalizado", grupo: "acabamento", cor: "#8e24aa" },
-    { chave: "em_rota_entrega", label: "Em Rota de Entrega...", grupo: "entrega", cor: "#3949ab" },
-    { chave: "entregue", label: "Entregue", grupo: "entrega", cor: "#1e88e5" },
+    { chave: "em_rota_entrega", label: "Em Rota de Entrega...", grupo: "entrega", cor: "#3949ab", semTermino: true },
+    { chave: "entregue", label: "Entregue", grupo: "entrega", cor: "#1e88e5", semInicio: true },
 ];
 const GRUPOS = {
-    interno: { titulo: "Status Interno (Producao)", cor: "#2e7d32" },
-    costura: { titulo: "Status Costura", cor: "#ef6c00" },
-    acabamento: { titulo: "Status Acabamento", cor: "#1565c0" },
-    entrega: { titulo: "Status Entrega", cor: "#6a1b9a" },
+    interno: { titulo: "Status Interno (Producao)", cor: "#2e7d32", terminoManual: true },
+    costura: { titulo: "Status Costura", cor: "#ef6c00", terminoManual: true },
+    acabamento: { titulo: "Status Acabamento", cor: "#1565c0", terminoManual: true },
+    entrega: { titulo: "Status Entrega", cor: "#6a1b9a", terminoManual: false },
 };
+
+function paraDatetimeLocal(iso) {
+    if (!iso) return "";
+    return String(iso).slice(0, 16);
+}
 
 function montarBlocosEtapas() {
     const container = document.getElementById('blocosEtapas');
@@ -390,32 +405,61 @@ function montarBlocosEtapas() {
     Object.keys(GRUPOS).forEach(grupoChave => {
         const grupo = GRUPOS[grupoChave];
         html += `<div class="bloco-etapa" style="border-left-color:${grupo.cor}; background:${grupo.cor}15;">`;
-        html += `<h3 style="color:${grupo.cor};">${grupo.titulo}</h3>`;
+        html += `<div class="cabecalho-bloco" onclick="alternarBloco('${grupoChave}')">
+                    <h3 style="color:${grupo.cor};">${grupo.titulo}</h3>
+                    <span class="seta-bloco" id="seta_${grupoChave}">&#9660;</span>
+                  </div>`;
+        html += `<div class="conteudo-bloco" id="conteudo_${grupoChave}">`;
         ETAPAS.filter(e => e.grupo === grupoChave).forEach(etapa => {
-            html += `
-                <div class="linha-etapa">
+            html += `<div class="linha-etapa">
                     <input type="checkbox" id="chk_${etapa.chave}" onchange="onToggleEtapa('${etapa.chave}')">
                     <span class="tag-etapa" style="background:${etapa.cor}; color:#fff;">${etapa.label}</span>
-                    <input type="text" class="campo-responsavel" id="${etapa.chave}_responsavel" placeholder="Nome do responsavel">
-                    <div class="campo-data-etapa">
-                        Inicio<br><input type="text" id="${etapa.chave}_inicio" readonly>
-                    </div>
-                    <div class="campo-data-etapa">
-                        Termino<br><input type="text" id="${etapa.chave}_termino" readonly>
-                    </div>
-                </div>`;
+                    <input type="text" class="campo-responsavel" id="${etapa.chave}_responsavel" placeholder="Nome do responsavel">`;
+            if (!etapa.semInicio) {
+                html += `<div class="campo-data-etapa">Inicio<br><input type="text" id="${etapa.chave}_inicio" readonly></div>`;
+            }
+            if (!etapa.semTermino) {
+                if (grupo.terminoManual) {
+                    html += `<div class="campo-data-etapa">Termino (ajuste manual)<br><input type="datetime-local" id="${etapa.chave}_termino" onchange="onManualDateChange('${etapa.chave}_termino')"></div>`;
+                } else {
+                    html += `<div class="campo-data-etapa">Termino<br><input type="text" id="${etapa.chave}_termino" readonly></div>`;
+                }
+            }
+            html += `</div>`;
         });
-        html += `</div>`;
+        html += `</div></div>`;
     });
     container.innerHTML = html;
 }
 
+function alternarBloco(grupoChave) {
+    const conteudo = document.getElementById('conteudo_' + grupoChave);
+    const seta = document.getElementById('seta_' + grupoChave);
+    const oculto = conteudo.classList.toggle('recolhido');
+    seta.innerHTML = oculto ? "&#9654;" : "&#9660;";
+}
+
+function onManualDateChange(campo) {
+    const valor = document.getElementById(campo).value;
+    datasAutomaticas[campo] = valor ? (valor + ":00") : null;
+}
+
+const MANUAL_FIELDS = new Set();
+Object.keys(GRUPOS).forEach(g => { if (GRUPOS[g].terminoManual) ETAPAS.filter(e => e.grupo === g && !e.semTermino).forEach(e => MANUAL_FIELDS.add(e.chave + "_termino")); });
+
 function onToggleEtapa(chave) {
     const chk = document.getElementById('chk_' + chave);
+    const etapa = ETAPAS.find(e => e.chave === chave);
     if (chk.checked) {
-        definirDataAutomatica(chave + '_inicio');
+        if (!etapa.semInicio) {
+            definirDataAutomatica(chave + '_inicio');
+        } else if (!etapa.semTermino) {
+            definirDataAutomatica(chave + '_termino');
+        }
     } else {
-        definirDataAutomatica(chave + '_termino');
+        if (!etapa.semTermino && !MANUAL_FIELDS.has(chave + '_termino')) {
+            definirDataAutomatica(chave + '_termino');
+        }
     }
     toggleFields();
 }
