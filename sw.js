@@ -1,4 +1,4 @@
-const CACHE_NAME = "rp-bandeiras-v14";
+const CACHE_NAME = "rp-bandeiras-v15";
 const ARQUIVOS_ESSENCIAIS = [
     "./index.html",
     "./manifest.json",
@@ -22,9 +22,16 @@ self.addEventListener("activate", (event) => {
     self.clients.claim();
 });
 
-// Estrategia: tenta a rede primeiro (dados sempre atualizados); se offline, usa o cache do app shell.
+// Estrategia: para os icones, usa o cache primeiro (mais rapido e confiavel pra notificacao, ja que quase nunca mudam).
+// Para o resto, tenta a rede primeiro (dados sempre atualizados); se offline, usa o cache do app shell.
 self.addEventListener("fetch", (event) => {
     if (event.request.method !== "GET") return;
+    if (event.request.url.includes("icon-192.png") || event.request.url.includes("icon-512.png")) {
+        event.respondWith(
+            caches.match(event.request).then((cacheado) => cacheado || fetch(event.request))
+        );
+        return;
+    }
     event.respondWith(
         fetch(event.request)
             .then((resposta) => {
@@ -45,8 +52,8 @@ self.addEventListener("push", (event) => {
     event.waitUntil(
         self.registration.showNotification(dados.title || "RP Bandeiras", {
             body: dados.body || "",
-            icon: "icon-192.png",
-            badge: "icon-192.png",
+            icon: new URL("icon-192.png", self.location.origin).href,
+            badge: new URL("icon-192.png", self.location.origin).href,
         })
     );
 });
