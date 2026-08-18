@@ -1,4 +1,4 @@
-const CACHE_NAME = "rp-bandeiras-v16";
+const CACHE_NAME = "rp-bandeiras-v17";
 const ARQUIVOS_ESSENCIAIS = [
     "./index.html",
     "./manifest.json",
@@ -49,12 +49,14 @@ self.addEventListener("push", (event) => {
     try {
         if (event.data) dados = event.data.json();
     } catch (e) { /* usa o padrao */ }
+    const opcoes = {
+        body: dados.body || "",
+        icon: new URL("icon-192.png", self.location.origin).href,
+        badge: new URL("icon-192.png", self.location.origin).href,
+    };
+    if (dados.image) opcoes.image = dados.image;
     event.waitUntil(
-        self.registration.showNotification(dados.title || "RP Bandeiras", {
-            body: dados.body || "",
-            icon: new URL("icon-192.png", self.location.origin).href,
-            badge: new URL("icon-192.png", self.location.origin).href,
-        })
+        self.registration.showNotification(dados.title || "RP Bandeiras", opcoes)
     );
 });
 

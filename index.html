@@ -1047,7 +1047,11 @@ function notificarAtualizacao(p) {
         texto += "\n" + etapa.label + (resp ? " - " + resp : "");
     }
     if (window.Notification && Notification.permission === 'granted') {
-        try { new Notification("RP Bandeiras", { body: texto, icon: 'icon-192.png' }); } catch (e) { /* ignora */ }
+        try {
+            const opcoes = { body: texto, icon: 'icon-192.png' };
+            if (p.foto_url) opcoes.image = p.foto_url;
+            new Notification("RP Bandeiras", opcoes);
+        } catch (e) { /* ignora */ }
     }
     mostrarOk(texto);
 }
