@@ -83,6 +83,8 @@
     #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     .cabecalho { text-align: center; margin-bottom: 10px; }
+    #sinoNotificacao { position: fixed; top: 14px; right: 14px; z-index: 500; background: #1a1a1a; border: 1px solid #333; border-radius: 50%; width: 44px; height: 44px; padding: 0; margin: 0; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    #pontoStatusSino { position: absolute; top: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; background: #888; border: 2px solid #0d0d0d; }
     .cabecalho img { width: 64px; height: 64px; border-radius: 12px; }
     #barraCarregamentoContainer { width: 220px; margin: 10px auto 0; display: none; }
     #barraCarregamentoContainer.ativa { display: block; }
@@ -93,6 +95,11 @@
 </style>
 </head>
 <body>
+
+<button id="sinoNotificacao" onclick="abrirPainelNotificacao()" title="Notificacoes">
+    &#128276;
+    <span id="pontoStatusSino"></span>
+</button>
 
 <div class="cabecalho">
     <img src="icon-192.png" alt="RP Bandeiras">
@@ -1090,6 +1097,7 @@ async function configurarNotificacaoPush() {
         if (Notification.permission === 'default') {
             await Notification.requestPermission();
         }
+        atualizarStatusSino();
         if (Notification.permission !== 'granted') return;
 
         const registration = await navigator.serviceWorker.ready;
@@ -1112,7 +1120,51 @@ async function configurarNotificacaoPush() {
     }
 }
 
+function atualizarStatusSino() {
+    const ponto = document.getElementById('pontoStatusSino');
+    if (!ponto) return;
+    if (!('Notification' in window)) { ponto.style.background = '#888'; return; }
+    if (Notification.permission === 'granted') ponto.style.background = '#43a047';
+    else if (Notification.permission === 'denied') ponto.style.background = '#e53935';
+    else ponto.style.background = '#fbc02d';
+}
+
+function ehIOSNaoInstalado() {
+    const ehIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+    const jaInstalado = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+    return ehIOS && !jaInstalado;
+}
+
+function abrirPainelNotificacao() {
+    if (ehIOSNaoInstalado()) {
+        // No iPhone, notificacao push so funciona com o app instalado na tela de inicio
+        document.getElementById('iosInstallOverlay').classList.add('aberto');
+        return;
+    }
+    if (!('Notification' in window)) {
+        mostrarErro("Este navegador nao suporta notificacoes.");
+        return;
+    }
+    if (Notification.permission === 'granted') {
+        configurarNotificacaoPush();
+        mostrarOk("Notificacoes ja estao ativadas neste aparelho.");
+    } else if (Notification.permission === 'denied') {
+        mostrarErro("As notificacoes foram bloqueadas para este site. Para ativar: vai nas configuracoes do navegador > Configuracoes do site > Notificacoes, e permite para este endereco.");
+    } else {
+        Notification.requestPermission().then((permissao) => {
+            atualizarStatusSino();
+            if (permissao === 'granted') {
+                configurarNotificacaoPush();
+                mostrarOk("Notificacoes ativadas neste aparelho!");
+            } else {
+                mostrarErro("Permissao de notificacao nao concedida.");
+            }
+        });
+    }
+}
+
 montarBlocosEtapas();
+atualizarStatusSino();
 definirDataAutomatica('data_pedido');
 toggleFields();
 carregarPedidos();
