@@ -85,6 +85,31 @@
     .cabecalho { text-align: center; margin-bottom: 10px; }
     #sinoNotificacao { position: fixed; top: 14px; right: 14px; z-index: 500; background: #1a1a1a; border: 1px solid #333; border-radius: 50%; width: 44px; height: 44px; padding: 0; margin: 0; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
     #pontoStatusSino { position: absolute; top: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; background: #888; border: 2px solid #0d0d0d; }
+
+    #interruptorTema { position: fixed; top: 14px; left: 14px; z-index: 500; cursor: pointer; }
+    #interruptorTema input { display: none; }
+    .slider-tema { display: flex; align-items: center; justify-content: space-between; width: 60px; height: 32px; background: #1a1a1a; border: 1px solid #333; border-radius: 20px; padding: 0 6px; font-size: 12px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .bolinha-tema { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #2e7d32; transition: transform 0.2s ease; }
+    #chkTema:checked ~ .slider-tema .bolinha-tema { transform: translateX(28px); background: #fbc02d; }
+
+    #barraAcoesFlutuante { position: fixed; bottom: 0; left: 0; width: 100%; background: #161616; border-top: 1px solid #333; padding: 10px 14px; display: none; gap: 10px; align-items: center; z-index: 600; box-shadow: 0 -2px 10px rgba(0,0,0,0.5); box-sizing: border-box; }
+    #barraAcoesFlutuante.visivel { display: flex; }
+    #barraAcoesFlutuante #btnSalvar { flex: 1; margin: 0; }
+    #btnCancelarFlutuante { width: 44px; height: 44px; padding: 0; margin: 0; background: #b71c1c; border-radius: 50%; font-size: 16px; flex-shrink: 0; }
+    body.tem-barra-flutuante { padding-bottom: 70px; }
+
+    .linha-entrada-costura { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; padding: 6px; background: #1a1a1a; border-radius: 6px; }
+    .linha-entrada-costura input { flex: 1; min-width: 90px; margin: 0; }
+    .btn-remover-entrada { width: 30px; height: 30px; padding: 0; margin: 0; background: #b71c1c; border-radius: 50%; font-size: 13px; flex-shrink: 0; }
+    .btn-add-entrada { background: #37474f; margin-top: 4px; padding: 8px 14px; font-size: 13px; }
+
+    body.tema-claro { background: #f0f0f0; color: #111; }
+    body.tema-claro .card, body.tema-claro .bloco-etapa, body.tema-claro .linha-entrada-costura, body.tema-claro .modal-caixa, body.tema-claro #barraAcoesFlutuante, body.tema-claro #sinoNotificacao, body.tema-claro .slider-tema { background: #ffffff; border-color: #ddd; color: #111; }
+    body.tema-claro input, body.tema-claro select, body.tema-claro textarea { background: #fafafa; color: #111; border-color: #ccc; }
+    body.tema-claro label { color: #333; }
+    body.tema-claro .pedido-item { background: #ffffff; border-color: #ddd; }
+    body.tema-claro .totais-item { background: #fafafa; border-color: #ddd; }
+    body.tema-claro #loadingMsg, body.tema-claro .campo-data-etapa, body.tema-claro .barraCarregamentoTexto { color: #555; }
     .cabecalho img { width: 64px; height: 64px; border-radius: 12px; }
     #barraCarregamentoContainer { width: 220px; margin: 10px auto 0; display: none; }
     #barraCarregamentoContainer.ativa { display: block; }
@@ -100,6 +125,11 @@
     &#128276;
     <span id="pontoStatusSino"></span>
 </button>
+
+<label id="interruptorTema" title="Tema claro/escuro">
+    <input type="checkbox" id="chkTema" onchange="alternarTema()">
+    <span class="slider-tema">&#9728;&#65039;<span class="bolinha-tema"></span>&#127769;</span>
+</label>
 
 <div class="cabecalho">
     <img src="icon-192.png" alt="RP Bandeiras">
@@ -141,7 +171,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card" id="cardNovoPedido">
     <h2 id="formTitle">Novo Pedido</h2>
     <div class="form-grid">
         <div>
@@ -207,7 +237,7 @@
         </div>
         <div>
             <label>CNPJ Candidato</label>
-            <input type="text" id="cnpj_candidato" placeholder="CNPJ do candidato">
+            <input type="text" id="cnpj_candidato" placeholder="CNPJ do candidato" list="dl_cnpj_candidato">
         </div>
         <div>
             <label>Tiragem</label>
@@ -223,7 +253,7 @@
         </div>
         <div>
             <label>Destino</label>
-            <input type="text" id="destino" placeholder="Cidade/Local de entrega">
+            <input type="text" id="destino" placeholder="Cidade/Local de entrega" list="dl_destino">
         </div>
     </div>
 
@@ -236,17 +266,12 @@
         </div>
         <div>
             <label>Nome do Destinatario</label>
-            <input type="text" id="nome_destinatario">
+            <input type="text" id="nome_destinatario" list="dl_nome_destinatario">
         </div>
         <div>
             <label>Celular do Destinatario</label>
-            <input type="text" id="celular_destinatario" placeholder="(00) 00000-0000">
+            <input type="text" id="celular_destinatario" placeholder="(00) 00000-0000" list="dl_celular_destinatario">
         </div>
-    </div>
-
-    <div class="form-actions">
-        <button onclick="salvarPedido()" id="btnSalvar">Salvar Pedido</button>
-        <button class="secondary" onclick="limparFormulario()">Limpar</button>
     </div>
 </div>
 
@@ -255,7 +280,7 @@
     <div id="totaisPorMaterial" class="totais-grid"></div>
 </div>
 
-<div class="card">
+<div class="card" id="cardFoto">
     <h2>Foto do Pedido</h2>
     <input type="file" id="fotoInput" accept="image/*" onchange="previewFoto()">
     <div id="fotoPreviewBox" style="margin-top:10px;">Nenhuma foto selecionada</div>
@@ -271,6 +296,18 @@
     <div id="listaPedidos"></div>
 </div>
 
+<datalist id="dl_destino"></datalist>
+<datalist id="dl_cnpj_candidato"></datalist>
+<datalist id="dl_nome_destinatario"></datalist>
+<datalist id="dl_celular_destinatario"></datalist>
+<datalist id="dl_costura_nome"></datalist>
+<datalist id="dl_costura_telefone"></datalist>
+
+<div id="barraAcoesFlutuante">
+    <button onclick="salvarPedido()" id="btnSalvar">Salvar Pedido</button>
+    <button id="btnCancelarFlutuante" onclick="cancelarFormulario()" title="Cancelar">&#10005;</button>
+</div>
+
 <script>
 const SUPABASE_URL = "https://wvhdqxnjlivcodgefayf.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind2aGRxeG5qbGl2Y29kZ2VmYXlmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY2NjQxNTksImV4cCI6MjEwMjI0MDE1OX0.bef9jgpBJqvIeF8Zju6fNm5qVK3Vbjdgg2mwRiT3SK8";
@@ -278,6 +315,29 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let pedidosCache = [];
 let editandoId = null;
+
+function mostrarBarraAcoes() {
+    document.getElementById('barraAcoesFlutuante').classList.add('visivel');
+    document.body.classList.add('tem-barra-flutuante');
+}
+function esconderBarraAcoes() {
+    document.getElementById('barraAcoesFlutuante').classList.remove('visivel');
+    document.body.classList.remove('tem-barra-flutuante');
+}
+
+function alternarTema() {
+    const claro = document.getElementById('chkTema').checked;
+    document.body.classList.toggle('tema-claro', claro);
+    try { localStorage.setItem('rpbandeiras_tema', claro ? 'claro' : 'escuro'); } catch (e) {}
+}
+function aplicarTemaSalvo() {
+    let tema = 'escuro';
+    try { tema = localStorage.getItem('rpbandeiras_tema') || 'escuro'; } catch (e) {}
+    if (tema === 'claro') {
+        document.body.classList.add('tema-claro');
+        document.getElementById('chkTema').checked = true;
+    }
+}
 let fotoSelecionada = null;
 let fotoUrlAtual = null;
 let datasAutomaticas = {};
@@ -391,8 +451,8 @@ const ETAPAS = [
     { chave: "impresso", label: "Impresso", grupo: "interno", cor: "#00897b", responsaveis: ["Thalles","Yhuri","Billy","Paulo Henrique","Magrão"], semInicio: true },
     { chave: "calandrando", label: "Calandrando...", grupo: "interno", cor: "#fb8c00", responsaveis: ["Eduardo","Paulo Henrique","Bah","Carlos","Magrão","Rodrigo"], semTermino: true },
     { chave: "calandrado", label: "Calandrado", grupo: "interno", cor: "#6d4c41", responsaveis: ["Eduardo","Paulo Henrique","Bah","Carlos","Magrão","Rodrigo"], semInicio: true },
-    { chave: "costurando", label: "Costurando...", grupo: "costura", cor: "#f4511e", semTermino: true },
-    { chave: "costurado", label: "Costurado", grupo: "costura", cor: "#e53935", semInicio: true },
+    { chave: "costurando", label: "Costurando...", grupo: "costura", cor: "#f4511e", semTermino: true, multiplo: true },
+    { chave: "costurado", label: "Costurado", grupo: "costura", cor: "#e53935", semInicio: true, multiplo: true },
     { chave: "finalizando", label: "Finalizando...", grupo: "acabamento", cor: "#d81b60", responsaveis: ["Micaeli","Luciana","Neiane","Paulo Henrique","Magrão","Kaik"], semTermino: true },
     { chave: "finalizado", label: "Finalizado", grupo: "acabamento", cor: "#8e24aa", responsaveis: ["Micaeli","Luciana","Neiane","Paulo Henrique","Magrão","Kaik"], semInicio: true },
     { chave: "em_rota_entrega", label: "Em Rota de Entrega...", grupo: "entrega", cor: "#3949ab", semTermino: true },
@@ -413,14 +473,16 @@ function montarBlocosEtapas() {
         html += `<div class="bloco-etapa" style="border-left-color:${grupo.cor}; background:${grupo.cor}15;">`;
         html += `<div class="cabecalho-bloco" onclick="alternarBloco('${grupoChave}')">
                     <h3 style="color:${grupo.cor};">${grupo.titulo}</h3>
-                    <span class="seta-bloco" id="seta_${grupoChave}">&#9660;</span>
+                    <span class="seta-bloco" id="seta_${grupoChave}">&#9654;</span>
                   </div>`;
-        html += `<div class="conteudo-bloco" id="conteudo_${grupoChave}">`;
+        html += `<div class="conteudo-bloco recolhido" id="conteudo_${grupoChave}">`;
         ETAPAS.filter(e => e.grupo === grupoChave).forEach(etapa => {
             html += `<div class="linha-etapa">
                     <input type="checkbox" id="chk_${etapa.chave}" onchange="onToggleEtapa('${etapa.chave}')">
                     <span class="tag-etapa" style="background:${etapa.cor}; color:#fff;">${etapa.label}</span>`;
-            if (etapa.responsaveis) {
+            if (etapa.multiplo) {
+                // nao renderiza campo de responsavel aqui - vira a lista de entradas logo abaixo
+            } else if (etapa.responsaveis) {
                 html += `<select class="campo-responsavel" id="${etapa.chave}_responsavel" onchange="toggleResponsavelManual('${etapa.chave}')">
                         <option value="">-- responsavel --</option>
                         ${etapa.responsaveis.map(n => `<option value="${n}">${n}</option>`).join("")}
@@ -437,10 +499,15 @@ function montarBlocosEtapas() {
                 html += `<div class="campo-data-etapa">Termino<br><input type="text" id="${etapa.chave}_termino" readonly></div>`;
             }
             html += `</div>`;
+            if (etapa.multiplo) {
+                html += `<div class="entradas-multiplas" id="entradas_${etapa.chave}"></div>
+                          <button type="button" class="btn-add-entrada" onclick="adicionarEntradaCostura('${etapa.chave}')">+ Adicionar costureira(o)</button>`;
+            }
         });
         html += `</div></div>`;
     });
     container.innerHTML = html;
+    ETAPAS.filter(e => e.multiplo).forEach(e => adicionarEntradaCostura(e.chave));
 }
 
 function alternarBloco(grupoChave) {
@@ -448,6 +515,36 @@ function alternarBloco(grupoChave) {
     const seta = document.getElementById('seta_' + grupoChave);
     const oculto = conteudo.classList.toggle('recolhido');
     seta.innerHTML = oculto ? "&#9654;" : "&#9660;";
+}
+
+function adicionarEntradaCostura(chave, dados) {
+    dados = dados || { responsavel: "", telefone: "", quantidade: "" };
+    const container = document.getElementById('entradas_' + chave);
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = 'linha-entrada-costura';
+    div.innerHTML = `
+        <input type="text" class="entrada-responsavel" placeholder="Nome" list="dl_costura_nome" value="${dados.responsavel || ''}">
+        <input type="text" class="entrada-telefone" placeholder="Telefone" list="dl_costura_telefone" value="${dados.telefone || ''}">
+        <input type="text" class="entrada-quantidade" placeholder="Quantidade" value="${dados.quantidade || ''}">
+        <button type="button" class="btn-remover-entrada" onclick="this.parentElement.remove(); mostrarBarraAcoes();">&#10005;</button>
+    `;
+    container.appendChild(div);
+}
+
+function lerEntradasCostura(chave) {
+    const container = document.getElementById('entradas_' + chave);
+    if (!container) return [];
+    const linhas = [];
+    container.querySelectorAll('.linha-entrada-costura').forEach(linha => {
+        const responsavel = linha.querySelector('.entrada-responsavel').value.trim();
+        const telefone = linha.querySelector('.entrada-telefone').value.trim();
+        const quantidade = linha.querySelector('.entrada-quantidade').value.trim();
+        if (responsavel || telefone || quantidade) {
+            linhas.push({ responsavel, telefone, quantidade });
+        }
+    });
+    return linhas;
 }
 
 function toggleResponsavelManual(chave) {
@@ -506,9 +603,14 @@ function getFormData() {
         if ((id === "tiragem" || id === "quantidade") && v !== null) v = parseInt(v);
         data[id] = v;
     });
-    ETAPA_CHAVES.forEach(chave => {
+    ETAPAS.forEach(etapa => {
+        const chave = etapa.chave;
         data[chave] = document.getElementById('chk_' + chave).checked;
-        data[chave + '_responsavel'] = lerResponsavel(chave);
+        if (etapa.multiplo) {
+            data[chave + '_dados'] = lerEntradasCostura(chave);
+        } else {
+            data[chave + '_responsavel'] = lerResponsavel(chave);
+        }
     });
     const cnpjSelecionado = document.getElementById('cnpj_fornecedor').value;
     if (cnpjSelecionado === '__manual__') {
@@ -532,6 +634,11 @@ function limparFormulario() {
     document.getElementById('cnpj_fornecedor').value = "";
     document.getElementById('cnpj_fornecedor_manual').value = "";
     document.getElementById('f_cnpj_fornecedor_manual').classList.remove('show');
+    ETAPAS.filter(e => e.multiplo).forEach(e => {
+        const container = document.getElementById('entradas_' + e.chave);
+        if (container) container.innerHTML = "";
+        adicionarEntradaCostura(e.chave);
+    });
     datasAutomaticas = {};
     idsAutoData.forEach(atualizarDisplayData);
     definirDataAutomatica('data_pedido');
@@ -543,6 +650,11 @@ function limparFormulario() {
     document.getElementById('formTitle').innerText = "Novo Pedido";
     document.getElementById('btnSalvar').innerText = "Salvar Pedido";
     esconderErro();
+    esconderBarraAcoes();
+}
+
+function cancelarFormulario() {
+    limparFormulario();
 }
 
 async function salvarPedido() {
@@ -608,6 +720,34 @@ function iniciarBarraProgresso() {
     };
 }
 
+function atualizarDatalists(lista) {
+    function preencher(idDatalist, valores) {
+        const dl = document.getElementById(idDatalist);
+        if (!dl) return;
+        const unicos = Array.from(new Set(valores.filter(v => v && String(v).trim() !== "")));
+        dl.innerHTML = unicos.map(v => `<option value="${String(v).replace(/"/g, "&quot;")}"></option>`).join("");
+    }
+    preencher('dl_destino', lista.map(p => p.destino));
+    preencher('dl_cnpj_candidato', lista.map(p => p.cnpj_candidato));
+    preencher('dl_nome_destinatario', lista.map(p => p.nome_destinatario));
+    preencher('dl_celular_destinatario', lista.map(p => p.celular_destinatario));
+
+    const nomesCostura = [];
+    const telefonesCostura = [];
+    lista.forEach(p => {
+        [p.costurando_dados, p.costurado_dados].forEach(arr => {
+            if (Array.isArray(arr)) {
+                arr.forEach(item => {
+                    if (item && item.responsavel) nomesCostura.push(item.responsavel);
+                    if (item && item.telefone) telefonesCostura.push(item.telefone);
+                });
+            }
+        });
+    });
+    preencher('dl_costura_nome', nomesCostura);
+    preencher('dl_costura_telefone', telefonesCostura);
+}
+
 function atualizarTotaisMaterial(lista) {
     const materiais = ["Wind Banner 73x210", "Wind Banner 100x300", "Bandeira 150x200", "Bandeira 100x140", "Bandeira 70x100", "Bandeira 34x52"];
     const totais = {};
@@ -635,6 +775,7 @@ async function carregarPedidos() {
         pedidosCache = data;
         renderizarPedidos(pedidosCache);
         atualizarTotaisMaterial(pedidosCache);
+        atualizarDatalists(pedidosCache);
     } catch (e) {
         mostrarErro("Falha inesperada ao carregar pedidos: " + (e && e.message ? e.message : String(e)));
     } finally {
@@ -684,6 +825,7 @@ function renderizarPedidos(lista) {
 function editarPedido(id) {
     const p = pedidosCache.find(x => x.id === id);
     if (!p) return;
+    mostrarBarraAcoes();
     datasAutomaticas = {};
     idsAutoData.forEach(campo => {
         datasAutomaticas[campo] = p[campo] || null;
@@ -697,8 +839,20 @@ function editarPedido(id) {
         const el = document.getElementById(key);
         if (el) el.value = p[key] || "";
     });
-    ETAPA_CHAVES.forEach(chave => {
+    ETAPAS.forEach(etapa => {
+        const chave = etapa.chave;
         document.getElementById('chk_' + chave).checked = !!p[chave];
+        if (etapa.multiplo) {
+            const container = document.getElementById('entradas_' + chave);
+            if (container) container.innerHTML = "";
+            const dados = Array.isArray(p[chave + '_dados']) ? p[chave + '_dados'] : [];
+            if (dados.length === 0) {
+                adicionarEntradaCostura(chave);
+            } else {
+                dados.forEach(d => adicionarEntradaCostura(chave, d));
+            }
+            return;
+        }
         const respEl = document.getElementById(chave + '_responsavel');
         const valorResp = p[chave + '_responsavel'] || "";
         if (respEl.tagName === 'SELECT') {
@@ -923,9 +1077,22 @@ async function gerarPDF(id) {
             const linhas = [];
             ETAPAS.filter(e => e.grupo === grupoChave).forEach(e => {
                 if (!p[e.chave]) return;
-                linhas.push([e.label, (p[e.chave + "_responsavel"] || "-") ]);
-                linhas.push(["  Inicio", formatarDataHora(p[e.chave + "_inicio"]) || "-"]);
-                linhas.push(["  Termino", formatarDataHora(p[e.chave + "_termino"]) || "-"]);
+                if (e.multiplo) {
+                    const dados = Array.isArray(p[e.chave + '_dados']) ? p[e.chave + '_dados'] : [];
+                    if (dados.length === 0) {
+                        linhas.push([e.label, "-"]);
+                    } else {
+                        dados.forEach((d, i) => {
+                            const rotulo = i === 0 ? e.label : "";
+                            const valor = (d.responsavel || "-") + (d.telefone ? " - " + d.telefone : "") + (d.quantidade ? " (Qtd: " + d.quantidade + ")" : "");
+                            linhas.push([rotulo, valor]);
+                        });
+                    }
+                } else {
+                    linhas.push([e.label, (p[e.chave + "_responsavel"] || "-")]);
+                }
+                if (!e.semInicio) linhas.push(["  Inicio", formatarDataHora(p[e.chave + "_inicio"]) || "-"]);
+                if (!e.semTermino) linhas.push(["  Termino", formatarDataHora(p[e.chave + "_termino"]) || "-"]);
             });
             if (linhas.length === 0) linhas.push(["Status", "Nenhuma etapa marcada"]);
             return linhas;
@@ -1169,10 +1336,20 @@ function abrirPainelNotificacao() {
 
 montarBlocosEtapas();
 atualizarStatusSino();
+aplicarTemaSalvo();
 definirDataAutomatica('data_pedido');
 toggleFields();
 carregarPedidos();
 configurarNotificacoesRealtime();
+
+// Mostra a barra flutuante de Salvar/Cancelar assim que a pessoa comeca a mexer no formulario de um pedido novo
+['cardNovoPedido', 'cardFoto'].forEach(idCard => {
+    const el = document.getElementById(idCard);
+    if (el) {
+        el.addEventListener('input', mostrarBarraAcoes);
+        el.addEventListener('change', mostrarBarraAcoes);
+    }
+});
 
 // Registra o service worker - necessario para o navegador oferecer instalacao como app de verdade
 if ('serviceWorker' in navigator) {

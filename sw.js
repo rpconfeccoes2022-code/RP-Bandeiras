@@ -1,4 +1,4 @@
-const CACHE_NAME = "rp-bandeiras-v17";
+const CACHE_NAME = "rp-bandeiras-v18";
 const ARQUIVOS_ESSENCIAIS = [
     "./index.html",
     "./manifest.json",
