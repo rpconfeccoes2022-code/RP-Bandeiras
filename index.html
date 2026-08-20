@@ -682,7 +682,9 @@ async function salvarPedido() {
             ultimaEdicaoLocal = { id: editandoId, ts: Date.now() };
             ({ error } = await sb.from('controle_campanha').update(data).eq('id', editandoId));
         } else {
-            ({ error } = await sb.from('controle_campanha').insert([data]));
+            const resultado = await sb.from('controle_campanha').insert([data]).select('id').single();
+            error = resultado.error;
+            if (resultado.data) ultimaEdicaoLocal = { id: resultado.data.id, ts: Date.now() };
         }
 
         if (error) { mostrarErro("Erro ao salvar no banco: " + error.message); return; }
@@ -1206,12 +1208,16 @@ function etapaMaisRecente(p) {
     return melhorEtapa;
 }
 
-function notificarAtualizacao(p) {
-    let texto = "Pedido de " + (p.candidato || "um candidato") + " foi atualizado.";
-    const etapa = etapaMaisRecente(p);
-    if (etapa) {
-        const resp = p[etapa.chave + '_responsavel'];
-        texto += "\n" + etapa.label + (resp ? " - " + resp : "");
+function notificarAtualizacao(p, ehNovoCadastro) {
+    let texto = ehNovoCadastro
+        ? "Novo pedido cadastrado: " + (p.candidato || "um candidato") + "."
+        : "Pedido de " + (p.candidato || "um candidato") + " foi atualizado.";
+    if (!ehNovoCadastro) {
+        const etapa = etapaMaisRecente(p);
+        if (etapa) {
+            const resp = p[etapa.chave + '_responsavel'];
+            texto += "\n" + etapa.label + (resp ? " - " + resp : "");
+        }
     }
     if (window.Notification && Notification.permission === 'granted') {
         try {
@@ -1231,7 +1237,15 @@ function configurarNotificacoesRealtime() {
             carregarPedidos();
             atualizarTotaisMaterial(pedidosCache);
             if (fuiEuQueEditei) return;
-            notificarAtualizacao(registro);
+            notificarAtualizacao(registro, false);
+        })
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'controle_campanha' }, (payload) => {
+            const registro = payload.new;
+            const fuiEuQueCriei = ultimaEdicaoLocal.id === registro.id && (Date.now() - ultimaEdicaoLocal.ts) < 5000;
+            carregarPedidos();
+            atualizarTotaisMaterial(pedidosCache);
+            if (fuiEuQueCriei) return;
+            notificarAtualizacao(registro, true);
         })
         .subscribe();
 }
