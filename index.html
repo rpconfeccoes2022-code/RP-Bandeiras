@@ -18,30 +18,33 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
     * { box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; margin: 0; padding: 15px; background-color: #0d0d0d; color: #eaeaea; }
-    h1 { text-align: center; font-size: 22px; margin-bottom: 15px; color: #ffffff; }
-    .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
-    .card h2 { font-size: 16px; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 8px; color: #ffffff; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 15px; background-color: #101013; color: #eaeaea; -webkit-font-smoothing: antialiased; }
+    h1 { text-align: center; font-size: 21px; font-weight: 700; margin-bottom: 15px; color: #ffffff; letter-spacing: -0.2px; }
+    .card { background: #18181c; border: 1px solid #26262c; border-radius: 16px; padding: 16px; margin-bottom: 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.28); }
+    .card h2 { font-size: 15px; font-weight: 700; margin-top: 0; border-bottom: 1px solid #26262c; padding-bottom: 10px; color: #ffffff; letter-spacing: -0.1px; }
     .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
-    label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 3px; color: #cccccc; }
-    input, select { width: 100%; padding: 8px; font-size: 14px; border: 1px solid #333; border-radius: 6px; background-color: #262626; color: #eaeaea; }
-    input::placeholder { color: #888; }
+    label { font-size: 12.5px; font-weight: 600; display: block; margin-bottom: 4px; color: #9a9aa2; text-transform: uppercase; letter-spacing: 0.3px; }
+    input, select { width: 100%; padding: 10px 12px; font-size: 14px; border: 1px solid #2c2c33; border-radius: 10px; background-color: #212126; color: #eaeaea; box-sizing: border-box; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+    input:focus, select:focus { outline: none; border-color: #43a047; box-shadow: 0 0 0 3px rgba(67,160,71,0.18); }
+    input::placeholder { color: #7a7a82; }
     input[type="date"] { color-scheme: dark; }
     input[type="file"] { color: #ccc; }
     .field { display: none; }
     .field.show { display: block; }
-    button { padding: 10px 16px; background-color: #2e7d32; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin-top: 10px; }
-    button:hover { background-color: #1b5e20; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
-    button.secondary { background-color: #444; }
-    button.secondary:hover { background-color: #333; }
+    button { padding: 11px 18px; background-color: #2e7d32; color: white; border: none; border-radius: 12px; cursor: pointer; font-size: 14px; font-weight: 600; margin-top: 10px; transition: background-color 0.15s ease, transform 0.08s ease; box-shadow: 0 2px 8px rgba(46,125,50,0.25); }
+    button:hover { background-color: #34903a; }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    button.secondary { background-color: #2c2c33; box-shadow: none; }
+    button.secondary:hover { background-color: #37373f; }
     button.danger { background-color: #b71c1c; }
     button.danger:hover { background-color: #8e0000; }
-    #searchBox { width: 100%; padding: 10px; font-size: 15px; border-radius: 6px; border: 1px solid #333; background-color: #262626; color: #eaeaea; margin-bottom: 10px; }
-    .pedido-item { border: 1px solid #2a2a2a; border-radius: 8px; padding: 12px; margin-bottom: 10px; background: #161616; }
+    #searchBox { width: 100%; padding: 11px 14px; font-size: 15px; border-radius: 12px; border: 1px solid #2c2c33; background-color: #212126; color: #eaeaea; margin-bottom: 10px; box-sizing: border-box; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+    #searchBox:focus { outline: none; border-color: #43a047; box-shadow: 0 0 0 3px rgba(67,160,71,0.18); }
+    .pedido-item { border: 1px solid #26262c; border-radius: 14px; padding: 14px; margin-bottom: 10px; background: #1c1c21; transition: border-color 0.15s ease; }
     .pedido-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
     .pedido-header strong { font-size: 15px; color: #fff; }
-    .badge { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 11px; color: white; margin-left: 6px; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; color: white; margin-left: 6px; }
     .b-int { background: #1565c0; }
     .b-cos { background: #6a1b9a; }
     .b-ent { background: #ef6c00; }
@@ -55,17 +58,18 @@
     #fotoModalOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; }
     #fotoModalOverlay.aberto { display: flex; }
     #fotoModalImg { max-width: 92vw; max-height: 88vh; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.6); }
-    #fotoModalFechar { position: absolute; top: 18px; right: 18px; background: #b71c1c; color: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; line-height: 1; }
+    #fotoModalFechar { position: absolute; top: 18px; right: 18px; background: rgba(255,255,255,0.14); color: #fff; border: none; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s ease; }
+    #fotoModalFechar:hover, #fotoModalFechar:active { background: rgba(255,255,255,0.24); }
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; }
     .modal-overlay.aberto { display: flex; }
-    .modal-caixa { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; padding: 20px; width: 260px; text-align: center; }
+    .modal-caixa { background: #18181c; border: 1px solid #2c2c33; border-radius: 18px; padding: 22px; width: 260px; text-align: center; box-shadow: 0 8px 28px rgba(0,0,0,0.45); }
     .modal-caixa h3 { margin-top: 0; color: #fff; font-size: 15px; }
     .modal-caixa button { width: 100%; }
     .totais-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; }
-    .totais-item { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; padding: 12px; text-align: center; }
+    .totais-item { background: #1c1c21; border: 1px solid #2c2c33; border-radius: 14px; padding: 14px; text-align: center; }
     .totais-item .totais-numero { font-size: 24px; font-weight: bold; color: #4caf50; }
     .totais-item .totais-label { font-size: 12px; color: #aaa; margin-top: 4px; }
-    .bloco-etapa { border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; border-left: 6px solid #555; background: #161616; }
+    .bloco-etapa { border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; border-left: 5px solid #555; background: #18181c; }
     .cabecalho-bloco { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
     .seta-bloco { font-size: 13px; color: #999; transition: transform 0.15s ease; padding: 4px 8px; }
     .conteudo-bloco { overflow: hidden; }
@@ -75,7 +79,7 @@
     .linha-etapa { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #2a2a2a; flex-wrap: wrap; }
     .linha-etapa:last-child { border-bottom: none; }
     .linha-etapa input[type="checkbox"] { width: 20px; height: 20px; flex-shrink: 0; accent-color: #4caf50; }
-    .tag-etapa { padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; white-space: nowrap; }
+    .tag-etapa { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
     .linha-etapa .campo-responsavel { flex: 1; min-width: 130px; }
     .linha-etapa .campo-data-etapa { font-size: 11px; color: #999; min-width: 150px; }
     .linha-etapa .campo-data-etapa input { font-size: 11px; padding: 6px 8px; }
@@ -83,25 +87,29 @@
     #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     .cabecalho { text-align: center; margin-bottom: 10px; }
-    #sinoNotificacao { position: fixed; top: 14px; right: 14px; z-index: 500; background: #1a1a1a; border: 1px solid #333; border-radius: 50%; width: 44px; height: 44px; padding: 0; margin: 0; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    #sinoNotificacao { position: fixed; top: 14px; right: 14px; z-index: 500; background: #18181c; border: 1px solid #2c2c33; border-radius: 50%; width: 44px; height: 44px; padding: 0; margin: 0; font-size: 19px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.35); transition: transform 0.15s ease; }
+    #sinoNotificacao:active { transform: scale(0.94); }
     #pontoStatusSino { position: absolute; top: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; background: #888; border: 2px solid #0d0d0d; }
 
     #interruptorTema { position: fixed; top: 14px; left: 14px; z-index: 500; cursor: pointer; }
     #interruptorTema input { display: none; }
-    .slider-tema { display: flex; align-items: center; justify-content: space-between; width: 60px; height: 32px; background: #1a1a1a; border: 1px solid #333; border-radius: 20px; padding: 0 6px; font-size: 12px; position: relative; box-shadow: 0 2px 8px rgba(0,0,0,0.4); }
+    .slider-tema { display: flex; align-items: center; justify-content: space-between; width: 60px; height: 32px; background: #18181c; border: 1px solid #2c2c33; border-radius: 20px; padding: 0 6px; font-size: 12px; position: relative; box-shadow: 0 4px 14px rgba(0,0,0,0.35); }
     .bolinha-tema { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #2e7d32; transition: transform 0.2s ease; }
     #chkTema:checked ~ .slider-tema .bolinha-tema { transform: translateX(28px); background: #fbc02d; }
 
-    #barraAcoesFlutuante { position: fixed; bottom: 0; left: 0; width: 100%; background: #161616; border-top: 1px solid #333; padding: 10px 14px; display: none; gap: 10px; align-items: center; z-index: 600; box-shadow: 0 -2px 10px rgba(0,0,0,0.5); box-sizing: border-box; }
+    #barraAcoesFlutuante { position: fixed; bottom: 0; left: 0; width: 100%; background: #18181c; border-top: 1px solid #2c2c33; padding: 12px 16px; display: none; gap: 10px; align-items: center; z-index: 600; box-shadow: 0 -4px 20px rgba(0,0,0,0.4); box-sizing: border-box; }
     #barraAcoesFlutuante.visivel { display: flex; }
     #barraAcoesFlutuante #btnSalvar { flex: 1; margin: 0; }
-    #btnCancelarFlutuante { width: 44px; height: 44px; padding: 0; margin: 0; background: #b71c1c; border-radius: 50%; font-size: 16px; flex-shrink: 0; }
+    #btnCancelarFlutuante { width: 44px; height: 44px; padding: 0; margin: 0; background: rgba(255,255,255,0.06); border: 1px solid #333; color: #bbb; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s ease, color 0.15s ease; }
+    #btnCancelarFlutuante:hover, #btnCancelarFlutuante:active { background: rgba(183,28,28,0.18); color: #ff6659; border-color: #b71c1c; }
     body.tem-barra-flutuante { padding-bottom: 70px; }
 
-    .linha-entrada-costura { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; padding: 6px; background: #1a1a1a; border-radius: 6px; }
+    .linha-entrada-costura { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 6px; padding: 8px; background: #1c1c21; border: 1px solid #26262c; border-radius: 10px; }
     .linha-entrada-costura input { flex: 1; min-width: 90px; margin: 0; }
-    .btn-remover-entrada { width: 30px; height: 30px; padding: 0; margin: 0; background: #b71c1c; border-radius: 50%; font-size: 13px; flex-shrink: 0; }
-    .btn-add-entrada { background: #37474f; margin-top: 4px; padding: 8px 14px; font-size: 13px; }
+    .btn-remover-entrada { width: 30px; height: 30px; padding: 0; margin: 0; background: transparent; border: 1px solid #333; color: #888; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease; }
+    .btn-remover-entrada:hover, .btn-remover-entrada:active { background: rgba(183,28,28,0.15); color: #ff6659; border-color: #b71c1c; }
+    .btn-add-entrada { background: #2c2c33; box-shadow: none; margin-top: 4px; padding: 9px 16px; font-size: 13px; border-radius: 10px; }
+    .btn-add-entrada:hover { background: #37373f; }
 
     body.tema-claro { background: #f0f0f0; color: #111; }
     body.tema-claro .card, body.tema-claro .bloco-etapa, body.tema-claro .linha-entrada-costura, body.tema-claro .modal-caixa, body.tema-claro #barraAcoesFlutuante, body.tema-claro #sinoNotificacao, body.tema-claro .slider-tema { background: #ffffff; border-color: #ddd; color: #111; }
@@ -109,6 +117,8 @@
     body.tema-claro label { color: #333; }
     body.tema-claro .pedido-item { background: #ffffff; border-color: #ddd; }
     body.tema-claro .totais-item { background: #fafafa; border-color: #ddd; }
+    body.tema-claro #btnCancelarFlutuante { border-color: #ccc; color: #666; }
+    body.tema-claro .btn-remover-entrada { border-color: #ccc; color: #777; }
     body.tema-claro #loadingMsg, body.tema-claro .campo-data-etapa, body.tema-claro .barraCarregamentoTexto { color: #555; }
     .cabecalho img { width: 64px; height: 64px; border-radius: 12px; }
     #barraCarregamentoContainer { width: 220px; margin: 10px auto 0; display: none; }
@@ -144,7 +154,9 @@
 <div id="okBanner"></div>
 
 <div id="fotoModalOverlay" onclick="fecharFotoAmpliada(event)">
-    <button id="fotoModalFechar" onclick="fecharFotoAmpliada(event)">✕</button>
+    <button id="fotoModalFechar" onclick="fecharFotoAmpliada(event)" aria-label="Fechar">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
     <img id="fotoModalImg" src="" alt="Foto ampliada">
 </div>
 
@@ -305,7 +317,9 @@
 
 <div id="barraAcoesFlutuante">
     <button onclick="salvarPedido()" id="btnSalvar">Salvar Pedido</button>
-    <button id="btnCancelarFlutuante" onclick="cancelarFormulario()" title="Cancelar">&#10005;</button>
+    <button id="btnCancelarFlutuante" onclick="cancelarFormulario()" title="Cancelar" aria-label="Cancelar">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
 </div>
 
 <script>
@@ -527,7 +541,9 @@ function adicionarEntradaCostura(chave, dados) {
         <input type="text" class="entrada-responsavel" placeholder="Nome" list="dl_costura_nome" value="${dados.responsavel || ''}">
         <input type="text" class="entrada-telefone" placeholder="Telefone" list="dl_costura_telefone" value="${dados.telefone || ''}">
         <input type="text" class="entrada-quantidade" placeholder="Quantidade" value="${dados.quantidade || ''}">
-        <button type="button" class="btn-remover-entrada" onclick="this.parentElement.remove(); mostrarBarraAcoes();">&#10005;</button>
+        <button type="button" class="btn-remover-entrada" onclick="this.parentElement.remove(); mostrarBarraAcoes();" aria-label="Remover">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
     `;
     container.appendChild(div);
 }
