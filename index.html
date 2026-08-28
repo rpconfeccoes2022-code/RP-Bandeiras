@@ -39,7 +39,7 @@
     button.secondary:hover { background-color: #37373f; }
     button.danger { background-color: #b71c1c; }
     button.danger:hover { background-color: #8e0000; }
-    #searchBox { width: 100%; padding: 11px 14px; font-size: 15px; border-radius: 12px; border: 1px solid #2c2c33; background-color: #212126; color: #eaeaea; margin-bottom: 10px; box-sizing: border-box; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
+    #searchBox { width: 100%; padding: 11px 14px 11px 40px; font-size: 15px; border-radius: 12px; border: 1px solid #2c2c33; background-color: #212126; color: #eaeaea; margin-bottom: 0; box-sizing: border-box; transition: border-color 0.15s ease, box-shadow 0.15s ease; }
     #searchBox:focus { outline: none; border-color: #43a047; box-shadow: 0 0 0 3px rgba(67,160,71,0.18); }
     .pedido-item { border: 1px solid #26262c; border-radius: 14px; padding: 14px; margin-bottom: 10px; background: #1c1c21; transition: border-color 0.15s ease; }
     .pedido-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
@@ -49,8 +49,8 @@
     .b-cos { background: #6a1b9a; }
     .b-ent { background: #ef6c00; }
     .pedido-detalhes { font-size: 13px; margin-top: 6px; color: #bbbbbb; }
-    .pedido-acoes { margin-top: 8px; }
-    .pedido-acoes button { margin-right: 6px; padding: 6px 10px; font-size: 12px; margin-top: 0; }
+    .pedido-acoes { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .pedido-acoes button { display: inline-flex; align-items: center; gap: 6px; margin-top: 0; padding: 8px 14px; font-size: 13px; }
     #loadingMsg { text-align: center; color: #888; padding: 10px; }
     .form-actions { display: flex; gap: 10px; }
     .foto-preview { max-width: 150px; max-height: 150px; border-radius: 8px; border: 1px solid #333; display: block; }
@@ -71,7 +71,8 @@
     .totais-item .totais-label { font-size: 12px; color: #aaa; margin-top: 4px; }
     .bloco-etapa { border-radius: 16px; padding: 14px 16px; margin-bottom: 12px; border-left: 5px solid #555; background: #18181c; }
     .cabecalho-bloco { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
-    .seta-bloco { font-size: 13px; color: #999; transition: transform 0.15s ease; padding: 4px 8px; }
+    .seta-bloco { color: #999; transition: transform 0.2s ease; padding: 4px 8px; display: inline-flex; align-items: center; justify-content: center; transform: rotate(0deg); }
+    .seta-bloco.fechado { transform: rotate(-90deg); }
     .conteudo-bloco { overflow: hidden; }
     .conteudo-bloco.recolhido { display: none; }
     .bloco-etapa h3 { margin: 0; font-size: 14px; }
@@ -88,6 +89,11 @@
     #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     .cabecalho { text-align: center; margin-bottom: 10px; }
     #sinoNotificacao { position: fixed; top: 14px; right: 14px; z-index: 500; background: #18181c; border: 1px solid #2c2c33; border-radius: 50%; width: 44px; height: 44px; padding: 0; margin: 0; font-size: 19px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.35); transition: transform 0.15s ease; }
+    #btnAtualizarTopo { position: fixed; top: 14px; right: 68px; z-index: 500; background: #18181c; border: 1px solid #2c2c33; color: #ccc; border-radius: 50%; width: 44px; height: 44px; padding: 0; margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.35); transition: transform 0.4s ease; }
+    #btnAtualizarTopo:active { transform: rotate(180deg); }
+    .caixa-busca { position: relative; margin: 4px 0 16px; }
+    .caixa-busca .icone-busca { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #7a7a82; pointer-events: none; }
+    .caixa-busca input { padding-left: 40px; }
     #sinoNotificacao:active { transform: scale(0.94); }
     #pontoStatusSino { position: absolute; top: 2px; right: 2px; width: 12px; height: 12px; border-radius: 50%; background: #888; border: 2px solid #0d0d0d; }
 
@@ -136,6 +142,10 @@
     <span id="pontoStatusSino"></span>
 </button>
 
+<button id="btnAtualizarTopo" onclick="atualizarPagina()" title="Atualizar">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+</button>
+
 <label id="interruptorTema" title="Tema claro/escuro">
     <input type="checkbox" id="chkTema" onchange="alternarTema()">
     <span class="slider-tema">&#9728;&#65039;<span class="bolinha-tema"></span>&#127769;</span>
@@ -149,6 +159,12 @@
         <div id="barraCarregamentoTexto">0%</div>
     </div>
 </div>
+
+<div class="caixa-busca">
+    <svg class="icone-busca" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="searchBox" placeholder="Pesquisar por candidato..." onkeyup="filtrarPedidos()">
+</div>
+
 
 <div id="errorBanner"></div>
 <div id="okBanner"></div>
@@ -184,8 +200,12 @@
 </div>
 
 <div class="card" id="cardNovoPedido">
-    <h2 id="formTitle">Novo Pedido</h2>
-    <div class="form-grid">
+    <div class="cabecalho-bloco" onclick="alternarNovoPedido()">
+        <h2 id="formTitle" style="margin:0; border:none; padding:0;">Novo Pedido</h2>
+        <span class="seta-bloco fechado" id="seta_novoPedido"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+    <div id="conteudoNovoPedido" class="conteudo-bloco recolhido">
+    <div class="form-grid" style="margin-top:14px;">
         <div>
             <label>Material</label>
             <select id="material">
@@ -271,19 +291,11 @@
 
     <div id="blocosEtapas" style="margin-top:14px;"></div>
 
-    <div class="form-grid" style="margin-top:14px;">
-        <div class="field" id="f_quantidade_entrega">
-            <label>Quantidade nesta Entrega</label>
-            <input type="text" id="quantidade_entrega" placeholder="Ex: 700 ou 700/1000">
-        </div>
-        <div>
-            <label>Nome do Destinatario</label>
-            <input type="text" id="nome_destinatario" list="dl_nome_destinatario">
-        </div>
-        <div>
-            <label>Celular do Destinatario</label>
-            <input type="text" id="celular_destinatario" placeholder="(00) 00000-0000" list="dl_celular_destinatario">
-        </div>
+    <div style="margin-top:14px;">
+        <h2 style="font-size:14px;">Foto do Pedido</h2>
+        <input type="file" id="fotoInput" accept="image/*" onchange="previewFoto()">
+        <div id="fotoPreviewBox" style="margin-top:10px;">Nenhuma foto selecionada</div>
+    </div>
     </div>
 </div>
 
@@ -292,20 +304,15 @@
     <div id="totaisPorMaterial" class="totais-grid"></div>
 </div>
 
-<div class="card" id="cardFoto">
-    <h2>Foto do Pedido</h2>
-    <input type="file" id="fotoInput" accept="image/*" onchange="previewFoto()">
-    <div id="fotoPreviewBox" style="margin-top:10px;">Nenhuma foto selecionada</div>
-</div>
-
 <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h2 style="margin:0;">Pedidos Cadastrados</h2>
-        <button id="btnAtualizar" class="secondary" style="width:auto; padding:8px 14px;" onclick="atualizarPagina()">Atualizar</button>
+    <div class="cabecalho-bloco" onclick="alternarHistorico()">
+        <h2 style="margin:0; border:none; padding:0;">Pedidos Cadastrados</h2>
+        <span class="seta-bloco fechado" id="seta_historico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
     </div>
-    <input type="text" id="searchBox" placeholder="Pesquisar por candidato..." onkeyup="filtrarPedidos()">
-    <div id="loadingMsg">Carregando pedidos...</div>
-    <div id="listaPedidos"></div>
+    <div id="conteudoHistorico" class="conteudo-bloco recolhido">
+        <div id="loadingMsg">Carregando pedidos...</div>
+        <div id="listaPedidos"></div>
+    </div>
 </div>
 
 <datalist id="dl_destino"></datalist>
@@ -333,6 +340,7 @@ let editandoId = null;
 function mostrarBarraAcoes() {
     document.getElementById('barraAcoesFlutuante').classList.add('visivel');
     document.body.classList.add('tem-barra-flutuante');
+    abrirNovoPedido();
 }
 function esconderBarraAcoes() {
     document.getElementById('barraAcoesFlutuante').classList.remove('visivel');
@@ -487,7 +495,7 @@ function montarBlocosEtapas() {
         html += `<div class="bloco-etapa" style="border-left-color:${grupo.cor}; background:${grupo.cor}15;">`;
         html += `<div class="cabecalho-bloco" onclick="alternarBloco('${grupoChave}')">
                     <h3 style="color:${grupo.cor};">${grupo.titulo}</h3>
-                    <span class="seta-bloco" id="seta_${grupoChave}">&#9654;</span>
+                    <span class="seta-bloco fechado" id="seta_${grupoChave}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
                   </div>`;
         html += `<div class="conteudo-bloco recolhido" id="conteudo_${grupoChave}">`;
         ETAPAS.filter(e => e.grupo === grupoChave).forEach(etapa => {
@@ -518,6 +526,24 @@ function montarBlocosEtapas() {
                           <button type="button" class="btn-add-entrada" onclick="adicionarEntradaCostura('${etapa.chave}')">+ Adicionar costureira(o)</button>`;
             }
         });
+        if (grupoChave === 'entrega') {
+            html += `<div class="field" id="f_quantidade_entrega" style="margin-top:10px; padding-top:10px; border-top:1px solid #26262c;">
+                        <div class="form-grid">
+                            <div>
+                                <label>Quantidade nesta Entrega</label>
+                                <input type="text" id="quantidade_entrega" placeholder="Ex: 700 ou 700/1000">
+                            </div>
+                            <div>
+                                <label>Nome do Destinatario</label>
+                                <input type="text" id="nome_destinatario" list="dl_nome_destinatario">
+                            </div>
+                            <div>
+                                <label>Celular do Destinatario</label>
+                                <input type="text" id="celular_destinatario" placeholder="(00) 00000-0000" list="dl_celular_destinatario">
+                            </div>
+                        </div>
+                     </div>`;
+        }
         html += `</div></div>`;
     });
     container.innerHTML = html;
@@ -528,7 +554,33 @@ function alternarBloco(grupoChave) {
     const conteudo = document.getElementById('conteudo_' + grupoChave);
     const seta = document.getElementById('seta_' + grupoChave);
     const oculto = conteudo.classList.toggle('recolhido');
-    seta.innerHTML = oculto ? "&#9654;" : "&#9660;";
+    seta.classList.toggle('fechado', oculto);
+}
+
+function alternarNovoPedido() {
+    const conteudo = document.getElementById('conteudoNovoPedido');
+    const seta = document.getElementById('seta_novoPedido');
+    const oculto = conteudo.classList.toggle('recolhido');
+    seta.classList.toggle('fechado', oculto);
+}
+function abrirNovoPedido() {
+    document.getElementById('conteudoNovoPedido').classList.remove('recolhido');
+    document.getElementById('seta_novoPedido').classList.remove('fechado');
+}
+function fecharNovoPedido() {
+    document.getElementById('conteudoNovoPedido').classList.add('recolhido');
+    document.getElementById('seta_novoPedido').classList.add('fechado');
+}
+
+function alternarHistorico() {
+    const conteudo = document.getElementById('conteudoHistorico');
+    const seta = document.getElementById('seta_historico');
+    const oculto = conteudo.classList.toggle('recolhido');
+    seta.classList.toggle('fechado', oculto);
+}
+function abrirHistorico() {
+    document.getElementById('conteudoHistorico').classList.remove('recolhido');
+    document.getElementById('seta_historico').classList.remove('fechado');
 }
 
 function adicionarEntradaCostura(chave, dados) {
@@ -667,6 +719,7 @@ function limparFormulario() {
     document.getElementById('btnSalvar').innerText = "Salvar Pedido";
     esconderErro();
     esconderBarraAcoes();
+    fecharNovoPedido();
 }
 
 function cancelarFormulario() {
@@ -831,9 +884,18 @@ function renderizarPedidos(lista) {
                 ${p.foto_url ? `<br><img class="pedido-foto" src="${p.foto_url}" onerror="this.style.display='none'" onclick="ampliarFoto('${p.foto_url}')">` : ""}
             </div>
             <div class="pedido-acoes">
-                <button onclick="editarPedido(${p.id})">Editar</button>
-                <button class="secondary" onclick="gerarPDF(${p.id})">Baixar PDF</button>
-                <button class="danger" onclick="excluirPedido(${p.id})">Excluir</button>
+                <button onclick="editarPedido(${p.id})">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Editar
+                </button>
+                <button class="secondary" onclick="gerarPDF(${p.id})">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    PDF
+                </button>
+                <button class="danger" onclick="excluirPedido(${p.id})">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    Excluir
+                </button>
             </div>
         `;
         container.appendChild(div);
@@ -930,6 +992,7 @@ async function excluirPedido(id) {
 
 function filtrarPedidos() {
     const termo = document.getElementById('searchBox').value.toLowerCase();
+    if (termo.length > 0) abrirHistorico();
     const camposBusca = ["candidato","material","acessorio","cargo","numero","estado","cnpj_fornecedor","cnpj_candidato","tiragem","quantidade","destino"];
     const filtrado = pedidosCache.filter(p => {
         if (camposBusca.some(campo => String(p[campo] || "").toLowerCase().includes(termo))) return true;
@@ -1373,7 +1436,7 @@ carregarPedidos();
 configurarNotificacoesRealtime();
 
 // Mostra a barra flutuante de Salvar/Cancelar assim que a pessoa comeca a mexer no formulario de um pedido novo
-['cardNovoPedido', 'cardFoto'].forEach(idCard => {
+['cardNovoPedido'].forEach(idCard => {
     const el = document.getElementById(idCard);
     if (el) {
         el.addEventListener('input', mostrarBarraAcoes);
