@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="RP Bandeiras">
-<meta name="theme-color" content="#2e7d32">
+<meta name="theme-color" content="#101013">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
@@ -100,7 +100,12 @@
     #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 14px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 14px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     .cabecalho { text-align: center; margin-bottom: 14px; padding-top: 58px; }
-    .cabecalho img { width: 160px; height: auto; max-width: 70vw; border-radius: 0; filter: drop-shadow(3px 3px 3px var(--neu-dark)) drop-shadow(-3px -3px 3px var(--neu-light)); }
+    .cabecalho img { width: 160px; height: auto; max-width: 70vw; border-radius: 0; filter: drop-shadow(3px 3px 3px var(--neu-dark)) drop-shadow(-3px -3px 3px var(--neu-light)); animation: entradaLogo 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    @keyframes entradaLogo {
+        0% { opacity: 0; transform: translateY(-14px) scale(0.88); }
+        60% { opacity: 1; }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
     .logo-clara { display: none; }
     .logo-escura { display: inline-block; }
     body.tema-claro .logo-clara { display: inline-block; }
