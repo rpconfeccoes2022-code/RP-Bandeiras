@@ -99,8 +99,12 @@
     #fotoPreviewBox { min-height: 100px; border: none; border-radius: 16px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--neu-text-dim); font-size: 13px; box-shadow: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light); }
     #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 14px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 14px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
-    .cabecalho { text-align: center; margin-bottom: 14px; padding-top: 6px; }
-    .cabecalho img { width: 236px; height: auto; max-width: 88vw; border-radius: 0; box-shadow: none; }
+    .cabecalho { text-align: center; margin-bottom: 14px; padding-top: 58px; }
+    .cabecalho img { width: 160px; height: auto; max-width: 70vw; border-radius: 0; filter: drop-shadow(3px 3px 3px var(--neu-dark)) drop-shadow(-3px -3px 3px var(--neu-light)); }
+    .logo-clara { display: none; }
+    .logo-escura { display: inline-block; }
+    body.tema-claro .logo-clara { display: inline-block; }
+    body.tema-claro .logo-escura { display: none; }
     #sinoNotificacao, #btnAtualizarTopo, #interruptorTema, #btnCancelarFlutuante, .btn-remover-entrada { color: var(--neu-text-dim); }
     #sinoNotificacao { position: fixed; top: 14px; right: 14px; z-index: 500; background: var(--neu-bg); border: none; border-radius: 50%; width: 46px; height: 46px; padding: 0; margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); transition: box-shadow 0.15s ease, transform 0.15s ease; }
     #sinoNotificacao:active { box-shadow: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light); transform: scale(0.96); }
@@ -160,7 +164,8 @@
 </label>
 
 <div class="cabecalho">
-    <img src="logo-transparente.png" alt="RP Bandeiras">
+    <img src="logo-transparente.png" alt="RP Bandeiras" class="logo-escura">
+    <img src="logo-transparente-claro.png" alt="RP Bandeiras" class="logo-clara">
     <div id="barraCarregamentoContainer">
         <div id="barraCarregamentoTrilha"><div id="barraCarregamento"></div></div>
         <div id="barraCarregamentoTexto">0%</div>

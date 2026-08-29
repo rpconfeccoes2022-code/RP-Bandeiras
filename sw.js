@@ -1,10 +1,11 @@
-const CACHE_NAME = "rp-bandeiras-v23";
+const CACHE_NAME = "rp-bandeiras-v24";
 const ARQUIVOS_ESSENCIAIS = [
     "./index.html",
     "./manifest.json",
     "./icon-192.png",
     "./icon-512.png",
-    "./logo-transparente.png"
+    "./logo-transparente.png",
+    "./logo-transparente-claro.png"
 ];
 
 self.addEventListener("install", (event) => {
@@ -27,7 +28,7 @@ self.addEventListener("activate", (event) => {
 // Para o resto, tenta a rede primeiro (dados sempre atualizados); se offline, usa o cache do app shell.
 self.addEventListener("fetch", (event) => {
     if (event.request.method !== "GET") return;
-    if (event.request.url.includes("icon-192.png") || event.request.url.includes("icon-512.png") || event.request.url.includes("logo-transparente.png")) {
+    if (event.request.url.includes("icon-192.png") || event.request.url.includes("icon-512.png") || event.request.url.includes("logo-transparente")) {
         event.respondWith(
             caches.match(event.request).then((cacheado) => cacheado || fetch(event.request))
         );
