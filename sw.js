@@ -1,4 +1,4 @@
-const CACHE_NAME = "rp-bandeiras-v30";
+const CACHE_NAME = "rp-bandeiras-v31";
 const ARQUIVOS_ESSENCIAIS = [
     "./index.html",
     "./manifest.json",
@@ -7,7 +7,9 @@ const ARQUIVOS_ESSENCIAIS = [
     "./icon-192-maskable.png",
     "./icon-512-maskable.png",
     "./logo-transparente.png",
-    "./logo-transparente-claro.png"
+    "./logo-transparente-claro.png",
+    "./logo-softgirl-escura.png",
+    "./logo-softgirl-clara.png"
 ];
 
 self.addEventListener("install", (event) => {

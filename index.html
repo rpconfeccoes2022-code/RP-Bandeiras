@@ -106,10 +106,11 @@
         60% { opacity: 1; }
         100% { opacity: 1; transform: translateY(0) scale(1); }
     }
-    .logo-clara { display: none; }
-    .logo-escura { display: inline-block; }
-    body.tema-claro .logo-clara { display: inline-block; }
-    body.tema-claro .logo-escura { display: none; }
+    .logo-neu-escura, .logo-neu-clara, .logo-soft-escura, .logo-soft-clara { display: none; }
+    body:not(.tema-claro):not(.estilo-softgirl) .logo-neu-escura { display: inline-block; }
+    body.tema-claro:not(.estilo-softgirl) .logo-neu-clara { display: inline-block; }
+    body.estilo-softgirl:not(.tema-claro) .logo-soft-escura { display: inline-block; }
+    body.estilo-softgirl.tema-claro .logo-soft-clara { display: inline-block; }
     #sinoNotificacao, #btnAtualizarTopo, #interruptorTema, #btnCancelarFlutuante, .btn-remover-entrada { color: var(--neu-text-dim); }
     #sinoNotificacao { position: fixed; top: 14px; right: 14px; z-index: 500; background: var(--neu-bg); border: none; border-radius: 50%; width: 46px; height: 46px; padding: 0; margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); transition: box-shadow 0.15s ease, transform 0.15s ease; }
     #sinoNotificacao:active { box-shadow: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light); transform: scale(0.96); }
@@ -222,6 +223,10 @@
     body.estilo-softgirl #barraCarregamento { background: linear-gradient(90deg, #f2a6c4, #d4af8c); }
     body.estilo-softgirl .pedido-header strong { color: #f4c9dc; }
     body.estilo-softgirl.tema-claro .pedido-header strong { color: #6b3a4d; }
+    body.estilo-softgirl .totais-item .totais-numero { color: #f2a6c4; }
+    body.estilo-softgirl.tema-claro .totais-item .totais-numero { color: #c9578a; }
+    body.estilo-softgirl input[type="checkbox"] { accent-color: #e88ba3; }
+    body.estilo-softgirl #seletorEstilo button.ativo { background: linear-gradient(135deg, #f2a6c4, #d4af8c); color: #3a1c2c; }
 
     #seletorEstilo { position: fixed; top: 66px; left: 14px; z-index: 500; display: flex; gap: 6px; background: var(--neu-bg); border-radius: 20px; padding: 5px; box-shadow: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light); }
     #seletorEstilo button { all: unset; box-sizing: border-box; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--neu-text-dim); margin: 0; padding: 0; transition: background 0.15s ease, color 0.15s ease; }
@@ -258,8 +263,10 @@
 </div>
 
 <div class="cabecalho">
-    <img src="logo-transparente.png" alt="RP Bandeiras" class="logo-escura">
-    <img src="logo-transparente-claro.png" alt="RP Bandeiras" class="logo-clara">
+    <img src="logo-transparente.png" alt="RP Bandeiras" class="logo-neu-escura">
+    <img src="logo-transparente-claro.png" alt="RP Bandeiras" class="logo-neu-clara">
+    <img src="logo-softgirl-escura.png" alt="RP Bandeiras" class="logo-soft-escura">
+    <img src="logo-softgirl-clara.png" alt="RP Bandeiras" class="logo-soft-clara">
     <div id="barraCarregamentoContainer">
         <div id="barraCarregamentoTrilha"><div id="barraCarregamento"></div></div>
         <div id="barraCarregamentoTexto">0%</div>
