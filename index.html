@@ -147,97 +147,144 @@
     #barraCarregamentoTexto { text-align: center; font-size: 11px; color: var(--neu-text-dim); margin-top: 4px; }
     input[readonly] { opacity: 0.85; cursor: default; }
 
-    /* ===== Estilo alternativo: Vidro Fosco (glassmorphism) ===== */
-    body.estilo-vidro { background: radial-gradient(circle at 20% 0%, #1c3a2e 0%, #0d1117 45%), #0d1117; background-attachment: fixed; }
-    body.estilo-vidro.tema-claro { background: radial-gradient(circle at 20% 0%, #cdeedc 0%, #eef2f6 45%), #eef2f6; }
-
-    body.estilo-vidro .card,
-    body.estilo-vidro .bloco-etapa,
-    body.estilo-vidro .totais-item,
-    body.estilo-vidro .pedido-item,
-    body.estilo-vidro .modal-caixa,
-    body.estilo-vidro #barraAcoesFlutuante,
-    body.estilo-vidro .linha-entrada-costura {
-        background: rgba(255,255,255,0.06);
-        -webkit-backdrop-filter: blur(18px);
-        backdrop-filter: blur(18px);
-        border: 1px solid rgba(255,255,255,0.14);
-        box-shadow: 0 8px 28px rgba(0,0,0,0.28);
+    /* ===== Estilo alternativo: Aurora / Gradient Mesh ===== */
+    body.estilo-aurora {
+        background:
+            radial-gradient(circle at 15% 20%, rgba(124,77,255,0.35), transparent 45%),
+            radial-gradient(circle at 85% 15%, rgba(0,229,255,0.28), transparent 45%),
+            radial-gradient(circle at 30% 85%, rgba(255,64,129,0.25), transparent 45%),
+            radial-gradient(circle at 80% 80%, rgba(0,200,150,0.25), transparent 50%),
+            #0b0c14;
+        background-attachment: fixed;
+        animation: derivaAurora 22s ease-in-out infinite alternate;
     }
-    body.estilo-vidro.tema-claro .card,
-    body.estilo-vidro.tema-claro .bloco-etapa,
-    body.estilo-vidro.tema-claro .totais-item,
-    body.estilo-vidro.tema-claro .pedido-item,
-    body.estilo-vidro.tema-claro .modal-caixa,
-    body.estilo-vidro.tema-claro #barraAcoesFlutuante,
-    body.estilo-vidro.tema-claro .linha-entrada-costura {
-        background: rgba(255,255,255,0.55);
-        border: 1px solid rgba(255,255,255,0.7);
-        box-shadow: 0 8px 28px rgba(30,60,45,0.12);
+    body.estilo-aurora.tema-claro {
+        background:
+            radial-gradient(circle at 15% 20%, rgba(124,77,255,0.18), transparent 45%),
+            radial-gradient(circle at 85% 15%, rgba(0,180,220,0.16), transparent 45%),
+            radial-gradient(circle at 30% 85%, rgba(255,64,129,0.14), transparent 45%),
+            radial-gradient(circle at 80% 80%, rgba(0,180,140,0.14), transparent 50%),
+            #f1f2f8;
     }
-
-    body.estilo-vidro input,
-    body.estilo-vidro select,
-    body.estilo-vidro #searchBox {
-        background: rgba(255,255,255,0.05);
-        -webkit-backdrop-filter: blur(10px);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255,255,255,0.16);
-        box-shadow: none;
+    @keyframes derivaAurora {
+        0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0 0; }
+        100% { background-position: 6% 4%, -6% 5%, 4% -5%, -4% -4%, 0 0; }
     }
-    body.estilo-vidro.tema-claro input,
-    body.estilo-vidro.tema-claro select,
-    body.estilo-vidro.tema-claro #searchBox {
-        background: rgba(255,255,255,0.6);
-        border: 1px solid rgba(255,255,255,0.8);
-    }
-    body.estilo-vidro input:focus, body.estilo-vidro select:focus, body.estilo-vidro #searchBox:focus {
-        box-shadow: 0 0 0 2px var(--neu-accent);
-    }
-
-    body.estilo-vidro button {
-        background: linear-gradient(135deg, #43a047, #2e7d32);
-        color: #fff;
-        border: 1px solid rgba(255,255,255,0.2);
-        box-shadow: 0 6px 16px rgba(67,160,71,0.35);
-    }
-    body.estilo-vidro button:active { box-shadow: 0 2px 6px rgba(67,160,71,0.3); transform: scale(0.98); }
-    body.estilo-vidro button.secondary { background: rgba(255,255,255,0.08); color: var(--neu-text-dim); box-shadow: none; border: 1px solid rgba(255,255,255,0.16); }
-    body.estilo-vidro button.danger { background: linear-gradient(135deg, #e05353, #b71c1c); box-shadow: 0 6px 16px rgba(224,83,83,0.3); }
-    body.estilo-vidro.tema-claro button.secondary { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.8); }
-
-    body.estilo-vidro #sinoNotificacao,
-    body.estilo-vidro #btnAtualizarTopo,
-    body.estilo-vidro #btnCancelarFlutuante,
-    body.estilo-vidro .btn-remover-entrada,
-    body.estilo-vidro .btn-add-entrada,
-    body.estilo-vidro .slider-tema,
-    body.estilo-vidro #interruptorEstilo .slider-tema {
-        background: rgba(255,255,255,0.08);
+    body.estilo-aurora .card,
+    body.estilo-aurora .bloco-etapa,
+    body.estilo-aurora .totais-item,
+    body.estilo-aurora .pedido-item,
+    body.estilo-aurora .modal-caixa,
+    body.estilo-aurora #barraAcoesFlutuante,
+    body.estilo-aurora .linha-entrada-costura {
+        background: rgba(22,22,32,0.6);
         -webkit-backdrop-filter: blur(14px);
         backdrop-filter: blur(14px);
-        border: 1px solid rgba(255,255,255,0.16);
-        box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 10px 30px rgba(80,50,180,0.18);
     }
-    body.estilo-vidro.tema-claro #sinoNotificacao,
-    body.estilo-vidro.tema-claro #btnAtualizarTopo,
-    body.estilo-vidro.tema-claro #btnCancelarFlutuante,
-    body.estilo-vidro.tema-claro .btn-remover-entrada,
-    body.estilo-vidro.tema-claro .btn-add-entrada,
-    body.estilo-vidro.tema-claro .slider-tema,
-    body.estilo-vidro.tema-claro #interruptorEstilo .slider-tema {
-        background: rgba(255,255,255,0.55);
-        border: 1px solid rgba(255,255,255,0.8);
+    body.estilo-aurora.tema-claro .card,
+    body.estilo-aurora.tema-claro .bloco-etapa,
+    body.estilo-aurora.tema-claro .totais-item,
+    body.estilo-aurora.tema-claro .pedido-item,
+    body.estilo-aurora.tema-claro .modal-caixa,
+    body.estilo-aurora.tema-claro #barraAcoesFlutuante,
+    body.estilo-aurora.tema-claro .linha-entrada-costura {
+        background: rgba(255,255,255,0.62);
+        border: 1px solid rgba(255,255,255,0.85);
+        box-shadow: 0 10px 30px rgba(80,50,180,0.1);
     }
-    body.estilo-vidro .bolinha-tema { box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+    body.estilo-aurora input, body.estilo-aurora select, body.estilo-aurora #searchBox {
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14); box-shadow: none;
+    }
+    body.estilo-aurora.tema-claro input, body.estilo-aurora.tema-claro select, body.estilo-aurora.tema-claro #searchBox {
+        background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.9);
+    }
+    body.estilo-aurora input:focus, body.estilo-aurora select:focus, body.estilo-aurora #searchBox:focus {
+        box-shadow: 0 0 0 2px #7c4dff;
+    }
+    body.estilo-aurora button {
+        background: linear-gradient(135deg, #7c4dff, #00c896);
+        color: #fff; border: none; box-shadow: 0 6px 18px rgba(124,77,255,0.4);
+    }
+    body.estilo-aurora button:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(124,77,255,0.35); }
+    body.estilo-aurora button.secondary { background: rgba(255,255,255,0.08); color: var(--neu-text-dim); box-shadow: none; border: 1px solid rgba(255,255,255,0.14); }
+    body.estilo-aurora.tema-claro button.secondary { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.85); }
+    body.estilo-aurora button.danger { background: linear-gradient(135deg, #ff4081, #e05353); box-shadow: 0 6px 18px rgba(255,64,129,0.35); }
+    body.estilo-aurora #sinoNotificacao, body.estilo-aurora #btnAtualizarTopo, body.estilo-aurora #btnCancelarFlutuante,
+    body.estilo-aurora .btn-remover-entrada, body.estilo-aurora .btn-add-entrada, body.estilo-aurora .slider-tema {
+        background: rgba(22,22,32,0.6); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 6px 16px rgba(80,50,180,0.2);
+    }
+    body.estilo-aurora.tema-claro #sinoNotificacao, body.estilo-aurora.tema-claro #btnAtualizarTopo, body.estilo-aurora.tema-claro #btnCancelarFlutuante,
+    body.estilo-aurora.tema-claro .btn-remover-entrada, body.estilo-aurora.tema-claro .btn-add-entrada, body.estilo-aurora.tema-claro .slider-tema {
+        background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.9);
+    }
+    body.estilo-aurora .bolinha-tema { background: linear-gradient(135deg, #7c4dff, #00c896); }
+    body.estilo-aurora .cabecalho img { filter: drop-shadow(0 0 20px rgba(124,77,255,0.5)); }
+    body.estilo-aurora #barraCarregamentoTrilha { background: rgba(255,255,255,0.08); box-shadow: none; border: 1px solid rgba(255,255,255,0.14); }
+    body.estilo-aurora #barraCarregamento { background: linear-gradient(90deg, #7c4dff, #00c896); }
 
-    body.estilo-vidro .cabecalho img { filter: drop-shadow(0 6px 18px rgba(67,160,71,0.45)); }
+    /* ===== Estilo alternativo: Neon / Cyberpunk ===== */
+    body.estilo-neon { background: #060608; }
+    body.estilo-neon.tema-claro { background: #f4f4f8; }
+    body.estilo-neon .card,
+    body.estilo-neon .bloco-etapa,
+    body.estilo-neon .totais-item,
+    body.estilo-neon .pedido-item,
+    body.estilo-neon .modal-caixa,
+    body.estilo-neon #barraAcoesFlutuante,
+    body.estilo-neon .linha-entrada-costura {
+        background: #0d0d12;
+        border: 1px solid #00ffc8;
+        border-radius: 8px;
+        box-shadow: 0 0 1px #00ffc8, 0 0 14px rgba(0,255,200,0.25), inset 0 0 20px rgba(0,255,200,0.03);
+    }
+    body.estilo-neon.tema-claro .card,
+    body.estilo-neon.tema-claro .bloco-etapa,
+    body.estilo-neon.tema-claro .totais-item,
+    body.estilo-neon.tema-claro .pedido-item,
+    body.estilo-neon.tema-claro .modal-caixa,
+    body.estilo-neon.tema-claro #barraAcoesFlutuante,
+    body.estilo-neon.tema-claro .linha-entrada-costura {
+        background: #ffffff; border: 1px solid #00a884; box-shadow: 0 0 10px rgba(0,168,132,0.2);
+    }
+    body.estilo-neon .card h2, body.estilo-neon .bloco-etapa h3 { color: #00ffc8; text-shadow: 0 0 8px rgba(0,255,200,0.6); }
+    body.estilo-neon.tema-claro .card h2, body.estilo-neon.tema-claro .bloco-etapa h3 { color: #00a884; text-shadow: none; }
+    body.estilo-neon input, body.estilo-neon select, body.estilo-neon #searchBox {
+        background: #0a0a0f; border: 1px solid #2a2a35; border-radius: 8px; box-shadow: none; color: #e8fffa;
+    }
+    body.estilo-neon.tema-claro input, body.estilo-neon.tema-claro select, body.estilo-neon.tema-claro #searchBox {
+        background: #fff; border: 1px solid #ccc; color: #111;
+    }
+    body.estilo-neon input:focus, body.estilo-neon select:focus, body.estilo-neon #searchBox:focus {
+        border-color: #ff2ec4; box-shadow: 0 0 10px rgba(255,46,196,0.5);
+    }
+    body.estilo-neon button {
+        background: #0d0d12; color: #00ffc8; border: 1px solid #00ffc8; border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,255,200,0.35); text-shadow: 0 0 6px rgba(0,255,200,0.6);
+    }
+    body.estilo-neon button:active { box-shadow: 0 0 4px rgba(0,255,200,0.3); transform: scale(0.98); }
+    body.estilo-neon button.secondary { color: #ff2ec4; border-color: #ff2ec4; box-shadow: 0 0 10px rgba(255,46,196,0.3); text-shadow: 0 0 6px rgba(255,46,196,0.5); }
+    body.estilo-neon button.danger { color: #ff2e5b; border-color: #ff2e5b; box-shadow: 0 0 10px rgba(255,46,91,0.35); text-shadow: 0 0 6px rgba(255,46,91,0.5); }
+    body.estilo-neon.tema-claro button { background: #fff; box-shadow: none; text-shadow: none; }
+    body.estilo-neon #sinoNotificacao, body.estilo-neon #btnAtualizarTopo, body.estilo-neon #btnCancelarFlutuante,
+    body.estilo-neon .btn-remover-entrada, body.estilo-neon .btn-add-entrada, body.estilo-neon .slider-tema {
+        background: #0d0d12; border: 1px solid #00ffc8; border-radius: 10px; box-shadow: 0 0 10px rgba(0,255,200,0.3); color: #00ffc8;
+    }
+    body.estilo-neon.tema-claro #sinoNotificacao, body.estilo-neon.tema-claro #btnAtualizarTopo, body.estilo-neon.tema-claro #btnCancelarFlutuante,
+    body.estilo-neon.tema-claro .btn-remover-entrada, body.estilo-neon.tema-claro .btn-add-entrada, body.estilo-neon.tema-claro .slider-tema {
+        background: #fff; border: 1px solid #00a884; color: #00a884;
+    }
+    body.estilo-neon .bolinha-tema { background: #ff2ec4; box-shadow: 0 0 8px rgba(255,46,196,0.6); }
+    body.estilo-neon .tag-etapa { box-shadow: 0 0 8px currentColor; }
+    body.estilo-neon .cabecalho img { filter: drop-shadow(0 0 16px rgba(0,255,200,0.7)) drop-shadow(0 0 30px rgba(255,46,196,0.3)); }
+    body.estilo-neon #barraCarregamentoTrilha { background: #0a0a0f; border: 1px solid #2a2a35; box-shadow: none; }
+    body.estilo-neon #barraCarregamento { background: #00ffc8; box-shadow: 0 0 8px #00ffc8; }
 
-    body.estilo-vidro #barraCarregamentoTrilha { background: rgba(255,255,255,0.08); box-shadow: none; border: 1px solid rgba(255,255,255,0.14); }
-
-    #interruptorEstilo { position: fixed; top: 66px; left: 14px; z-index: 500; cursor: pointer; }
-    #interruptorEstilo input { display: none; }
-    #interruptorEstilo .bolinha-tema { background: var(--neu-accent); }
+    #seletorEstilo { position: fixed; top: 66px; left: 14px; z-index: 500; display: flex; gap: 6px; background: var(--neu-bg); border-radius: 20px; padding: 5px; box-shadow: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light); }
+    #seletorEstilo button { all: unset; box-sizing: border-box; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--neu-text-dim); margin: 0; padding: 0; transition: background 0.15s ease, color 0.15s ease; }
+    #seletorEstilo button.ativo { background: var(--neu-accent); color: #fff; }
 </style>
 </head>
 <body>
@@ -260,14 +307,17 @@
     </span>
 </label>
 
-<label id="interruptorEstilo" title="Estilo visual: Neumorfismo / Vidro">
-    <input type="checkbox" id="chkEstilo" onchange="alternarEstiloVisual()">
-    <span class="slider-tema">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/></svg>
-        <span class="bolinha-tema"></span>
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-    </span>
-</label>
+<div id="seletorEstilo" title="Estilo visual">
+    <button type="button" id="btnEstilo_neumorfismo" onclick="selecionarEstilo('neumorfismo')" title="Neumorfismo">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/></svg>
+    </button>
+    <button type="button" id="btnEstilo_aurora" onclick="selecionarEstilo('aurora')" title="Aurora">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18c2-4 4-6 6-6s3 4 6 4 4-6 6-3"/><path d="M3 12c2-3 4-4 6-4s3 3 6 3 4-4 6-2"/></svg>
+    </button>
+    <button type="button" id="btnEstilo_neon" onclick="selecionarEstilo('neon')" title="Neon / Cyberpunk">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </button>
+</div>
 
 <div class="cabecalho">
     <img src="logo-transparente.png" alt="RP Bandeiras" class="logo-escura">
@@ -479,18 +529,23 @@ function aplicarTemaSalvo() {
     }
 }
 
-function alternarEstiloVisual() {
-    const vidro = document.getElementById('chkEstilo').checked;
-    document.body.classList.toggle('estilo-vidro', vidro);
-    try { localStorage.setItem('rpbandeiras_estilo', vidro ? 'vidro' : 'neumorfismo'); } catch (e) {}
+const ESTILOS_VISUAIS = ['neumorfismo', 'aurora', 'neon'];
+function selecionarEstilo(nome) {
+    ESTILOS_VISUAIS.forEach(e => {
+        document.body.classList.remove('estilo-' + e);
+        const btn = document.getElementById('btnEstilo_' + e);
+        if (btn) btn.classList.remove('ativo');
+    });
+    if (nome !== 'neumorfismo') document.body.classList.add('estilo-' + nome);
+    const btnAtivo = document.getElementById('btnEstilo_' + nome);
+    if (btnAtivo) btnAtivo.classList.add('ativo');
+    try { localStorage.setItem('rpbandeiras_estilo', nome); } catch (e) {}
 }
 function aplicarEstiloSalvo() {
     let estilo = 'neumorfismo';
     try { estilo = localStorage.getItem('rpbandeiras_estilo') || 'neumorfismo'; } catch (e) {}
-    if (estilo === 'vidro') {
-        document.body.classList.add('estilo-vidro');
-        document.getElementById('chkEstilo').checked = true;
-    }
+    if (!ESTILOS_VISUAIS.includes(estilo)) estilo = 'neumorfismo';
+    selecionarEstilo(estilo);
 }
 let fotoSelecionada = null;
 let fotoUrlAtual = null;
