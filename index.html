@@ -99,7 +99,7 @@
     #fotoPreviewBox { min-height: 100px; border: none; border-radius: 16px; padding: 10px; display: flex; align-items: center; justify-content: center; color: var(--neu-text-dim); font-size: 13px; box-shadow: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light); }
     #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 14px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 14px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
-    .cabecalho { text-align: center; margin-bottom: 14px; padding-top: 58px; }
+    .cabecalho { text-align: center; margin-bottom: 14px; padding-top: 112px; }
     .cabecalho img { width: 160px; height: auto; max-width: 70vw; border-radius: 0; filter: drop-shadow(3px 3px 3px var(--neu-dark)) drop-shadow(-3px -3px 3px var(--neu-light)); animation: entradaLogo 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
     @keyframes entradaLogo {
         0% { opacity: 0; transform: translateY(-14px) scale(0.88); }
@@ -146,6 +146,98 @@
     #barraCarregamento { width: 0%; height: 100%; background: var(--neu-accent); border-radius: 4px; transition: width 0.25s ease-out; }
     #barraCarregamentoTexto { text-align: center; font-size: 11px; color: var(--neu-text-dim); margin-top: 4px; }
     input[readonly] { opacity: 0.85; cursor: default; }
+
+    /* ===== Estilo alternativo: Vidro Fosco (glassmorphism) ===== */
+    body.estilo-vidro { background: radial-gradient(circle at 20% 0%, #1c3a2e 0%, #0d1117 45%), #0d1117; background-attachment: fixed; }
+    body.estilo-vidro.tema-claro { background: radial-gradient(circle at 20% 0%, #cdeedc 0%, #eef2f6 45%), #eef2f6; }
+
+    body.estilo-vidro .card,
+    body.estilo-vidro .bloco-etapa,
+    body.estilo-vidro .totais-item,
+    body.estilo-vidro .pedido-item,
+    body.estilo-vidro .modal-caixa,
+    body.estilo-vidro #barraAcoesFlutuante,
+    body.estilo-vidro .linha-entrada-costura {
+        background: rgba(255,255,255,0.06);
+        -webkit-backdrop-filter: blur(18px);
+        backdrop-filter: blur(18px);
+        border: 1px solid rgba(255,255,255,0.14);
+        box-shadow: 0 8px 28px rgba(0,0,0,0.28);
+    }
+    body.estilo-vidro.tema-claro .card,
+    body.estilo-vidro.tema-claro .bloco-etapa,
+    body.estilo-vidro.tema-claro .totais-item,
+    body.estilo-vidro.tema-claro .pedido-item,
+    body.estilo-vidro.tema-claro .modal-caixa,
+    body.estilo-vidro.tema-claro #barraAcoesFlutuante,
+    body.estilo-vidro.tema-claro .linha-entrada-costura {
+        background: rgba(255,255,255,0.55);
+        border: 1px solid rgba(255,255,255,0.7);
+        box-shadow: 0 8px 28px rgba(30,60,45,0.12);
+    }
+
+    body.estilo-vidro input,
+    body.estilo-vidro select,
+    body.estilo-vidro #searchBox {
+        background: rgba(255,255,255,0.05);
+        -webkit-backdrop-filter: blur(10px);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.16);
+        box-shadow: none;
+    }
+    body.estilo-vidro.tema-claro input,
+    body.estilo-vidro.tema-claro select,
+    body.estilo-vidro.tema-claro #searchBox {
+        background: rgba(255,255,255,0.6);
+        border: 1px solid rgba(255,255,255,0.8);
+    }
+    body.estilo-vidro input:focus, body.estilo-vidro select:focus, body.estilo-vidro #searchBox:focus {
+        box-shadow: 0 0 0 2px var(--neu-accent);
+    }
+
+    body.estilo-vidro button {
+        background: linear-gradient(135deg, #43a047, #2e7d32);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.2);
+        box-shadow: 0 6px 16px rgba(67,160,71,0.35);
+    }
+    body.estilo-vidro button:active { box-shadow: 0 2px 6px rgba(67,160,71,0.3); transform: scale(0.98); }
+    body.estilo-vidro button.secondary { background: rgba(255,255,255,0.08); color: var(--neu-text-dim); box-shadow: none; border: 1px solid rgba(255,255,255,0.16); }
+    body.estilo-vidro button.danger { background: linear-gradient(135deg, #e05353, #b71c1c); box-shadow: 0 6px 16px rgba(224,83,83,0.3); }
+    body.estilo-vidro.tema-claro button.secondary { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.8); }
+
+    body.estilo-vidro #sinoNotificacao,
+    body.estilo-vidro #btnAtualizarTopo,
+    body.estilo-vidro #btnCancelarFlutuante,
+    body.estilo-vidro .btn-remover-entrada,
+    body.estilo-vidro .btn-add-entrada,
+    body.estilo-vidro .slider-tema,
+    body.estilo-vidro #interruptorEstilo .slider-tema {
+        background: rgba(255,255,255,0.08);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
+        border: 1px solid rgba(255,255,255,0.16);
+        box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+    body.estilo-vidro.tema-claro #sinoNotificacao,
+    body.estilo-vidro.tema-claro #btnAtualizarTopo,
+    body.estilo-vidro.tema-claro #btnCancelarFlutuante,
+    body.estilo-vidro.tema-claro .btn-remover-entrada,
+    body.estilo-vidro.tema-claro .btn-add-entrada,
+    body.estilo-vidro.tema-claro .slider-tema,
+    body.estilo-vidro.tema-claro #interruptorEstilo .slider-tema {
+        background: rgba(255,255,255,0.55);
+        border: 1px solid rgba(255,255,255,0.8);
+    }
+    body.estilo-vidro .bolinha-tema { box-shadow: 0 2px 6px rgba(0,0,0,0.3); }
+
+    body.estilo-vidro .cabecalho img { filter: drop-shadow(0 6px 18px rgba(67,160,71,0.45)); }
+
+    body.estilo-vidro #barraCarregamentoTrilha { background: rgba(255,255,255,0.08); box-shadow: none; border: 1px solid rgba(255,255,255,0.14); }
+
+    #interruptorEstilo { position: fixed; top: 66px; left: 14px; z-index: 500; cursor: pointer; }
+    #interruptorEstilo input { display: none; }
+    #interruptorEstilo .bolinha-tema { background: var(--neu-accent); }
 </style>
 </head>
 <body>
@@ -165,6 +257,15 @@
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
         <span class="bolinha-tema"></span>
         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+    </span>
+</label>
+
+<label id="interruptorEstilo" title="Estilo visual: Neumorfismo / Vidro">
+    <input type="checkbox" id="chkEstilo" onchange="alternarEstiloVisual()">
+    <span class="slider-tema">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/></svg>
+        <span class="bolinha-tema"></span>
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
     </span>
 </label>
 
@@ -375,6 +476,20 @@ function aplicarTemaSalvo() {
     if (tema === 'claro') {
         document.body.classList.add('tema-claro');
         document.getElementById('chkTema').checked = true;
+    }
+}
+
+function alternarEstiloVisual() {
+    const vidro = document.getElementById('chkEstilo').checked;
+    document.body.classList.toggle('estilo-vidro', vidro);
+    try { localStorage.setItem('rpbandeiras_estilo', vidro ? 'vidro' : 'neumorfismo'); } catch (e) {}
+}
+function aplicarEstiloSalvo() {
+    let estilo = 'neumorfismo';
+    try { estilo = localStorage.getItem('rpbandeiras_estilo') || 'neumorfismo'; } catch (e) {}
+    if (estilo === 'vidro') {
+        document.body.classList.add('estilo-vidro');
+        document.getElementById('chkEstilo').checked = true;
     }
 }
 let fotoSelecionada = null;
@@ -1447,6 +1562,7 @@ function abrirPainelNotificacao() {
 montarBlocosEtapas();
 atualizarStatusSino();
 aplicarTemaSalvo();
+aplicarEstiloSalvo();
 definirDataAutomatica('data_pedido');
 toggleFields();
 carregarPedidos();
