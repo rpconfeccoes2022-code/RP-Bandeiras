@@ -147,140 +147,81 @@
     #barraCarregamentoTexto { text-align: center; font-size: 11px; color: var(--neu-text-dim); margin-top: 4px; }
     input[readonly] { opacity: 0.85; cursor: default; }
 
-    /* ===== Estilo alternativo: Aurora / Gradient Mesh ===== */
-    body.estilo-aurora {
-        background:
-            radial-gradient(circle at 15% 20%, rgba(124,77,255,0.35), transparent 45%),
-            radial-gradient(circle at 85% 15%, rgba(0,229,255,0.28), transparent 45%),
-            radial-gradient(circle at 30% 85%, rgba(255,64,129,0.25), transparent 45%),
-            radial-gradient(circle at 80% 80%, rgba(0,200,150,0.25), transparent 50%),
-            #0b0c14;
+    /* ===== Estilo alternativo: Soft Girl CEO ===== */
+    body.estilo-softgirl {
+        background: linear-gradient(160deg, #2a1420 0%, #3a1c2c 55%, #2a1420 100%);
         background-attachment: fixed;
-        animation: derivaAurora 22s ease-in-out infinite alternate;
+        color: #f7e6ee;
     }
-    body.estilo-aurora.tema-claro {
-        background:
-            radial-gradient(circle at 15% 20%, rgba(124,77,255,0.18), transparent 45%),
-            radial-gradient(circle at 85% 15%, rgba(0,180,220,0.16), transparent 45%),
-            radial-gradient(circle at 30% 85%, rgba(255,64,129,0.14), transparent 45%),
-            radial-gradient(circle at 80% 80%, rgba(0,180,140,0.14), transparent 50%),
-            #f1f2f8;
+    body.estilo-softgirl.tema-claro {
+        background: linear-gradient(160deg, #fff5f8 0%, #fbe8ef 55%, #fdf2f6 100%);
+        background-attachment: fixed;
+        color: #6b3a4d;
     }
-    @keyframes derivaAurora {
-        0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0 0; }
-        100% { background-position: 6% 4%, -6% 5%, 4% -5%, -4% -4%, 0 0; }
-    }
-    body.estilo-aurora .card,
-    body.estilo-aurora .bloco-etapa,
-    body.estilo-aurora .totais-item,
-    body.estilo-aurora .pedido-item,
-    body.estilo-aurora .modal-caixa,
-    body.estilo-aurora #barraAcoesFlutuante,
-    body.estilo-aurora .linha-entrada-costura {
-        background: rgba(22,22,32,0.6);
-        -webkit-backdrop-filter: blur(14px);
-        backdrop-filter: blur(14px);
-        border: 1px solid rgba(255,255,255,0.08);
-        box-shadow: 0 10px 30px rgba(80,50,180,0.18);
-    }
-    body.estilo-aurora.tema-claro .card,
-    body.estilo-aurora.tema-claro .bloco-etapa,
-    body.estilo-aurora.tema-claro .totais-item,
-    body.estilo-aurora.tema-claro .pedido-item,
-    body.estilo-aurora.tema-claro .modal-caixa,
-    body.estilo-aurora.tema-claro #barraAcoesFlutuante,
-    body.estilo-aurora.tema-claro .linha-entrada-costura {
-        background: rgba(255,255,255,0.62);
-        border: 1px solid rgba(255,255,255,0.85);
-        box-shadow: 0 10px 30px rgba(80,50,180,0.1);
-    }
-    body.estilo-aurora input, body.estilo-aurora select, body.estilo-aurora #searchBox {
-        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14); box-shadow: none;
-    }
-    body.estilo-aurora.tema-claro input, body.estilo-aurora.tema-claro select, body.estilo-aurora.tema-claro #searchBox {
-        background: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.9);
-    }
-    body.estilo-aurora input:focus, body.estilo-aurora select:focus, body.estilo-aurora #searchBox:focus {
-        box-shadow: 0 0 0 2px #7c4dff;
-    }
-    body.estilo-aurora button {
-        background: linear-gradient(135deg, #7c4dff, #00c896);
-        color: #fff; border: none; box-shadow: 0 6px 18px rgba(124,77,255,0.4);
-    }
-    body.estilo-aurora button:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(124,77,255,0.35); }
-    body.estilo-aurora button.secondary { background: rgba(255,255,255,0.08); color: var(--neu-text-dim); box-shadow: none; border: 1px solid rgba(255,255,255,0.14); }
-    body.estilo-aurora.tema-claro button.secondary { background: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.85); }
-    body.estilo-aurora button.danger { background: linear-gradient(135deg, #ff4081, #e05353); box-shadow: 0 6px 18px rgba(255,64,129,0.35); }
-    body.estilo-aurora #sinoNotificacao, body.estilo-aurora #btnAtualizarTopo, body.estilo-aurora #btnCancelarFlutuante,
-    body.estilo-aurora .btn-remover-entrada, body.estilo-aurora .btn-add-entrada, body.estilo-aurora .slider-tema {
-        background: rgba(22,22,32,0.6); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-        border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 6px 16px rgba(80,50,180,0.2);
-    }
-    body.estilo-aurora.tema-claro #sinoNotificacao, body.estilo-aurora.tema-claro #btnAtualizarTopo, body.estilo-aurora.tema-claro #btnCancelarFlutuante,
-    body.estilo-aurora.tema-claro .btn-remover-entrada, body.estilo-aurora.tema-claro .btn-add-entrada, body.estilo-aurora.tema-claro .slider-tema {
-        background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.9);
-    }
-    body.estilo-aurora .bolinha-tema { background: linear-gradient(135deg, #7c4dff, #00c896); }
-    body.estilo-aurora .cabecalho img { filter: drop-shadow(0 0 20px rgba(124,77,255,0.5)); }
-    body.estilo-aurora #barraCarregamentoTrilha { background: rgba(255,255,255,0.08); box-shadow: none; border: 1px solid rgba(255,255,255,0.14); }
-    body.estilo-aurora #barraCarregamento { background: linear-gradient(90deg, #7c4dff, #00c896); }
+    body.estilo-softgirl label { color: #e0a8c0; }
+    body.estilo-softgirl.tema-claro label { color: #b06888; }
 
-    /* ===== Estilo alternativo: Neon / Cyberpunk ===== */
-    body.estilo-neon { background: #060608; }
-    body.estilo-neon.tema-claro { background: #f4f4f8; }
-    body.estilo-neon .card,
-    body.estilo-neon .bloco-etapa,
-    body.estilo-neon .totais-item,
-    body.estilo-neon .pedido-item,
-    body.estilo-neon .modal-caixa,
-    body.estilo-neon #barraAcoesFlutuante,
-    body.estilo-neon .linha-entrada-costura {
-        background: #0d0d12;
-        border: 1px solid #00ffc8;
-        border-radius: 8px;
-        box-shadow: 0 0 1px #00ffc8, 0 0 14px rgba(0,255,200,0.25), inset 0 0 20px rgba(0,255,200,0.03);
+    body.estilo-softgirl .card,
+    body.estilo-softgirl .bloco-etapa,
+    body.estilo-softgirl .totais-item,
+    body.estilo-softgirl .pedido-item,
+    body.estilo-softgirl .modal-caixa,
+    body.estilo-softgirl #barraAcoesFlutuante,
+    body.estilo-softgirl .linha-entrada-costura {
+        background: #3d2130;
+        border: 1px solid rgba(212,175,140,0.35);
+        border-radius: 26px;
+        box-shadow: 0 10px 26px rgba(0,0,0,0.3), 0 0 0 1px rgba(244,166,193,0.06) inset;
     }
-    body.estilo-neon.tema-claro .card,
-    body.estilo-neon.tema-claro .bloco-etapa,
-    body.estilo-neon.tema-claro .totais-item,
-    body.estilo-neon.tema-claro .pedido-item,
-    body.estilo-neon.tema-claro .modal-caixa,
-    body.estilo-neon.tema-claro #barraAcoesFlutuante,
-    body.estilo-neon.tema-claro .linha-entrada-costura {
-        background: #ffffff; border: 1px solid #00a884; box-shadow: 0 0 10px rgba(0,168,132,0.2);
+    body.estilo-softgirl.tema-claro .card,
+    body.estilo-softgirl.tema-claro .bloco-etapa,
+    body.estilo-softgirl.tema-claro .totais-item,
+    body.estilo-softgirl.tema-claro .pedido-item,
+    body.estilo-softgirl.tema-claro .modal-caixa,
+    body.estilo-softgirl.tema-claro #barraAcoesFlutuante,
+    body.estilo-softgirl.tema-claro .linha-entrada-costura {
+        background: #ffffff;
+        border: 1px solid #f3cddc;
+        box-shadow: 0 10px 26px rgba(244,166,193,0.25);
     }
-    body.estilo-neon .card h2, body.estilo-neon .bloco-etapa h3 { color: #00ffc8; text-shadow: 0 0 8px rgba(0,255,200,0.6); }
-    body.estilo-neon.tema-claro .card h2, body.estilo-neon.tema-claro .bloco-etapa h3 { color: #00a884; text-shadow: none; }
-    body.estilo-neon input, body.estilo-neon select, body.estilo-neon #searchBox {
-        background: #0a0a0f; border: 1px solid #2a2a35; border-radius: 8px; box-shadow: none; color: #e8fffa;
+    body.estilo-softgirl .card h2, body.estilo-softgirl .bloco-etapa h3 {
+        color: #f4c9dc; letter-spacing: 0.6px; font-weight: 600;
     }
-    body.estilo-neon.tema-claro input, body.estilo-neon.tema-claro select, body.estilo-neon.tema-claro #searchBox {
-        background: #fff; border: 1px solid #ccc; color: #111;
+    body.estilo-softgirl.tema-claro .card h2, body.estilo-softgirl.tema-claro .bloco-etapa h3 {
+        color: #c9578a;
     }
-    body.estilo-neon input:focus, body.estilo-neon select:focus, body.estilo-neon #searchBox:focus {
-        border-color: #ff2ec4; box-shadow: 0 0 10px rgba(255,46,196,0.5);
+    body.estilo-softgirl input, body.estilo-softgirl select, body.estilo-softgirl #searchBox {
+        background: #33192a; border: 1px solid rgba(212,175,140,0.3); border-radius: 16px; color: #f7e6ee; box-shadow: none;
     }
-    body.estilo-neon button {
-        background: #0d0d12; color: #00ffc8; border: 1px solid #00ffc8; border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,255,200,0.35); text-shadow: 0 0 6px rgba(0,255,200,0.6);
+    body.estilo-softgirl.tema-claro input, body.estilo-softgirl.tema-claro select, body.estilo-softgirl.tema-claro #searchBox {
+        background: #fff8fa; border: 1px solid #f3cddc; color: #6b3a4d;
     }
-    body.estilo-neon button:active { box-shadow: 0 0 4px rgba(0,255,200,0.3); transform: scale(0.98); }
-    body.estilo-neon button.secondary { color: #ff2ec4; border-color: #ff2ec4; box-shadow: 0 0 10px rgba(255,46,196,0.3); text-shadow: 0 0 6px rgba(255,46,196,0.5); }
-    body.estilo-neon button.danger { color: #ff2e5b; border-color: #ff2e5b; box-shadow: 0 0 10px rgba(255,46,91,0.35); text-shadow: 0 0 6px rgba(255,46,91,0.5); }
-    body.estilo-neon.tema-claro button { background: #fff; box-shadow: none; text-shadow: none; }
-    body.estilo-neon #sinoNotificacao, body.estilo-neon #btnAtualizarTopo, body.estilo-neon #btnCancelarFlutuante,
-    body.estilo-neon .btn-remover-entrada, body.estilo-neon .btn-add-entrada, body.estilo-neon .slider-tema {
-        background: #0d0d12; border: 1px solid #00ffc8; border-radius: 10px; box-shadow: 0 0 10px rgba(0,255,200,0.3); color: #00ffc8;
+    body.estilo-softgirl input:focus, body.estilo-softgirl select:focus, body.estilo-softgirl #searchBox:focus {
+        border-color: #d4af8c; box-shadow: 0 0 0 3px rgba(212,175,140,0.25);
     }
-    body.estilo-neon.tema-claro #sinoNotificacao, body.estilo-neon.tema-claro #btnAtualizarTopo, body.estilo-neon.tema-claro #btnCancelarFlutuante,
-    body.estilo-neon.tema-claro .btn-remover-entrada, body.estilo-neon.tema-claro .btn-add-entrada, body.estilo-neon.tema-claro .slider-tema {
-        background: #fff; border: 1px solid #00a884; color: #00a884;
+    body.estilo-softgirl button {
+        background: linear-gradient(135deg, #f2a6c4, #d4af8c);
+        color: #3a1c2c; border: none; border-radius: 16px; font-weight: 700;
+        box-shadow: 0 6px 16px rgba(242,166,196,0.35);
     }
-    body.estilo-neon .bolinha-tema { background: #ff2ec4; box-shadow: 0 0 8px rgba(255,46,196,0.6); }
-    body.estilo-neon .tag-etapa { box-shadow: 0 0 8px currentColor; }
-    body.estilo-neon .cabecalho img { filter: drop-shadow(0 0 16px rgba(0,255,200,0.7)) drop-shadow(0 0 30px rgba(255,46,196,0.3)); }
-    body.estilo-neon #barraCarregamentoTrilha { background: #0a0a0f; border: 1px solid #2a2a35; box-shadow: none; }
-    body.estilo-neon #barraCarregamento { background: #00ffc8; box-shadow: 0 0 8px #00ffc8; }
+    body.estilo-softgirl button:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(242,166,196,0.3); }
+    body.estilo-softgirl button.secondary { background: rgba(244,166,193,0.12); color: #f4c9dc; box-shadow: none; border: 1px solid rgba(212,175,140,0.3); }
+    body.estilo-softgirl.tema-claro button.secondary { background: #fdf0f5; color: #c9578a; border: 1px solid #f3cddc; }
+    body.estilo-softgirl button.danger { background: linear-gradient(135deg, #e88ba3, #c96b83); color: #fff; box-shadow: 0 6px 16px rgba(232,139,163,0.35); }
+    body.estilo-softgirl #sinoNotificacao, body.estilo-softgirl #btnAtualizarTopo, body.estilo-softgirl #btnCancelarFlutuante,
+    body.estilo-softgirl .btn-remover-entrada, body.estilo-softgirl .btn-add-entrada, body.estilo-softgirl .slider-tema {
+        background: #3d2130; border: 1px solid rgba(212,175,140,0.35); box-shadow: 0 6px 16px rgba(0,0,0,0.25); color: #f4c9dc;
+    }
+    body.estilo-softgirl.tema-claro #sinoNotificacao, body.estilo-softgirl.tema-claro #btnAtualizarTopo, body.estilo-softgirl.tema-claro #btnCancelarFlutuante,
+    body.estilo-softgirl.tema-claro .btn-remover-entrada, body.estilo-softgirl.tema-claro .btn-add-entrada, body.estilo-softgirl.tema-claro .slider-tema {
+        background: #ffffff; border: 1px solid #f3cddc; color: #c9578a;
+    }
+    body.estilo-softgirl .bolinha-tema { background: linear-gradient(135deg, #f2a6c4, #d4af8c); }
+    body.estilo-softgirl .cabecalho img { filter: drop-shadow(0 6px 18px rgba(242,166,196,0.5)); }
+    body.estilo-softgirl #barraCarregamentoTrilha { background: rgba(244,166,193,0.15); box-shadow: none; }
+    body.estilo-softgirl #barraCarregamento { background: linear-gradient(90deg, #f2a6c4, #d4af8c); }
+    body.estilo-softgirl .pedido-header strong { color: #f4c9dc; }
+    body.estilo-softgirl.tema-claro .pedido-header strong { color: #6b3a4d; }
 
     #seletorEstilo { position: fixed; top: 66px; left: 14px; z-index: 500; display: flex; gap: 6px; background: var(--neu-bg); border-radius: 20px; padding: 5px; box-shadow: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light); }
     #seletorEstilo button { all: unset; box-sizing: border-box; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--neu-text-dim); margin: 0; padding: 0; transition: background 0.15s ease, color 0.15s ease; }
@@ -311,11 +252,8 @@
     <button type="button" id="btnEstilo_neumorfismo" onclick="selecionarEstilo('neumorfismo')" title="Neumorfismo">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/></svg>
     </button>
-    <button type="button" id="btnEstilo_aurora" onclick="selecionarEstilo('aurora')" title="Aurora">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18c2-4 4-6 6-6s3 4 6 4 4-6 6-3"/><path d="M3 12c2-3 4-4 6-4s3 3 6 3 4-4 6-2"/></svg>
-    </button>
-    <button type="button" id="btnEstilo_neon" onclick="selecionarEstilo('neon')" title="Neon / Cyberpunk">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    <button type="button" id="btnEstilo_softgirl" onclick="selecionarEstilo('softgirl')" title="Soft Girl CEO">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.8 5.8L20 9l-6.2 1.2L12 16l-1.8-5.8L4 9l6.2-1.2L12 2z"/><path d="M19 15l0.8 2.2L22 18l-2.2 0.8L19 21l-0.8-2.2L16 18l2.2-0.8L19 15z"/></svg>
     </button>
 </div>
 
@@ -529,7 +467,7 @@ function aplicarTemaSalvo() {
     }
 }
 
-const ESTILOS_VISUAIS = ['neumorfismo', 'aurora', 'neon'];
+const ESTILOS_VISUAIS = ['neumorfismo', 'softgirl'];
 function selecionarEstilo(nome) {
     ESTILOS_VISUAIS.forEach(e => {
         document.body.classList.remove('estilo-' + e);
