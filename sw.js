@@ -1,9 +1,11 @@
-const CACHE_NAME = "rp-bandeiras-v26";
+const CACHE_NAME = "rp-bandeiras-v27";
 const ARQUIVOS_ESSENCIAIS = [
     "./index.html",
     "./manifest.json",
     "./icon-192.png",
     "./icon-512.png",
+    "./icon-192-maskable.png",
+    "./icon-512-maskable.png",
     "./logo-transparente.png",
     "./logo-transparente-claro.png"
 ];
