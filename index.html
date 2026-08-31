@@ -546,11 +546,49 @@ document.addEventListener('click', function (e) {
     tocarSomClique();
 }, true);
 
+// ===== Faz o botao "voltar" do celular fechar telas/paineis abertos, em vez de sair do app =====
+let guardaHistoricoAtiva = false;
+function empilharGuardaHistorico() {
+    if (!guardaHistoricoAtiva) {
+        try { history.pushState({ rpGuarda: true }, ''); } catch (e) {}
+        guardaHistoricoAtiva = true;
+    }
+}
+function fecharAlgoAbertoParaVoltar() {
+    const fotoOverlay = document.getElementById('fotoModalOverlay');
+    if (fotoOverlay && fotoOverlay.classList.contains('aberto')) { fecharFotoAmpliada(); return true; }
+
+    const pdfOverlay = document.getElementById('pdfEscolhaOverlay');
+    if (pdfOverlay && pdfOverlay.classList.contains('aberto')) { fecharEscolhaPDF(); return true; }
+
+    const iosOverlay = document.getElementById('iosInstallOverlay');
+    if (iosOverlay && iosOverlay.classList.contains('aberto')) { fecharInstrucoesIOS(false); return true; }
+
+    const barra = document.getElementById('barraAcoesFlutuante');
+    if (barra && barra.classList.contains('visivel')) { cancelarFormulario(); return true; }
+
+    const searchBox = document.getElementById('searchBox');
+    if (searchBox && searchBox.value.length > 0) { searchBox.value = ''; filtrarPedidos(); return true; }
+
+    const historico = document.getElementById('conteudoHistorico');
+    if (historico && !historico.classList.contains('recolhido')) { alternarHistorico(); return true; }
+
+    return false;
+}
+window.addEventListener('popstate', function () {
+    guardaHistoricoAtiva = false;
+    if (fecharAlgoAbertoParaVoltar()) {
+        empilharGuardaHistorico();
+    }
+    // Se nao havia nada aberto, deixa o botao voltar seguir seu curso normal (sai do app)
+});
+
 
 function mostrarBarraAcoes() {
     document.getElementById('barraAcoesFlutuante').classList.add('visivel');
     document.body.classList.add('tem-barra-flutuante');
     abrirNovoPedido();
+    empilharGuardaHistorico();
 }
 function esconderBarraAcoes() {
     document.getElementById('barraAcoesFlutuante').classList.remove('visivel');
@@ -666,6 +704,7 @@ function atualizarPagina() {
 function ampliarFoto(url) {
     document.getElementById('fotoModalImg').src = url;
     document.getElementById('fotoModalOverlay').classList.add('aberto');
+    empilharGuardaHistorico();
 }
 
 function fecharFotoAmpliada(event) {
@@ -812,6 +851,7 @@ function alternarHistorico() {
 function abrirHistorico() {
     document.getElementById('conteudoHistorico').classList.remove('recolhido');
     document.getElementById('seta_historico').classList.remove('fechado');
+    empilharGuardaHistorico();
 }
 
 function adicionarEntradaCostura(chave, dados) {
@@ -1485,6 +1525,7 @@ let pdfPendente = null;
 function abrirEscolhaPDF(doc, nomeArquivo) {
     pdfPendente = { doc, nomeArquivo };
     document.getElementById('pdfEscolhaOverlay').classList.add('aberto');
+    empilharGuardaHistorico();
 }
 
 function fecharEscolhaPDF() {
@@ -1730,6 +1771,7 @@ function verificarInstalacaoIOS() {
     try { ocultarPreferencia = localStorage.getItem('rpbandeiras_ocultar_instrucoes_ios') === '1'; } catch (e) {}
     if (ehIOS && !jaInstalado && !ocultarPreferencia) {
         document.getElementById('iosInstallOverlay').classList.add('aberto');
+        empilharGuardaHistorico();
     }
 }
 verificarInstalacaoIOS();
