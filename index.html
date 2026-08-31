@@ -321,14 +321,19 @@
     <div class="form-grid" style="margin-top:14px;">
         <div>
             <label>Material</label>
-            <select id="material">
+            <select id="material" onchange="toggleMaterialManual()">
                 <option value="Wind Banner 73x210">Wind Banner 73x210</option>
                 <option value="Wind Banner 100x300">Wind Banner 100x300</option>
                 <option value="Bandeira 150x200">Bandeira 150x200</option>
                 <option value="Bandeira 100x140">Bandeira 100x140</option>
                 <option value="Bandeira 70x100">Bandeira 70x100</option>
                 <option value="Bandeira 34x52">Bandeira 34x52</option>
+                <option value="__manual__">Outro (digitar)</option>
             </select>
+        </div>
+        <div class="field" id="f_material_manual">
+            <label>Material (personalizado)</label>
+            <input type="text" id="material_manual" placeholder="Digite o material">
         </div>
         <div>
             <label>Candidato</label>
@@ -793,8 +798,13 @@ function toggleCnpjManual() {
     document.getElementById('f_cnpj_fornecedor_manual').classList.toggle('show', sel === '__manual__');
 }
 
+function toggleMaterialManual() {
+    const sel = document.getElementById('material').value;
+    document.getElementById('f_material_manual').classList.toggle('show', sel === '__manual__');
+}
+
 function getFormData() {
-    const ids = ["material","acessorio","candidato","cargo","numero","estado","cnpj_candidato","tiragem","quantidade",
+    const ids = ["acessorio","candidato","cargo","numero","estado","cnpj_candidato","tiragem","quantidade",
         "destino","nome_destinatario","celular_destinatario","quantidade_entrega"];
     const data = {};
     ids.forEach(id => {
@@ -803,6 +813,13 @@ function getFormData() {
         if ((id === "tiragem" || id === "quantidade") && v !== null) v = parseInt(v);
         data[id] = v;
     });
+    const materialSelecionado = document.getElementById('material').value;
+    if (materialSelecionado === '__manual__') {
+        const manual = document.getElementById('material_manual').value.trim();
+        data.material = manual || null;
+    } else {
+        data.material = materialSelecionado || null;
+    }
     ETAPAS.forEach(etapa => {
         const chave = etapa.chave;
         data[chave] = document.getElementById('chk_' + chave).checked;
@@ -829,6 +846,8 @@ function limparFormulario() {
     document.querySelectorAll('#blocosEtapas select').forEach(s => { s.value = ""; });
     document.querySelectorAll('[id$="_responsavel_manual"]').forEach(m => m.style.display = 'none');
     document.getElementById('material').selectedIndex = 0;
+    document.getElementById('material_manual').value = "";
+    document.getElementById('f_material_manual').classList.remove('show');
     document.getElementById('cargo').value = "";
     document.getElementById('acessorio').value = "";
     document.getElementById('cnpj_fornecedor').value = "";
@@ -952,16 +971,21 @@ function atualizarDatalists(lista) {
 }
 
 function atualizarTotaisMaterial(lista) {
-    const materiais = ["Wind Banner 73x210", "Wind Banner 100x300", "Bandeira 150x200", "Bandeira 100x140", "Bandeira 70x100", "Bandeira 34x52"];
+    const materiaisFixos = ["Wind Banner 73x210", "Wind Banner 100x300", "Bandeira 150x200", "Bandeira 100x140", "Bandeira 70x100", "Bandeira 34x52"];
     const totais = {};
-    materiais.forEach(m => totais[m] = 0);
+    materiaisFixos.forEach(m => totais[m] = 0);
+    const materiaisPersonalizados = [];
     (lista || []).forEach(p => {
-        if (p.material && totais.hasOwnProperty(p.material)) {
-            totais[p.material] += parseInt(p.quantidade) || 0;
+        if (!p.material) return;
+        if (!totais.hasOwnProperty(p.material)) {
+            totais[p.material] = 0;
+            if (!materiaisPersonalizados.includes(p.material)) materiaisPersonalizados.push(p.material);
         }
+        totais[p.material] += parseInt(p.quantidade) || 0;
     });
+    const todosOsMateriais = materiaisFixos.concat(materiaisPersonalizados.sort());
     const container = document.getElementById('totaisPorMaterial');
-    container.innerHTML = materiais.map(m => `
+    container.innerHTML = todosOsMateriais.map(m => `
         <div class="totais-item">
             <div class="totais-numero">${totais[m]}</div>
             <div class="totais-label">${m}</div>
@@ -1045,7 +1069,7 @@ function editarPedido(id) {
     });
     Object.keys(p).forEach(key => {
         if (idsAutoData.includes(key)) return;
-        if (key === 'cnpj_fornecedor') return;
+        if (key === 'cnpj_fornecedor' || key === 'material') return;
         if (ETAPA_CHAVES.includes(key)) return;
         if (key.endsWith('_responsavel') && ETAPA_CHAVES.includes(key.replace('_responsavel',''))) return;
         const el = document.getElementById(key);
@@ -1090,6 +1114,15 @@ function editarPedido(id) {
         document.getElementById('cnpj_fornecedor_manual').value = "";
     }
     toggleCnpjManual();
+    const opcoesMaterial = ["Wind Banner 73x210", "Wind Banner 100x300", "Bandeira 150x200", "Bandeira 100x140", "Bandeira 70x100", "Bandeira 34x52"];
+    if (p.material && !opcoesMaterial.includes(p.material)) {
+        document.getElementById('material').value = '__manual__';
+        document.getElementById('material_manual').value = p.material;
+    } else {
+        document.getElementById('material').value = p.material || "";
+        document.getElementById('material_manual').value = "";
+    }
+    toggleMaterialManual();
     toggleFields();
     editandoId = id;
     fotoSelecionada = null;
