@@ -455,6 +455,98 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let pedidosCache = [];
 let editandoId = null;
 
+// ===== Sistema de sons (gerados na hora, sem precisar de arquivo de audio) =====
+let audioCtx = null;
+function getAudioCtx() {
+    if (!audioCtx) {
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return null; }
+    }
+    if (audioCtx.state === 'suspended') { try { audioCtx.resume(); } catch (e) {} }
+    return audioCtx;
+}
+function criarRuidoBuffer(ctx, duracaoSegundos) {
+    const tamanho = Math.max(1, Math.floor(ctx.sampleRate * duracaoSegundos));
+    const buffer = ctx.createBuffer(1, tamanho, ctx.sampleRate);
+    const dados = buffer.getChannelData(0);
+    for (let i = 0; i < tamanho; i++) dados[i] = Math.random() * 2 - 1;
+    return buffer;
+}
+
+function tocarSomClique() {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const agora = ctx.currentTime;
+    const fonte = ctx.createBufferSource();
+    fonte.buffer = criarRuidoBuffer(ctx, 0.025);
+    const filtro = ctx.createBiquadFilter();
+    filtro.type = 'bandpass';
+    filtro.frequency.value = 3200;
+    filtro.Q.value = 1.1;
+    const ganho = ctx.createGain();
+    ganho.gain.setValueAtTime(0.28, agora);
+    ganho.gain.exponentialRampToValueAtTime(0.001, agora + 0.028);
+    fonte.connect(filtro).connect(ganho).connect(ctx.destination);
+    fonte.start(agora);
+}
+
+function tocarSomInterruptor() {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const agora = ctx.currentTime;
+    const fonte = ctx.createBufferSource();
+    fonte.buffer = criarRuidoBuffer(ctx, 0.05);
+    const filtro = ctx.createBiquadFilter();
+    filtro.type = 'lowpass';
+    filtro.frequency.value = 650;
+    const ganho = ctx.createGain();
+    ganho.gain.setValueAtTime(0.45, agora);
+    ganho.gain.exponentialRampToValueAtTime(0.001, agora + 0.06);
+    fonte.connect(filtro).connect(ganho).connect(ctx.destination);
+    fonte.start(agora);
+    setTimeout(tocarSomClique, 45);
+}
+
+function tocarSomCerveja() {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    const agora = ctx.currentTime;
+
+    // "Crack" seco da abertura
+    const pop = ctx.createBufferSource();
+    pop.buffer = criarRuidoBuffer(ctx, 0.06);
+    const filtroPop = ctx.createBiquadFilter();
+    filtroPop.type = 'highpass';
+    filtroPop.frequency.value = 1600;
+    const ganhoPop = ctx.createGain();
+    ganhoPop.gain.setValueAtTime(0.55, agora);
+    ganhoPop.gain.exponentialRampToValueAtTime(0.001, agora + 0.05);
+    pop.connect(filtroPop).connect(ganhoPop).connect(ctx.destination);
+    pop.start(agora);
+
+    // Chiado/borbulhar (gas escapando) logo em seguida
+    const fizz = ctx.createBufferSource();
+    fizz.buffer = criarRuidoBuffer(ctx, 0.8);
+    const filtroFizz = ctx.createBiquadFilter();
+    filtroFizz.type = 'bandpass';
+    filtroFizz.frequency.value = 5500;
+    filtroFizz.Q.value = 0.5;
+    const ganhoFizz = ctx.createGain();
+    ganhoFizz.gain.setValueAtTime(0.0001, agora + 0.04);
+    ganhoFizz.gain.linearRampToValueAtTime(0.16, agora + 0.1);
+    ganhoFizz.gain.exponentialRampToValueAtTime(0.001, agora + 0.85);
+    fizz.connect(filtroFizz).connect(ganhoFizz).connect(ctx.destination);
+    fizz.start(agora + 0.04);
+}
+
+// Toca o som de "teclado" em qualquer botao ou caixinha clicada, exceto os interruptores (que tem som proprio)
+document.addEventListener('click', function (e) {
+    const alvo = e.target.closest('button, input[type="checkbox"]');
+    if (!alvo) return;
+    if (alvo.closest('#seletorEstilo, #interruptorTema')) return;
+    tocarSomClique();
+}, true);
+
+
 function mostrarBarraAcoes() {
     document.getElementById('barraAcoesFlutuante').classList.add('visivel');
     document.body.classList.add('tem-barra-flutuante');
@@ -466,6 +558,7 @@ function esconderBarraAcoes() {
 }
 
 function alternarTema() {
+    tocarSomInterruptor();
     const claro = document.getElementById('chkTema').checked;
     document.body.classList.toggle('tema-claro', claro);
     try { localStorage.setItem('rpbandeiras_tema', claro ? 'claro' : 'escuro'); } catch (e) {}
@@ -480,7 +573,8 @@ function aplicarTemaSalvo() {
 }
 
 const ESTILOS_VISUAIS = ['neumorfismo', 'softgirl'];
-function selecionarEstilo(nome) {
+function selecionarEstilo(nome, tocarSom) {
+    if (tocarSom !== false) tocarSomInterruptor();
     ESTILOS_VISUAIS.forEach(e => {
         document.body.classList.remove('estilo-' + e);
         const btn = document.getElementById('btnEstilo_' + e);
@@ -495,7 +589,7 @@ function aplicarEstiloSalvo() {
     let estilo = 'neumorfismo';
     try { estilo = localStorage.getItem('rpbandeiras_estilo') || 'neumorfismo'; } catch (e) {}
     if (!ESTILOS_VISUAIS.includes(estilo)) estilo = 'neumorfismo';
-    selecionarEstilo(estilo);
+    selecionarEstilo(estilo, false);
 }
 let fotoSelecionada = null;
 let fotoUrlAtual = null;
@@ -908,6 +1002,7 @@ async function salvarPedido() {
         }
 
         if (error) { mostrarErro("Erro ao salvar no banco: " + error.message); return; }
+        tocarSomCerveja();
         mostrarOk("Pedido salvo com sucesso.");
         limparFormulario();
         carregarPedidos();
