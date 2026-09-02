@@ -345,6 +345,23 @@
     </div>
 </div>
 
+<div id="confirmarExcluirOverlay" class="modal-overlay">
+    <div class="modal-caixa">
+        <h3>Excluir este pedido?</h3>
+        <p style="font-size:13px; color:var(--neu-text-dim); margin-top:-6px;">Essa acao nao pode ser desfeita.</p>
+        <button class="danger" onclick="confirmarExclusaoPedido()">Sim, excluir</button>
+        <button class="secondary" onclick="cancelarExclusaoPedido()">Cancelar</button>
+    </div>
+</div>
+
+<div id="confirmarSairOverlay" class="modal-overlay">
+    <div class="modal-caixa">
+        <h3>Sair do aplicativo?</h3>
+        <button class="danger" onclick="confirmarSairApp()">Sim, sair</button>
+        <button class="secondary" onclick="cancelarSairApp()">Continuar no app</button>
+    </div>
+</div>
+
 <div id="iosInstallOverlay" class="modal-overlay">
     <div class="modal-caixa">
         <h3>Instalar o RP Bandeiras no iPhone</h3>
@@ -601,6 +618,12 @@ function empilharGuardaHistorico() {
     }
 }
 function fecharAlgoAbertoParaVoltar() {
+    const confirmarExcluir = document.getElementById('confirmarExcluirOverlay');
+    if (confirmarExcluir && confirmarExcluir.classList.contains('aberto')) { cancelarExclusaoPedido(); return true; }
+
+    const confirmarSair = document.getElementById('confirmarSairOverlay');
+    if (confirmarSair && confirmarSair.classList.contains('aberto')) { cancelarSairApp(); return true; }
+
     const fotoOverlay = document.getElementById('fotoModalOverlay');
     if (fotoOverlay && fotoOverlay.classList.contains('aberto')) { fecharFotoAmpliada(); return true; }
 
@@ -624,12 +647,33 @@ function fecharAlgoAbertoParaVoltar() {
 
     return false;
 }
+
+let permitirSaidaApp = false;
+function abrirConfirmacaoSairApp() {
+    document.getElementById('confirmarSairOverlay').classList.add('aberto');
+}
+function cancelarSairApp() {
+    document.getElementById('confirmarSairOverlay').classList.remove('aberto');
+}
+function confirmarSairApp() {
+    document.getElementById('confirmarSairOverlay').classList.remove('aberto');
+    permitirSaidaApp = true;
+    mostrarOk("Toque em voltar mais uma vez para sair do aplicativo.");
+}
+
 window.addEventListener('popstate', function () {
     guardaHistoricoAtiva = false;
     if (fecharAlgoAbertoParaVoltar()) {
         empilharGuardaHistorico();
+        return;
     }
-    // Se nao havia nada aberto, deixa o botao voltar seguir seu curso normal (sai do app)
+    if (permitirSaidaApp) {
+        // O usuario ja confirmou que quer sair - deixa o botao voltar seguir seu curso normal (fecha o app)
+        return;
+    }
+    // Nada aberto e ainda nao confirmou - pergunta antes de sair de verdade
+    empilharGuardaHistorico();
+    abrirConfirmacaoSairApp();
 });
 
 
@@ -1294,13 +1338,13 @@ function renderizarPedidos(lista) {
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                     PDF
                 </button>
-                <button class="danger" onclick="excluirPedido(${p.id})">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                    Excluir
-                </button>
                 <button class="clonar" onclick="clonarPedido(${p.id})">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     Clonar
+                </button>
+                <button class="danger" onclick="excluirPedido(${p.id})">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    Excluir
                 </button>
             </div>
         `;
@@ -1443,11 +1487,28 @@ function editarPedido(id) {
     window.scrollTo(0, 0);
 }
 
-async function excluirPedido(id) {
-    if (!confirm("Tem certeza que deseja excluir este pedido?")) return;
+let idPendenteExclusao = null;
+
+function excluirPedido(id) {
+    idPendenteExclusao = id;
+    document.getElementById('confirmarExcluirOverlay').classList.add('aberto');
+    empilharGuardaHistorico();
+}
+
+function cancelarExclusaoPedido() {
+    idPendenteExclusao = null;
+    document.getElementById('confirmarExcluirOverlay').classList.remove('aberto');
+}
+
+async function confirmarExclusaoPedido() {
+    const id = idPendenteExclusao;
+    document.getElementById('confirmarExcluirOverlay').classList.remove('aberto');
+    idPendenteExclusao = null;
+    if (!id) return;
     try {
         const { error } = await sb.from('controle_campanha').delete().eq('id', id);
         if (error) { mostrarErro("Erro ao excluir: " + error.message); return; }
+        mostrarOk("Pedido excluido.");
         carregarPedidos();
     } catch (e) {
         mostrarErro("Falha inesperada ao excluir: " + (e && e.message ? e.message : String(e)));
