@@ -112,7 +112,7 @@
     #errorBanner { display: none; background-color: #b71c1c; color: white; padding: 12px; border-radius: 14px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     #okBanner { display: none; background-color: #1b5e20; color: white; padding: 12px; border-radius: 14px; margin-bottom: 15px; font-size: 14px; white-space: pre-wrap; }
     .cabecalho { text-align: center; margin-bottom: 14px; padding-top: 112px; }
-    .cabecalho img { width: 160px; height: auto; max-width: 70vw; border-radius: 0; filter: drop-shadow(3px 3px 3px var(--neu-dark)) drop-shadow(-3px -3px 3px var(--neu-light)); animation: entradaLogo 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+    .cabecalho img { width: 220px; height: auto; max-width: 78vw; border-radius: 0; filter: drop-shadow(3px 3px 3px var(--neu-dark)) drop-shadow(-3px -3px 3px var(--neu-light)); animation: entradaLogo 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
     @keyframes entradaLogo {
         0% { opacity: 0; transform: translateY(-14px) scale(0.88); }
         60% { opacity: 1; }
@@ -131,6 +131,11 @@
     .caixa-busca { position: relative; margin: 4px 0 16px; }
     .caixa-busca .icone-busca { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--neu-text-dim); pointer-events: none; }
     .caixa-busca input { padding-left: 42px; }
+    .menu-redondo { display: flex; justify-content: space-evenly; margin: 4px 0 20px; }
+    .botao-redondo { all: unset; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; }
+    .circulo-icone { width: 68px; height: 68px; border-radius: 50%; background: var(--neu-accent); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); transition: transform 0.12s ease; }
+    .botao-redondo:active .circulo-icone { transform: scale(0.92); }
+    .rotulo-redondo { font-size: 11px; font-weight: 700; letter-spacing: 0.4px; color: var(--neu-text-dim); text-transform: uppercase; }
     #pontoStatusSino { position: absolute; top: 3px; right: 3px; width: 12px; height: 12px; border-radius: 50%; background: #888; border: 2px solid var(--neu-bg); }
 
     #interruptorTema { position: fixed; top: 14px; left: 14px; z-index: 500; cursor: pointer; }
@@ -290,6 +295,27 @@
     <input type="text" id="searchBox" placeholder="Pesquisar por candidato..." onkeyup="filtrarPedidos()">
 </div>
 
+<div class="menu-redondo">
+    <button type="button" class="botao-redondo" onclick="alternarNovoPedido()">
+        <span class="circulo-icone">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        </span>
+        <span class="rotulo-redondo">Cadastrar</span>
+    </button>
+    <button type="button" class="botao-redondo" onclick="alternarQuantidades()">
+        <span class="circulo-icone">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </span>
+        <span class="rotulo-redondo">Total</span>
+    </button>
+    <button type="button" class="botao-redondo" onclick="alternarHistorico()">
+        <span class="circulo-icone">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+        </span>
+        <span class="rotulo-redondo">Pedidos</span>
+    </button>
+</div>
+
 
 <div id="errorBanner"></div>
 <div id="okBanner"></div>
@@ -325,12 +351,10 @@
 </div>
 
 <div class="card" id="cardNovoPedido">
-    <div class="cabecalho-bloco" onclick="alternarNovoPedido()">
-        <h2 id="formTitle" style="margin:0; border:none; padding:0;">Novo Pedido</h2>
-        <span class="seta-bloco fechado" id="seta_novoPedido"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-    </div>
+    <span class="seta-bloco fechado" id="seta_novoPedido" style="display:none;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
     <div id="conteudoNovoPedido" class="conteudo-bloco recolhido">
-    <div class="form-grid" style="margin-top:14px;">
+    <h2 id="formTitle" style="margin-top:0;">Novo Pedido</h2>
+    <div class="form-grid">
         <div>
             <label>Material</label>
             <select id="material" onchange="toggleMaterialManual()">
@@ -430,21 +454,17 @@
 </div>
 
 <div class="card">
-    <div class="cabecalho-bloco" onclick="alternarQuantidades()">
-        <h2 style="margin:0; border:none; padding:0;">Quantidades</h2>
-        <span class="seta-bloco fechado" id="seta_quantidades"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-    </div>
+    <span class="seta-bloco fechado" id="seta_quantidades" style="display:none;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
     <div id="conteudoQuantidades" class="conteudo-bloco recolhido">
+        <h2 style="margin-top:0;">Total por Material</h2>
         <div id="totaisPorMaterial" class="totais-grid"></div>
     </div>
 </div>
 
 <div class="card">
-    <div class="cabecalho-bloco" onclick="alternarHistorico()">
-        <h2 style="margin:0; border:none; padding:0;">Pedidos Cadastrados</h2>
-        <span class="seta-bloco fechado" id="seta_historico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
-    </div>
+    <span class="seta-bloco fechado" id="seta_historico" style="display:none;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
     <div id="conteudoHistorico" class="conteudo-bloco recolhido">
+        <h2 style="margin-top:0;">Pedidos Cadastrados</h2>
         <div id="loadingMsg">Carregando pedidos...</div>
         <div id="listaPedidos"></div>
     </div>
