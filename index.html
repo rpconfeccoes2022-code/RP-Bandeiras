@@ -17,7 +17,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
     :root {
         --neu-bg: #1e1f24;
         --neu-dark: #121317;
@@ -36,7 +37,8 @@
     }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 16px; background-color: var(--neu-bg); color: var(--neu-text); -webkit-font-smoothing: antialiased; transition: background-color 0.25s ease, color 0.25s ease; }
     h1 { display: none; }
-    .card { background: var(--neu-bg); border: none; border-radius: 22px; padding: 18px; margin-bottom: 16px; box-shadow: 8px 8px 16px var(--neu-dark), -8px -8px 16px var(--neu-light); }
+    .card { background: var(--neu-bg); border: none; border-radius: 22px; padding: 18px; margin-bottom: 16px; box-shadow: 8px 8px 16px var(--neu-dark), -8px -8px 16px var(--neu-light); transition: padding 0.15s ease, margin 0.15s ease, box-shadow 0.15s ease; }
+    .card.card-vazio { padding: 0; margin-bottom: 0; box-shadow: none; background: transparent; overflow: hidden; }
     .card h2 { font-size: 14.5px; font-weight: 700; margin-top: 0; padding-bottom: 10px; color: var(--neu-text); letter-spacing: 0.2px; text-transform: uppercase; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     @media (max-width: 420px) { .form-grid { grid-template-columns: 1fr 1fr; gap: 8px; } }
@@ -132,9 +134,15 @@
     .caixa-busca .icone-busca { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--neu-text-dim); pointer-events: none; }
     .caixa-busca input { padding-left: 42px; }
     .menu-redondo { display: flex; justify-content: space-evenly; margin: 4px 0 20px; }
-    .botao-redondo { all: unset; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; }
-    .circulo-icone { width: 68px; height: 68px; border-radius: 50%; background: var(--neu-accent); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); transition: transform 0.12s ease; }
+    .botao-redondo { all: unset; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; -webkit-tap-highlight-color: transparent; tap-highlight-color: transparent; outline: none; }
+    .botao-redondo:focus { outline: none; }
+    .botao-redondo::-moz-focus-inner { border: 0; }
+    .circulo-icone { width: 68px; height: 68px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); transition: transform 0.12s ease, box-shadow 0.15s ease; -webkit-tap-highlight-color: transparent; }
+    .circulo-icone.cor-verde { background: linear-gradient(145deg, #4caf50, #2e7d32); }
+    .circulo-icone.cor-azul { background: linear-gradient(145deg, #42a5f5, #1565c0); }
+    .circulo-icone.cor-laranja { background: linear-gradient(145deg, #ffa726, #ef6c00); }
     .botao-redondo:active .circulo-icone { transform: scale(0.92); }
+    .circulo-icone.pressionado { box-shadow: inset 4px 4px 9px rgba(0,0,0,0.35), inset -3px -3px 7px rgba(255,255,255,0.15); transform: scale(0.96); }
     .rotulo-redondo { font-size: 11px; font-weight: 700; letter-spacing: 0.4px; color: var(--neu-text-dim); text-transform: uppercase; }
     #pontoStatusSino { position: absolute; top: 3px; right: 3px; width: 12px; height: 12px; border-radius: 50%; background: #888; border: 2px solid var(--neu-bg); }
 
@@ -297,20 +305,20 @@
 
 <div class="menu-redondo">
     <button type="button" class="botao-redondo" onclick="alternarNovoPedido()">
-        <span class="circulo-icone">
-            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        <span class="circulo-icone cor-verde" id="circuloCadastrar">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
         </span>
         <span class="rotulo-redondo">Cadastrar</span>
     </button>
     <button type="button" class="botao-redondo" onclick="alternarQuantidades()">
-        <span class="circulo-icone">
-            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span class="circulo-icone cor-azul" id="circuloTotal">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="13" width="3" height="5" rx="0.5"/><rect x="12.5" y="9" width="3" height="9" rx="0.5"/><rect x="18" y="6" width="3" height="12" rx="0.5"/></svg>
         </span>
         <span class="rotulo-redondo">Total</span>
     </button>
     <button type="button" class="botao-redondo" onclick="alternarHistorico()">
-        <span class="circulo-icone">
-            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01"/></svg>
+        <span class="circulo-icone cor-laranja" id="circuloPedidos">
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
         </span>
         <span class="rotulo-redondo">Pedidos</span>
     </button>
@@ -350,7 +358,7 @@
     </div>
 </div>
 
-<div class="card" id="cardNovoPedido">
+<div class="card card-vazio" id="cardNovoPedido">
     <span class="seta-bloco fechado" id="seta_novoPedido" style="display:none;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
     <div id="conteudoNovoPedido" class="conteudo-bloco recolhido">
     <h2 id="formTitle" style="margin-top:0;">Novo Pedido</h2>
@@ -453,7 +461,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card card-vazio" id="cardQuantidades">
     <span class="seta-bloco fechado" id="seta_quantidades" style="display:none;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
     <div id="conteudoQuantidades" class="conteudo-bloco recolhido">
         <h2 style="margin-top:0;">Total por Material</h2>
@@ -461,7 +469,7 @@
     </div>
 </div>
 
-<div class="card">
+<div class="card card-vazio" id="cardHistorico">
     <span class="seta-bloco fechado" id="seta_historico" style="display:none;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
     <div id="conteudoHistorico" class="conteudo-bloco recolhido">
         <h2 style="margin-top:0;">Pedidos Cadastrados</h2>
@@ -874,19 +882,30 @@ function alternarBloco(grupoChave) {
     seta.classList.toggle('fechado', oculto);
 }
 
+function marcarBotaoRedondo(idBotao, ativo) {
+    const btn = document.getElementById(idBotao);
+    if (btn) btn.classList.toggle('pressionado', ativo);
+}
+
 function alternarNovoPedido() {
     const conteudo = document.getElementById('conteudoNovoPedido');
     const seta = document.getElementById('seta_novoPedido');
     const oculto = conteudo.classList.toggle('recolhido');
     seta.classList.toggle('fechado', oculto);
+    document.getElementById('cardNovoPedido').classList.toggle('card-vazio', oculto);
+    marcarBotaoRedondo('circuloCadastrar', !oculto);
 }
 function abrirNovoPedido() {
     document.getElementById('conteudoNovoPedido').classList.remove('recolhido');
     document.getElementById('seta_novoPedido').classList.remove('fechado');
+    document.getElementById('cardNovoPedido').classList.remove('card-vazio');
+    marcarBotaoRedondo('circuloCadastrar', true);
 }
 function fecharNovoPedido() {
     document.getElementById('conteudoNovoPedido').classList.add('recolhido');
     document.getElementById('seta_novoPedido').classList.add('fechado');
+    document.getElementById('cardNovoPedido').classList.add('card-vazio');
+    marcarBotaoRedondo('circuloCadastrar', false);
 }
 
 function alternarHistorico() {
@@ -894,11 +913,15 @@ function alternarHistorico() {
     const seta = document.getElementById('seta_historico');
     const oculto = conteudo.classList.toggle('recolhido');
     seta.classList.toggle('fechado', oculto);
+    document.getElementById('cardHistorico').classList.toggle('card-vazio', oculto);
+    marcarBotaoRedondo('circuloPedidos', !oculto);
     if (!oculto) empilharGuardaHistorico();
 }
 function abrirHistorico() {
     document.getElementById('conteudoHistorico').classList.remove('recolhido');
     document.getElementById('seta_historico').classList.remove('fechado');
+    document.getElementById('cardHistorico').classList.remove('card-vazio');
+    marcarBotaoRedondo('circuloPedidos', true);
     empilharGuardaHistorico();
 }
 function alternarQuantidades() {
@@ -906,6 +929,8 @@ function alternarQuantidades() {
     const seta = document.getElementById('seta_quantidades');
     const oculto = conteudo.classList.toggle('recolhido');
     seta.classList.toggle('fechado', oculto);
+    document.getElementById('cardQuantidades').classList.toggle('card-vazio', oculto);
+    marcarBotaoRedondo('circuloTotal', !oculto);
     if (!oculto) empilharGuardaHistorico();
 }
 
