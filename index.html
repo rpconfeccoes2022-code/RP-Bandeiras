@@ -134,10 +134,11 @@
     .caixa-busca .icone-busca { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--neu-text-dim); pointer-events: none; }
     .caixa-busca input { padding-left: 42px; }
     .menu-redondo { display: flex; justify-content: space-evenly; margin: 4px 0 20px; }
-    .botao-redondo { all: unset; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; -webkit-tap-highlight-color: transparent; tap-highlight-color: transparent; outline: none; }
+    .botao-redondo { all: unset; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 7px; cursor: pointer; -webkit-tap-highlight-color: transparent !important; tap-highlight-color: transparent; outline: none; background: none !important; border: none !important; -webkit-appearance: none; appearance: none; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+    .botao-redondo:focus, .botao-redondo:focus-visible { outline: none; background: none !important; box-shadow: none !important; }
     .botao-redondo:focus { outline: none; }
     .botao-redondo::-moz-focus-inner { border: 0; }
-    .circulo-icone { width: 68px; height: 68px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); transition: transform 0.12s ease, box-shadow 0.15s ease; -webkit-tap-highlight-color: transparent; }
+    .circulo-icone { width: 68px; height: 68px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); transition: transform 0.12s ease, box-shadow 0.15s ease; -webkit-tap-highlight-color: transparent !important; overflow: hidden; }
     .circulo-icone.cor-verde { background: linear-gradient(145deg, #4caf50, #2e7d32); }
     .circulo-icone.cor-azul { background: linear-gradient(145deg, #42a5f5, #1565c0); }
     .circulo-icone.cor-laranja { background: linear-gradient(145deg, #ffa726, #ef6c00); }
