@@ -73,8 +73,9 @@
     .pedido-datas-rodape { font-size: 11px; color: var(--neu-text-dim); opacity: 0.75; margin-top: 10px; }
     .pedido-tags-rodape { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
     .pedido-detalhes { font-size: 13px; margin-top: 6px; color: var(--neu-text-dim); }
-    .pedido-acoes { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
-    .pedido-acoes button { display: inline-flex; align-items: center; gap: 6px; margin-top: 0; padding: 9px 14px; font-size: 13px; background: transparent; box-shadow: none; border: 1.5px solid currentColor; }
+    .pedido-acoes { margin-top: 12px; display: flex; gap: 5px; flex-wrap: nowrap; }
+    .pedido-acoes button { flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 3px; margin-top: 0; padding: 8px 4px; font-size: 11px; background: transparent; box-shadow: none; border: 1.5px solid currentColor; white-space: nowrap; overflow: hidden; }
+    .pedido-acoes button svg { flex-shrink: 0; width: 12px; height: 12px; }
     #loadingMsg { text-align: center; color: var(--neu-text-dim); padding: 10px; }
     .form-actions { display: flex; gap: 10px; }
     .foto-preview { max-width: 150px; max-height: 150px; border-radius: 14px; display: block; box-shadow: 4px 4px 10px var(--neu-dark), -4px -4px 10px var(--neu-light); }
@@ -675,6 +676,13 @@ function formatarQuantidadeEntrega(p) {
     return v + "/" + (p.quantidade || "?");
 }
 
+function formatarCnpjFornecedor(valor) {
+    if (!valor) return valor;
+    // Remove qualquer nome de loja salvo antes do CNPJ em pedidos antigos (ex: "LOJA 2: 38.756...")
+    const idx = valor.lastIndexOf(':');
+    return idx >= 0 ? valor.slice(idx + 1).trim() : valor;
+}
+
 function atualizarDisplayData(campo) {
     const el = document.getElementById(campo);
     if (!el) return;
@@ -1186,7 +1194,7 @@ function renderizarPedidos(lista) {
         const camposInfo = [
             ["Material", p.material], ["Acessório", p.acessorio],
             ["Cargo", p.cargo], ["Número", p.numero],
-            ["Estado", p.estado], ["CNPJ Forn", p.cnpj_fornecedor],
+            ["Estado", p.estado], ["CNPJ Forn", formatarCnpjFornecedor(p.cnpj_fornecedor)],
             ["CNPJ Cand", p.cnpj_candidato], ["Tiragem", p.tiragem],
             ["Quantidade", p.quantidade], ["Data do Pedido", formatarDataHora(p.data_pedido)],
             ["Destino", p.destino],
@@ -1530,7 +1538,7 @@ async function gerarPDF(id) {
         }
 
         cursorY = tabela(margemEsq, larguraUtil, "IDENTIFICAÇÃO E MATERIAL", [
-            ["CNPJ Fornecedor", p.cnpj_fornecedor || "-"],
+            ["CNPJ Fornecedor", formatarCnpjFornecedor(p.cnpj_fornecedor) || "-"],
             ["CNPJ Candidato", p.cnpj_candidato || "-"],
             ["Material", p.material || "-"],
             ["Acessorio", p.acessorio || "-"],
