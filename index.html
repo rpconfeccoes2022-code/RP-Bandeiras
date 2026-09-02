@@ -38,7 +38,8 @@
     h1 { display: none; }
     .card { background: var(--neu-bg); border: none; border-radius: 22px; padding: 18px; margin-bottom: 16px; box-shadow: 8px 8px 16px var(--neu-dark), -8px -8px 16px var(--neu-light); }
     .card h2 { font-size: 14.5px; font-weight: 700; margin-top: 0; padding-bottom: 10px; color: var(--neu-text); letter-spacing: 0.2px; text-transform: uppercase; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 420px) { .form-grid { grid-template-columns: 1fr 1fr; gap: 8px; } }
     label { font-size: 12px; font-weight: 600; display: block; margin-bottom: 6px; color: var(--neu-text-dim); text-transform: uppercase; letter-spacing: 0.3px; }
     input, select { width: 100%; padding: 12px 14px; font-size: 14px; border: none; border-radius: 14px; background-color: var(--neu-bg); color: var(--neu-text); box-sizing: border-box; box-shadow: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light); transition: box-shadow 0.15s ease; }
     input:focus, select:focus { outline: none; box-shadow: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light), 0 0 0 2px var(--neu-accent); }
@@ -52,22 +53,31 @@
     button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
     button.secondary { color: var(--neu-text-dim); }
     button.danger { color: var(--neu-danger); }
+    button.clonar { color: #9c5fd4; }
     #searchBox { width: 100%; padding: 13px 14px 13px 42px; font-size: 15px; border-radius: 16px; border: none; background-color: var(--neu-bg); color: var(--neu-text); margin-bottom: 0; box-sizing: border-box; box-shadow: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light); transition: box-shadow 0.15s ease; }
     #searchBox:focus { outline: none; box-shadow: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light), 0 0 0 2px var(--neu-accent); }
     .pedido-item { border: none; border-radius: 18px; padding: 15px; margin-bottom: 12px; background: var(--neu-bg); box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); }
-    .pedido-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
-    .pedido-header strong { font-size: 15px; color: var(--neu-text); }
+    .pedido-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+    .pedido-header strong { font-size: 16px; color: var(--neu-text); }
     .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; color: white; margin-left: 6px; }
     .b-int { background: #1565c0; }
     .b-cos { background: #6a1b9a; }
     .b-ent { background: #ef6c00; }
+    .pedido-corpo { display: flex; gap: 12px; align-items: flex-start; }
+    .pedido-foto-col { flex-shrink: 0; width: 34%; max-width: 130px; }
+    .pedido-foto { width: 100%; height: auto; border-radius: 12px; display: block; cursor: zoom-in; box-shadow: 3px 3px 8px var(--neu-dark), -3px -3px 8px var(--neu-light); }
+    .pedido-foto-vazia { width: 100%; aspect-ratio: 3/4; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--neu-text-dim); font-size: 12px; box-shadow: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light); }
+    .pedido-info-col { flex: 1; min-width: 0; }
+    .pedido-info-linha { font-size: 12.5px; color: var(--neu-text-dim); line-height: 1.6; }
+    .pedido-info-linha b { color: var(--neu-text); font-weight: 600; }
+    .pedido-datas-rodape { font-size: 11px; color: var(--neu-text-dim); opacity: 0.75; margin-top: 10px; }
+    .pedido-tags-rodape { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
     .pedido-detalhes { font-size: 13px; margin-top: 6px; color: var(--neu-text-dim); }
-    .pedido-acoes { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
-    .pedido-acoes button { display: inline-flex; align-items: center; gap: 6px; margin-top: 0; padding: 9px 14px; font-size: 13px; }
+    .pedido-acoes { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .pedido-acoes button { display: inline-flex; align-items: center; gap: 6px; margin-top: 0; padding: 9px 14px; font-size: 13px; background: transparent; box-shadow: none; border: 1.5px solid currentColor; }
     #loadingMsg { text-align: center; color: var(--neu-text-dim); padding: 10px; }
     .form-actions { display: flex; gap: 10px; }
     .foto-preview { max-width: 150px; max-height: 150px; border-radius: 14px; display: block; box-shadow: 4px 4px 10px var(--neu-dark), -4px -4px 10px var(--neu-light); }
-    .pedido-foto { max-width: 120px; max-height: 120px; border-radius: 12px; margin-top: 6px; display: block; cursor: zoom-in; }
     #fotoModalOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; }
     #fotoModalOverlay.aberto { display: flex; }
     #fotoModalImg { max-width: 92vw; max-height: 88vh; border-radius: 14px; box-shadow: 0 4px 24px rgba(0,0,0,0.6); }
@@ -78,7 +88,8 @@
     .modal-caixa { background: var(--neu-bg); border: none; border-radius: 22px; padding: 24px; width: 260px; text-align: center; box-shadow: 10px 10px 20px var(--neu-dark), -10px -10px 20px var(--neu-light); }
     .modal-caixa h3 { margin-top: 0; color: var(--neu-text); font-size: 15px; }
     .modal-caixa button { width: 100%; }
-    .totais-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 10px; }
+    .totais-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
+    @media (max-width: 380px) { .totais-grid .totais-item { padding: 10px 6px; } .totais-item .totais-numero { font-size: 19px; } .totais-item .totais-label { font-size: 10px; } }
     .totais-item { background: var(--neu-bg); border: none; border-radius: 18px; padding: 16px; text-align: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); }
     .totais-item .totais-numero { font-size: 24px; font-weight: bold; color: var(--neu-accent); }
     .totais-item .totais-label { font-size: 12px; color: var(--neu-text-dim); margin-top: 4px; }
@@ -418,8 +429,13 @@
 </div>
 
 <div class="card">
-    <h2>Totais por Material (Quantidade a Produzir)</h2>
-    <div id="totaisPorMaterial" class="totais-grid"></div>
+    <div class="cabecalho-bloco" onclick="alternarQuantidades()">
+        <h2 style="margin:0; border:none; padding:0;">Quantidades</h2>
+        <span class="seta-bloco fechado" id="seta_quantidades"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+    </div>
+    <div id="conteudoQuantidades" class="conteudo-bloco recolhido">
+        <div id="totaisPorMaterial" class="totais-grid"></div>
+    </div>
 </div>
 
 <div class="card">
@@ -572,6 +588,9 @@ function fecharAlgoAbertoParaVoltar() {
 
     const historico = document.getElementById('conteudoHistorico');
     if (historico && !historico.classList.contains('recolhido')) { alternarHistorico(); return true; }
+
+    const quantidades = document.getElementById('conteudoQuantidades');
+    if (quantidades && !quantidades.classList.contains('recolhido')) { alternarQuantidades(); return true; }
 
     return false;
 }
@@ -762,7 +781,7 @@ function montarBlocosEtapas() {
     let html = "";
     Object.keys(GRUPOS).forEach(grupoChave => {
         const grupo = GRUPOS[grupoChave];
-        html += `<div class="bloco-etapa" style="border-left-color:${grupo.cor}; background:${grupo.cor}15;">`;
+        html += `<div class="bloco-etapa" style="border-left-color:${grupo.cor}; background:${grupo.cor}2b;">`;
         html += `<div class="cabecalho-bloco" onclick="alternarBloco('${grupoChave}')">
                     <h3 style="color:${grupo.cor};">${grupo.titulo}</h3>
                     <span class="seta-bloco fechado" id="seta_${grupoChave}"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
@@ -847,11 +866,19 @@ function alternarHistorico() {
     const seta = document.getElementById('seta_historico');
     const oculto = conteudo.classList.toggle('recolhido');
     seta.classList.toggle('fechado', oculto);
+    if (!oculto) empilharGuardaHistorico();
 }
 function abrirHistorico() {
     document.getElementById('conteudoHistorico').classList.remove('recolhido');
     document.getElementById('seta_historico').classList.remove('fechado');
     empilharGuardaHistorico();
+}
+function alternarQuantidades() {
+    const conteudo = document.getElementById('conteudoQuantidades');
+    const seta = document.getElementById('seta_quantidades');
+    const oculto = conteudo.classList.toggle('recolhido');
+    seta.classList.toggle('fechado', oculto);
+    if (!oculto) empilharGuardaHistorico();
 }
 
 function adicionarEntradaCostura(chave, dados) {
@@ -1156,23 +1183,31 @@ function renderizarPedidos(lista) {
     lista.forEach(p => {
         const div = document.createElement('div');
         div.className = 'pedido-item';
+        const camposInfo = [
+            ["Material", p.material], ["Acessório", p.acessorio],
+            ["Cargo", p.cargo], ["Número", p.numero],
+            ["Estado", p.estado], ["CNPJ Fornecedor", p.cnpj_fornecedor],
+            ["CNPJ Candidato", p.cnpj_candidato], ["Tiragem", p.tiragem],
+            ["Quantidade", p.quantidade], ["Data do Pedido", formatarDataHora(p.data_pedido)],
+            ["Destino", p.destino],
+        ];
+        if (p.nome_destinatario) camposInfo.push(["Destinatário", p.nome_destinatario + (p.celular_destinatario ? " - " + p.celular_destinatario : "")]);
+
         div.innerHTML = `
-            <div class="pedido-header">
-                <strong>${p.candidato}</strong>
-                <span>
-                    ${ETAPAS.filter(e => p[e.chave]).map(e => `<span class="tag-etapa" style="background:${e.cor}; color:#fff;">${e.label}${(e.chave === 'em_rota_entrega' || e.chave === 'entregue') && p.quantidade_entrega ? ` (${formatarQuantidadeEntrega(p)})` : ""}</span>`).join(" ")}
-                </span>
+            <div class="pedido-header"><strong>${p.candidato || "-"}</strong></div>
+            <div class="pedido-corpo">
+                <div class="pedido-foto-col">
+                    ${p.foto_url
+                        ? `<img class="pedido-foto" src="${p.foto_url}" onerror="this.style.display='none'" onclick="ampliarFoto('${p.foto_url}')">`
+                        : `<div class="pedido-foto-vazia">Sem foto</div>`}
+                </div>
+                <div class="pedido-info-col">
+                    ${camposInfo.map(([rotulo, valor]) => `<div class="pedido-info-linha"><b>${rotulo}:</b> ${valor || "-"}</div>`).join("")}
+                </div>
             </div>
-            <div class="pedido-detalhes">
-                Material: ${p.material || "-"} | Acessorio: ${p.acessorio || "-"}<br>
-                Cargo: ${p.cargo || "-"} | Numero: ${p.numero || "-"} | Estado: ${p.estado || "-"}<br>
-                CNPJ Fornecedor: ${p.cnpj_fornecedor || "-"}<br>
-                CNPJ Candidato: ${p.cnpj_candidato || "-"}<br>
-                Tiragem: ${p.tiragem || "-"} | Quantidade: ${p.quantidade || "-"}<br>
-                Data do Pedido: ${formatarDataHora(p.data_pedido) || "-"} | Destino: ${p.destino || "-"}
-                ${p.nome_destinatario ? `<br>Destinatario: ${p.nome_destinatario} - ${p.celular_destinatario || "-"}` : ""}
-                <br><span style="color:#777; font-size:12px;">Criado em: ${formatarDataHora(p.criado_em) || "-"} | Atualizado em: ${formatarDataHora(p.atualizado_em) || "-"}</span>
-                ${p.foto_url ? `<br><img class="pedido-foto" src="${p.foto_url}" onerror="this.style.display='none'" onclick="ampliarFoto('${p.foto_url}')">` : ""}
+            <div class="pedido-datas-rodape">Criado em: ${formatarDataHora(p.criado_em) || "-"} | Atualizado em: ${formatarDataHora(p.atualizado_em) || "-"}</div>
+            <div class="pedido-tags-rodape">
+                ${ETAPAS.filter(e => p[e.chave]).map(e => `<span class="tag-etapa" style="background:${e.cor}; color:#fff;">${e.label}${(e.chave === 'em_rota_entrega' || e.chave === 'entregue') && p.quantidade_entrega ? ` (${formatarQuantidadeEntrega(p)})` : ""}</span>`).join(" ")}
             </div>
             <div class="pedido-acoes">
                 <button onclick="editarPedido(${p.id})">
@@ -1187,10 +1222,63 @@ function renderizarPedidos(lista) {
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                     Excluir
                 </button>
+                <button class="clonar" onclick="clonarPedido(${p.id})">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Clonar
+                </button>
             </div>
         `;
         container.appendChild(div);
     });
+}
+
+function clonarPedido(id) {
+    const p = pedidosCache.find(x => x.id === id);
+    if (!p) return;
+    limparFormulario();
+
+    const opcoesMaterial = ["Wind Banner 73x210", "Wind Banner 100x300", "Bandeira 150x200", "Bandeira 100x140", "Bandeira 70x100", "Bandeira 34x52"];
+    if (p.material && !opcoesMaterial.includes(p.material)) {
+        document.getElementById('material').value = '__manual__';
+        document.getElementById('material_manual').value = p.material;
+    } else {
+        document.getElementById('material').value = p.material || "";
+    }
+    toggleMaterialManual();
+
+    const opcoesCnpj = ["", "LOJA 2: 38.756.034/0001-83", "AR DISTRIBUIDORA: 55.048.684/0001-93", "PATROCINIO: 54.984.458/0001-51"];
+    if (p.cnpj_fornecedor && !opcoesCnpj.includes(p.cnpj_fornecedor)) {
+        document.getElementById('cnpj_fornecedor').value = '__manual__';
+        document.getElementById('cnpj_fornecedor_manual').value = p.cnpj_fornecedor;
+    } else {
+        document.getElementById('cnpj_fornecedor').value = p.cnpj_fornecedor || "";
+    }
+    toggleCnpjManual();
+
+    document.getElementById('candidato').value = p.candidato || "";
+    document.getElementById('cargo').value = p.cargo || "";
+    document.getElementById('numero').value = p.numero || "";
+    document.getElementById('estado').value = p.estado || "";
+    document.getElementById('acessorio').value = p.acessorio || "";
+    document.getElementById('cnpj_candidato').value = p.cnpj_candidato || "";
+    document.getElementById('tiragem').value = p.tiragem || "";
+    document.getElementById('quantidade').value = p.quantidade || "";
+    document.getElementById('destino').value = p.destino || "";
+    document.getElementById('nome_destinatario').value = p.nome_destinatario || "";
+    document.getElementById('celular_destinatario').value = p.celular_destinatario || "";
+
+    if (p.foto_url) {
+        fotoUrlAtual = p.foto_url;
+        const box = document.getElementById('fotoPreviewBox');
+        box.innerHTML = "";
+        const img = document.createElement('img');
+        img.className = 'foto-preview';
+        img.src = p.foto_url;
+        box.appendChild(img);
+    }
+
+    mostrarBarraAcoes();
+    mostrarOk("Pedido clonado - status e datas foram zerados. Revise os dados e salve.");
 }
 
 function editarPedido(id) {
