@@ -100,7 +100,7 @@
     .cabecalho-bloco { display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none; }
     .seta-bloco { color: var(--neu-text-dim); transition: transform 0.2s ease; padding: 4px 8px; display: inline-flex; align-items: center; justify-content: center; transform: rotate(0deg); }
     .seta-bloco.fechado { transform: rotate(-90deg); }
-    .conteudo-bloco { overflow: hidden; margin-top: 10px; padding: 2px 4px; margin-left: -4px; margin-right: -4px; }
+    .conteudo-bloco { margin-top: 10px; }
     .conteudo-bloco.recolhido { display: none; }
     .bloco-etapa h3 { margin: 0; font-size: 13.5px; text-transform: uppercase; letter-spacing: 0.3px; }
     .linha-etapa { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(128,128,128,0.18); flex-wrap: wrap; }
@@ -432,7 +432,7 @@
         </div>
         <div>
             <label>CNPJ Candidato</label>
-            <input type="text" id="cnpj_candidato" placeholder="CNPJ do candidato" list="dl_cnpj_candidato">
+            <input type="text" id="cnpj_candidato" placeholder="CNPJ do candidato" list="dl_cnpj_candidato" onblur="autoPreencherPorCnpjCandidato()">
         </div>
         <div>
             <label>Tiragem</label>
@@ -1006,6 +1006,28 @@ function toggleFields() {
     document.querySelectorAll('.field').forEach(f => f.classList.remove('show'));
     const seMarcado = ETAPAS.filter(e => e.grupo === 'entrega').some(e => document.getElementById('chk_' + e.chave).checked);
     if (seMarcado) document.getElementById('f_quantidade_entrega').classList.add('show');
+}
+
+function autoPreencherPorCnpjCandidato() {
+    if (editandoId) return; // so faz sentido ao cadastrar um pedido novo, nao ao editar um ja existente
+    const cnpj = document.getElementById('cnpj_candidato').value.trim();
+    if (!cnpj) return;
+    const encontrado = pedidosCache.find(p => p.cnpj_candidato && p.cnpj_candidato.trim().toLowerCase() === cnpj.toLowerCase());
+    if (!encontrado) return;
+
+    let preencheuAlgo = false;
+    const mapa = { candidato: 'candidato', cargo: 'cargo', numero: 'numero', estado: 'estado', destino: 'destino' };
+    Object.keys(mapa).forEach(idCampo => {
+        const el = document.getElementById(idCampo);
+        if (el && !el.value && encontrado[mapa[idCampo]]) {
+            el.value = encontrado[mapa[idCampo]];
+            preencheuAlgo = true;
+        }
+    });
+    if (preencheuAlgo) {
+        mostrarOk("Dados preenchidos automaticamente a partir de um pedido anterior desse candidato.");
+        mostrarBarraAcoes();
+    }
 }
 
 function toggleCnpjManual() {
