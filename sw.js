@@ -1,4 +1,4 @@
-const CACHE_NAME = "rp-bandeiras-v43";
+const CACHE_NAME = "rp-bandeiras-v44";
 const ARQUIVOS_ESSENCIAIS = [
     "./index.html",
     "./manifest.json",
@@ -28,16 +28,50 @@ self.addEventListener("activate", (event) => {
     self.clients.claim();
 });
 
+// Busca da rede com um tempo limite - evita ficar "travado" esperando uma conexao lenta
+function buscarComTempoLimite(request, limiteMs) {
+    return new Promise((resolve, reject) => {
+        const temporizador = setTimeout(() => reject(new Error("tempo esgotado")), limiteMs);
+        fetch(request).then(
+            (resposta) => { clearTimeout(temporizador); resolve(resposta); },
+            (erro) => { clearTimeout(temporizador); reject(erro); }
+        );
+    });
+}
+
 // Estrategia: para os icones, usa o cache primeiro (mais rapido e confiavel pra notificacao, ja que quase nunca mudam).
+// Para a pagina principal, corre uma "corrida" entre a rede (com tempo limite curto) e o cache local -
+// assim o app abre rapido mesmo com internet ruim, e atualiza o conteudo por tras assim que a rede responder.
 // Para o resto, tenta a rede primeiro (dados sempre atualizados); se offline, usa o cache do app shell.
 self.addEventListener("fetch", (event) => {
     if (event.request.method !== "GET") return;
-    if (event.request.url.includes("icon-192") || event.request.url.includes("icon-512") || event.request.url.includes("logo-transparente")) {
+    const url = event.request.url;
+
+    if (url.includes("icon-192") || url.includes("icon-512") || url.includes("logo-transparente") || url.includes("logo-softgirl")) {
         event.respondWith(
             caches.match(event.request).then((cacheado) => cacheado || fetch(event.request))
         );
         return;
     }
+
+    if (event.request.mode === "navigate" || url.endsWith("index.html") || url.endsWith("/")) {
+        event.respondWith(
+            (async () => {
+                try {
+                    const resposta = await buscarComTempoLimite(event.request, 3000);
+                    const copia = resposta.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copia)).catch(() => {});
+                    return resposta;
+                } catch (e) {
+                    const cacheado = await caches.match(event.request);
+                    if (cacheado) return cacheado;
+                    return fetch(event.request);
+                }
+            })()
+        );
+        return;
+    }
+
     event.respondWith(
         fetch(event.request)
             .then((resposta) => {
