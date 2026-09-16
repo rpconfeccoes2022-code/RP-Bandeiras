@@ -73,8 +73,9 @@
     .pedido-datas-rodape { font-size: 11px; color: var(--neu-text-dim); opacity: 0.75; margin-top: 10px; }
     .pedido-tags-rodape { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 5px; }
     .pedido-detalhes { font-size: 13px; margin-top: 6px; color: var(--neu-text-dim); }
-    .pedido-acoes { margin-top: 12px; display: flex; gap: 5px; flex-wrap: nowrap; }
+    .pedido-acoes { margin-top: 12px; display: flex; gap: 5px; flex-wrap: nowrap; align-items: center; }
     .pedido-acoes button { flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 3px; margin-top: 0; padding: 8px 4px; font-size: 11px; background: transparent; box-shadow: none; border: 1.5px solid currentColor; white-space: nowrap; overflow: hidden; }
+    .pedido-acoes button.btn-qr-pedido { flex: 0 0 32px; width: 32px; height: 32px; padding: 0; border-radius: 8px; color: var(--neu-text-dim); }
     .pedido-acoes button svg { flex-shrink: 0; width: 12px; height: 12px; }
     #loadingMsg { text-align: center; color: var(--neu-text-dim); padding: 10px; }
     .form-actions { display: flex; gap: 10px; }
@@ -127,6 +128,11 @@
     #sinoNotificacao { position: fixed; top: 14px; right: 14px; z-index: 500; background: var(--neu-bg); border: none; border-radius: 50%; width: 46px; height: 46px; padding: 0; margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); transition: box-shadow 0.15s ease, transform 0.15s ease; }
     #sinoNotificacao:active { box-shadow: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light); transform: scale(0.96); }
     #btnAtualizarTopo { position: fixed; top: 14px; right: 68px; z-index: 500; background: var(--neu-bg); border: none; border-radius: 50%; width: 46px; height: 46px; padding: 0; margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); transition: box-shadow 0.4s ease, transform 0.4s ease; }
+    #btnEstacao, #btnEscanear { position: fixed; top: 66px; z-index: 500; background: var(--neu-bg); color: var(--neu-text-dim); border: none; border-radius: 50%; width: 44px; height: 44px; padding: 0; margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 6px 6px 12px var(--neu-dark), -6px -6px 12px var(--neu-light); }
+    #btnEstacao { right: 14px; }
+    #btnEscanear { right: 66px; }
+    #pontoStatusEstacao { position: absolute; top: 3px; right: 3px; width: 11px; height: 11px; border-radius: 50%; background: #888; border: 2px solid var(--neu-bg); }
+    #pontoStatusEstacao.configurada { background: #43a047; }
     #btnAtualizarTopo:active { transform: rotate(180deg); box-shadow: inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light); }
     .caixa-busca { position: relative; margin: 4px 0 16px; }
     .caixa-busca .icone-busca { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--neu-text-dim); pointer-events: none; }
@@ -268,6 +274,15 @@
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
 </button>
 
+<button id="btnEstacao" onclick="abrirConfigEstacao()" title="Estacao deste aparelho">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4.5 8-11.8A8 8 0 0 0 4 10.2C4 17.5 12 22 12 22z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span id="pontoStatusEstacao"></span>
+</button>
+
+<button id="btnEscanear" onclick="abrirScannerCamera()" title="Escanear QR Code">
+    <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+</button>
+
 <label id="interruptorTema" title="Tema claro/escuro">
     <input type="checkbox" id="chkTema" onchange="alternarTema()">
     <span class="slider-tema">
@@ -357,6 +372,43 @@
         <h3>Sair do aplicativo?</h3>
         <button class="danger" onclick="confirmarSairApp()">Sim, sair</button>
         <button class="secondary" onclick="cancelarSairApp()">Continuar no app</button>
+    </div>
+</div>
+
+<div id="estacaoOverlay" class="modal-overlay">
+    <div class="modal-caixa">
+        <h3>Estacao deste aparelho</h3>
+        <p style="font-size:13px; color:var(--neu-text-dim); margin-top:-6px;">Ao escanear um QR code de pedido neste celular, a etapa abaixo sera marcada automaticamente.</p>
+        <select id="selectEstacao" style="margin-bottom:10px;"></select>
+        <button onclick="salvarEstacao()">Salvar</button>
+        <button class="secondary" onclick="fecharConfigEstacao()">Cancelar</button>
+    </div>
+</div>
+
+<div id="qrCodeOverlay" class="modal-overlay">
+    <div class="modal-caixa">
+        <h3 id="qrCodeTitulo">QR Code do Pedido</h3>
+        <div style="background:#fff; padding:12px; border-radius:14px; display:flex; align-items:center; justify-content:center;">
+            <canvas id="canvasQR" width="220" height="220"></canvas>
+        </div>
+        <button onclick="baixarQRCode()">Baixar Imagem</button>
+        <button class="secondary" onclick="fecharQRCode()">Fechar</button>
+    </div>
+</div>
+
+<div id="confirmarScanOverlay" class="modal-overlay">
+    <div class="modal-caixa">
+        <h3 id="textoConfirmarScan">Marcar etapa?</h3>
+        <button onclick="confirmarMarcarEtapaScan()">Sim, marcar</button>
+        <button class="secondary" onclick="cancelarMarcarEtapaScan()">Cancelar</button>
+    </div>
+</div>
+
+<div id="scannerCameraOverlay" class="modal-overlay">
+    <div class="modal-caixa" style="width:300px;">
+        <h3>Aponte para o QR Code</h3>
+        <div id="readerQR" style="width:100%; border-radius:14px; overflow:hidden;"></div>
+        <button class="secondary" onclick="fecharScannerCamera()">Cancelar</button>
     </div>
 </div>
 
@@ -471,7 +523,7 @@
 
     <div style="margin-top:14px;">
         <h2 style="font-size:14px;">Foto do Pedido</h2>
-        <input type="file" id="fotoInput" accept="image/*" onchange="previewFoto()">
+        <input type="file" id="fotoInput" accept="image/*" capture="environment" onchange="previewFoto()">
         <div id="fotoPreviewBox" style="margin-top:10px;">Nenhuma foto selecionada</div>
     </div>
     </div>
@@ -616,6 +668,18 @@ function empilharGuardaHistorico() {
     }
 }
 function fecharAlgoAbertoParaVoltar() {
+    const scannerCamera = document.getElementById('scannerCameraOverlay');
+    if (scannerCamera && scannerCamera.classList.contains('aberto')) { fecharScannerCamera(); return true; }
+
+    const confirmarScan = document.getElementById('confirmarScanOverlay');
+    if (confirmarScan && confirmarScan.classList.contains('aberto')) { cancelarMarcarEtapaScan(); return true; }
+
+    const qrOverlay = document.getElementById('qrCodeOverlay');
+    if (qrOverlay && qrOverlay.classList.contains('aberto')) { fecharQRCode(); return true; }
+
+    const estacaoOverlay = document.getElementById('estacaoOverlay');
+    if (estacaoOverlay && estacaoOverlay.classList.contains('aberto')) { fecharConfigEstacao(); return true; }
+
     const confirmarExcluir = document.getElementById('confirmarExcluirOverlay');
     if (confirmarExcluir && confirmarExcluir.classList.contains('aberto')) { cancelarExclusaoPedido(); return true; }
 
@@ -1391,6 +1455,9 @@ function renderizarPedidos(lista) {
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                     Clonar
                 </button>
+                <button class="btn-qr-pedido" onclick="mostrarQRCode(${p.id})" title="QR Code">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><line x1="14" y1="14" x2="14" y2="21"/><line x1="21" y1="14" x2="21" y2="21"/><line x1="17" y1="14" x2="17" y2="17"/><line x1="17" y1="17" x2="21" y2="17"/></svg>
+                </button>
                 <button class="danger" onclick="excluirPedido(${p.id})">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                     Excluir
@@ -1448,6 +1515,203 @@ function clonarPedido(id) {
 
     mostrarBarraAcoes();
     mostrarOk("Pedido clonado - status e datas foram zerados. Revise os dados e salve.");
+}
+
+// ===== Estacao deste aparelho (pra que etapa escanear um QR marca automaticamente) =====
+function obterEstacaoAtual() {
+    try { return localStorage.getItem('rpbandeiras_estacao') || ''; } catch (e) { return ''; }
+}
+function atualizarBadgeEstacao() {
+    const ponto = document.getElementById('pontoStatusEstacao');
+    if (ponto) ponto.classList.toggle('configurada', !!obterEstacaoAtual());
+}
+function abrirConfigEstacao() {
+    const select = document.getElementById('selectEstacao');
+    select.innerHTML = '<option value="">-- Nenhuma (nao usar leitura de QR neste aparelho) --</option>' +
+        ETAPAS.map(e => `<option value="${e.chave}">${e.label}</option>`).join('');
+    select.value = obterEstacaoAtual();
+    document.getElementById('estacaoOverlay').classList.add('aberto');
+    empilharGuardaHistorico();
+}
+function fecharConfigEstacao() {
+    document.getElementById('estacaoOverlay').classList.remove('aberto');
+}
+function salvarEstacao() {
+    const valor = document.getElementById('selectEstacao').value;
+    try { localStorage.setItem('rpbandeiras_estacao', valor); } catch (e) {}
+    atualizarBadgeEstacao();
+    fecharConfigEstacao();
+    const etapa = ETAPAS.find(e => e.chave === valor);
+    mostrarOk(etapa ? `Este aparelho agora e a estacao de "${etapa.label}".` : "Estacao removida deste aparelho.");
+}
+
+// ===== Geracao de QR Code por pedido (biblioteca carregada so quando necessario) =====
+let carregamentoQR = null;
+function carregarLibQR() {
+    if (carregamentoQR) return carregamentoQR;
+    carregamentoQR = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('Falha ao carregar biblioteca de QR Code'));
+        document.head.appendChild(s);
+    });
+    return carregamentoQR;
+}
+
+let qrPedidoAtualId = null;
+async function mostrarQRCode(id) {
+    const p = pedidosCache.find(x => x.id === id);
+    if (!p) return;
+    try {
+        await carregarLibQR();
+        qrPedidoAtualId = id;
+        document.getElementById('qrCodeTitulo').innerText = "QR Code - " + (p.candidato || "Pedido #" + id);
+        const canvas = document.getElementById('canvasQR');
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const url = location.origin + location.pathname + '?pedido=' + id + '&marcar=1';
+        const divTemp = document.createElement('div');
+        new QRCode(divTemp, { text: url, width: 220, height: 220, correctLevel: QRCode.CorrectLevel.M });
+        setTimeout(() => {
+            const imgGerada = divTemp.querySelector('img') || divTemp.querySelector('canvas');
+            if (imgGerada) {
+                canvas.width = 220; canvas.height = 220;
+                ctx.drawImage(imgGerada, 0, 0, 220, 220);
+            }
+        }, 80);
+        document.getElementById('qrCodeOverlay').classList.add('aberto');
+        empilharGuardaHistorico();
+    } catch (e) {
+        mostrarErro("Falha ao gerar QR Code: " + (e && e.message ? e.message : String(e)));
+    }
+}
+function fecharQRCode() {
+    document.getElementById('qrCodeOverlay').classList.remove('aberto');
+    qrPedidoAtualId = null;
+}
+function baixarQRCode() {
+    const canvas = document.getElementById('canvasQR');
+    const link = document.createElement('a');
+    link.download = 'qrcode_pedido_' + (qrPedidoAtualId || '') + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+}
+
+// ===== Leitura do QR Code (via link aberto direto, ou via camera dentro do app) =====
+let pedidoPendenteScan = null;
+let etapaPendenteScan = null;
+
+function verificarParametroDeEscaneamento() {
+    const params = new URLSearchParams(location.search);
+    const idPedido = params.get('pedido');
+    const marcar = params.get('marcar');
+    if (idPedido && marcar) {
+        history.replaceState({}, '', location.pathname);
+        verificarEscaneamentoQR(parseInt(idPedido));
+    }
+}
+
+function verificarEscaneamentoQR(idPedido) {
+    const estacao = obterEstacaoAtual();
+    if (!estacao) {
+        mostrarErro("Este aparelho ainda nao tem uma estacao configurada. Toque no icone de localizacao no topo pra configurar antes de escanear.");
+        abrirConfigEstacao();
+        return;
+    }
+    const p = pedidosCache.find(x => x.id === idPedido);
+    if (!p) { mostrarErro("Pedido nao encontrado (codigo " + idPedido + ")."); return; }
+    const etapa = ETAPAS.find(e => e.chave === estacao);
+    if (!etapa) return;
+    pedidoPendenteScan = idPedido;
+    etapaPendenteScan = estacao;
+    document.getElementById('textoConfirmarScan').innerText = `Marcar pedido de "${p.candidato || '-'}" como "${etapa.label}"?`;
+    document.getElementById('confirmarScanOverlay').classList.add('aberto');
+    empilharGuardaHistorico();
+}
+
+function cancelarMarcarEtapaScan() {
+    document.getElementById('confirmarScanOverlay').classList.remove('aberto');
+    pedidoPendenteScan = null;
+    etapaPendenteScan = null;
+}
+
+async function confirmarMarcarEtapaScan() {
+    document.getElementById('confirmarScanOverlay').classList.remove('aberto');
+    const idPedido = pedidoPendenteScan;
+    const chave = etapaPendenteScan;
+    pedidoPendenteScan = null;
+    etapaPendenteScan = null;
+    if (!idPedido || !chave) return;
+
+    const etapa = ETAPAS.find(e => e.chave === chave);
+    if (!etapa) return;
+    const campo = etapa.semTermino ? (chave + '_inicio') : (chave + '_termino');
+    const pAtual = pedidosCache.find(x => x.id === idPedido) || {};
+
+    const dados = { [chave]: true };
+    if (!pAtual[campo]) dados[campo] = agoraLocalISO();
+
+    try {
+        const { error } = await sb.from('controle_campanha').update(dados).eq('id', idPedido);
+        if (error) { mostrarErro("Erro ao marcar etapa: " + error.message); return; }
+        tocarSomCerveja();
+        mostrarOk('Etapa "' + etapa.label + '" marcada com sucesso!');
+        carregarPedidos();
+    } catch (e) {
+        mostrarErro("Falha ao marcar etapa: " + (e && e.message ? e.message : String(e)));
+    }
+}
+
+// ===== Escaner de QR Code pela camera, dentro do proprio app =====
+let carregamentoHtml5Qrcode = null;
+function carregarLibHtml5Qrcode() {
+    if (carregamentoHtml5Qrcode) return carregamentoHtml5Qrcode;
+    carregamentoHtml5Qrcode = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js';
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('Falha ao carregar leitor de QR Code'));
+        document.head.appendChild(s);
+    });
+    return carregamentoHtml5Qrcode;
+}
+
+let instanciaScanner = null;
+
+async function abrirScannerCamera() {
+    try {
+        await carregarLibHtml5Qrcode();
+        document.getElementById('scannerCameraOverlay').classList.add('aberto');
+        empilharGuardaHistorico();
+        instanciaScanner = new Html5Qrcode("readerQR");
+        await instanciaScanner.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 230, height: 230 } },
+            (textoDecodificado) => {
+                try {
+                    const url = new URL(textoDecodificado);
+                    const idPedido = url.searchParams.get('pedido');
+                    if (idPedido) {
+                        fecharScannerCamera();
+                        verificarEscaneamentoQR(parseInt(idPedido));
+                    }
+                } catch (e) { /* codigo lido nao e um QR do nosso app - ignora e continua escaneando */ }
+            },
+            () => { /* erro de leitura de um frame especifico - normal, ignora */ }
+        );
+    } catch (e) {
+        document.getElementById('scannerCameraOverlay').classList.remove('aberto');
+        mostrarErro("Nao foi possivel acessar a camera: " + (e && e.message ? e.message : String(e)));
+    }
+}
+
+function fecharScannerCamera() {
+    document.getElementById('scannerCameraOverlay').classList.remove('aberto');
+    if (instanciaScanner) {
+        instanciaScanner.stop().then(() => instanciaScanner.clear()).catch(() => {});
+        instanciaScanner = null;
+    }
 }
 
 function editarPedido(id) {
@@ -2026,11 +2290,12 @@ function abrirPainelNotificacao() {
 
 montarBlocosEtapas();
 atualizarStatusSino();
+atualizarBadgeEstacao();
 aplicarTemaSalvo();
 aplicarEstiloSalvo();
 definirDataAutomatica('data_pedido');
 toggleFields();
-carregarPedidos();
+carregarPedidos().then(verificarParametroDeEscaneamento);
 configurarNotificacoesRealtime();
 
 // Mostra a barra flutuante de Salvar/Cancelar assim que a pessoa comeca a mexer no formulario de um pedido novo
