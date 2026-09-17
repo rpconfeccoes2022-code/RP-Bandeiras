@@ -1973,12 +1973,12 @@ async function gerarPDF(id) {
         }
 
         // QR Code do pedido (canto superior direito) - escaneando, marca a etapa automaticamente na estacao configurada
-        const qrTamanho = 16;
+        const qrTamanho = 32;
         const qrX = pageWidth - margemDir - qrTamanho;
         const qrY = 14;
         try {
             const urlPedidoQR = location.origin + location.pathname + '?pedido=' + p.id + '&marcar=1';
-            const qrBase64Pdf = await gerarQRComoBase64(urlPedidoQR, 200);
+            const qrBase64Pdf = await gerarQRComoBase64(urlPedidoQR, 400);
             if (qrBase64Pdf) doc.addImage(qrBase64Pdf, 'PNG', qrX, qrY, qrTamanho, qrTamanho);
         } catch (e) {
             console.log("QR Code nao gerado no PDF:", e);
@@ -1999,7 +1999,7 @@ async function gerarPDF(id) {
         const nomeX = fotoX + fotoW + 12;
         doc.setFont(undefined, 'bold');
         doc.setFontSize(15);
-        doc.text(p.candidato || "-", nomeX, nomeY, { maxWidth: pageWidth - margemDir - nomeX });
+        doc.text(p.candidato || "-", nomeX, nomeY, { maxWidth: Math.min(pageWidth - margemDir - nomeX, qrX - 4 - nomeX) });
 
         // Badges (cargo, numero, estado)
         let bx = nomeX;
