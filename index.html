@@ -1598,6 +1598,29 @@ function baixarQRCode() {
     link.click();
 }
 
+// Gera um QR Code "invisivel" (fora da tela) e devolve como imagem base64 - usado pra colocar dentro do PDF
+async function gerarQRComoBase64(texto, tamanhoPx) {
+    await carregarLibQR();
+    return new Promise((resolve) => {
+        const divTemp = document.createElement('div');
+        divTemp.style.position = 'fixed';
+        divTemp.style.left = '-9999px';
+        document.body.appendChild(divTemp);
+        new QRCode(divTemp, { text: texto, width: tamanhoPx, height: tamanhoPx, correctLevel: QRCode.CorrectLevel.M });
+        setTimeout(() => {
+            const canvasGerado = divTemp.querySelector('canvas');
+            const imgGerada = divTemp.querySelector('img');
+            let dataUrl = null;
+            try {
+                if (canvasGerado) dataUrl = canvasGerado.toDataURL('image/png');
+                else if (imgGerada) dataUrl = imgGerada.src;
+            } catch (e) { dataUrl = null; }
+            document.body.removeChild(divTemp);
+            resolve(dataUrl);
+        }, 150);
+    });
+}
+
 // ===== Leitura do QR Code (via link aberto direto, ou via camera dentro do app) =====
 let pedidoPendenteScan = null;
 let etapaPendenteScan = null;
@@ -1949,14 +1972,27 @@ async function gerarPDF(id) {
             console.log("Logo nao carregada:", e);
         }
 
+        // QR Code do pedido (canto superior direito) - escaneando, marca a etapa automaticamente na estacao configurada
+        const qrTamanho = 16;
+        const qrX = pageWidth - margemDir - qrTamanho;
+        const qrY = 14;
+        try {
+            const urlPedidoQR = location.origin + location.pathname + '?pedido=' + p.id + '&marcar=1';
+            const qrBase64Pdf = await gerarQRComoBase64(urlPedidoQR, 200);
+            if (qrBase64Pdf) doc.addImage(qrBase64Pdf, 'PNG', qrX, qrY, qrTamanho, qrTamanho);
+        } catch (e) {
+            console.log("QR Code nao gerado no PDF:", e);
+        }
+
         const tituloX = logoX + logoSize + 6;
+        const larguraMaximaTitulo = qrX - 4 - tituloX;
         doc.setTextColor(...pretoTexto);
         doc.setFont(undefined, 'bold');
-        doc.setFontSize(16);
-        doc.text("CONTROLE DE PRODUÇÃO", tituloX, logoY + 7);
+        doc.setFontSize(13);
+        doc.text("CONTROLE DE PRODUÇÃO", tituloX, logoY + 7, { maxWidth: larguraMaximaTitulo });
         doc.setFont(undefined, 'normal');
-        doc.setFontSize(9);
-        doc.text("PEDIDO Nº " + p.id + "  -  DATA " + (formatarDataHora(p.data_pedido) || "-") + "  -  DESTINO " + (p.destino || "-"), tituloX, logoY + 13);
+        doc.setFontSize(8.5);
+        doc.text("PEDIDO Nº " + p.id + "  -  DATA " + (formatarDataHora(p.data_pedido) || "-") + "  -  DESTINO " + (p.destino || "-"), tituloX, logoY + 13, { maxWidth: larguraMaximaTitulo });
 
         // Nome do candidato
         const nomeY = logoY + logoSize + 10;
